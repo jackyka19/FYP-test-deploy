@@ -1,0 +1,218 @@
+*{
+    margin: 0;
+    padding: 0;
+    /* box-sizing: border-box; */
+}
+body {
+    overflow: hidden;
+}
+canvas {
+    display: block;
+}
+#myButton{
+    /* position: absolute; */
+    /* top:10px; */
+    /* left:10px; */
+  position: relative;
+  width: 330px;
+  height: 80px;
+  line-height: 40px;
+  border: none;
+  border-radius: 15px;
+  background: #027efb;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  font-size: 32px;
+  
+  
+    z-index:1;
+}
+
+.btn-animate__underline-from-center {
+    &::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      right: 50%;
+      bottom: 0;
+      z-index: 1;
+      height: 2px;
+      background-color: white;
+      transition: .3s ease-out;
+      border-radius: 15px;
+      
+      
+    }
+  
+    &:hover {
+      &::before {
+        left: 0;
+        right: 0;
+      }
+    }
+}
+
+.progress-bar-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+#progress-bar{
+    width:30%;
+    margin-top: 0.5%;
+    height: 2%;
+}
+label{
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 1rem; 
+}
+#loading-label{
+  font-size: 72px;
+  font-family: 'Quicksand';
+}
+
+/*  */
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%; /* Could be more or less, depending on screen size */
+  text-align: center;
+  border-radius: 15px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#dropArea {
+  border: 2px dashed #008CBA;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+  font-size: 24px;
+  border-radius: 15px;
+}
+#uploadButton{
+  /* position: absolute; */
+  /* top:10px; */
+  /* left:10px; */
+position: relative;
+width: 190px;
+height: 40px;
+line-height: 40px;
+border: none;
+border-radius: 15px;
+background: #027efb;
+color: #fff;
+text-align: center;
+cursor: pointer;
+font-size: 18px;
+
+
+
+  z-index:1;
+}
+
+
+
+/*  */
+/* Navbar Styles */
+.navbar {
+  background-color: #027efb; /* Semi-transparent for better visibility */
+  color: white;
+  padding: 10px 20px;
+  position: fixed; /* Fixed position to stay at the top */
+  width: 100%; /* Full width */
+  z-index: 10; /* Ensure it sits above other content */
+  transition: opacity 0.3s ease; /* Smooth transition for visibility */
+}
+
+.navbar.hidden {
+  opacity: 0; /* Hide the navbar */
+  pointer-events: none; /* Prevent interaction when hidden */
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px; /* Max width for the navbar */
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  margin-right: 20px; /* Space between links */
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+}
+
+.auth-buttons button {
+  background-color: white;
+  color: #0076A8;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.auth-buttons button:hover {
+  background-color: #e0e0e0; /* Change color on hover */
+}

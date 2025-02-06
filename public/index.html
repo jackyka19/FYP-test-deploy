@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D model load</title>
+    <link rel="stylesheet" href="./style.css">
+    <script type="importmap">
+        {
+            "imports" : {
+                "three" : "./build/three.module.js",
+                "three/examples/loaders/GLTFLoader" : "./jsm/loaders/GLTFLoader.js",
+                "three/examples/controls/OrbitControls" : "./jsm/controls/OrbitControls.js",
+                "three/examples/jsm/libs/lil-gui.module.min" : "/jsm/libs/lil-gui.module.min.js",
+                "three/examples/jsm/libs/meshopt_decoder.module" : "/jsm/libs/meshopt_decoder.module.js",
+                "three/examples/loaders/OBJLoader" : "./jsm/loaders/OBJLoader.js",
+                "three/examples/loaders/MTLLoader" : "./jsm/loaders/MTLLoader.js",
+                "three/examples/loaders/FBXLoader" : "./jsm/loaders/FBXLoader.js",
+                "three/examples/loaders/RGBELoader" : "./jsm/loaders/RGBELoader.js",
+                "three/examples/loaders/STLLoader" : "./jsm/loaders/STLLoader.js"
+            }
+        }
+    </script>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+    <div class="navbar-container">
+        <div class="logo">FYP</div>
+        <ul class="nav-links">
+            <!-- <li><a href="#tinker">Tinker</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#classrooms">Classrooms</a></li>
+            <li><a href="#resources">Resources</a></li> -->
+        </ul>
+        <!-- <div class="auth-buttons">
+            <button id="loginBtn">Log In</button>
+            <button id="signupBtn">Sign Up</button>
+        </div> -->
+    </div>
+</nav>
+    <!--  -->
+    <div class = "progress-bar-container">
+        <label for="progress-bar" id="loading-label">
+            Import your 3D file here<br>
+            <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button>
+            <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .obj, .fbx" style="display: none;">
+            <!-- <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .jpg, .png, .obj, .fbx" style="display: none;"> -->
+        </label>
+        <!-- <label for="progress-bar">Loading...</label> -->
+        <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
+    </div>
+    <!-- <div id="message">Please input your model</div> -->
+    <!-- <button id="myButton">Input 3D model</button>
+    <input type="file" id="model-file-input" accept=".gltf,.glb" style="display: none;"> -->
+    
+    <!--  -->
+    <!-- Modal for file upload -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Import your 3D file here</h2>
+            <div id="dropArea">
+                <p>Drag and drop a 3D model file here</p>
+                <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file</button>
+                <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;">
+            
+            </div>
+            <p>supports format: glb, gltf, bin, obj, fbx, stl</p>
+        </div>
+    </div>
+    
+    <canvas class="web-gl"></canvas>
+    
+
+    
+    <script type="module" src="./client.js"></script>
+</body>
+</html>

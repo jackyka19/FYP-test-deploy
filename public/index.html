@@ -28,22 +28,29 @@
     <div class="navbar-container">
         <div class="logo">FYP</div>
         <ul class="nav-links">
-            <!-- <li><a href="#tinker">Tinker</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#classrooms">Classrooms</a></li>
-            <li><a href="#resources">Resources</a></li> -->
+            <!-- <li><a href="#tinker">Try it</a></li> -->
+                <!-- <li><a href="#gallery">Buy it</a></li> -->
         </ul>
-        <!-- <div class="auth-buttons">
-            <button id="loginBtn">Log In</button>
-            <button id="signupBtn">Sign Up</button>
-        </div> -->
     </div>
 </nav>
     <!--  -->
+<!-- 3D Model Section -->
+<!-- <div class="model-container">
+     -->
+     <!-- <canvas class="web-gl" id="container3D"></canvas> -->
+    <!-- <main>
+    <div id="container3D"></div>
+    </main> -->
     <div class = "progress-bar-container">
+        <!-- <canvas id="container3D"></canvas> -->
+        <!-- <main> -->
+            <div id="container3D"></div>
+            <!-- <canvas id="container3D"></canvas> -->
+            <!-- </main> -->
+ <!-- 新增的 -->
+       
         <label for="progress-bar" id="loading-label">
-            Import your 3D file here<br>
+            <p>Import your 3D file here</p>
             <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button>
             <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .obj, .fbx" style="display: none;">
             <!-- <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .jpg, .png, .obj, .fbx" style="display: none;"> -->
@@ -51,11 +58,10 @@
         <!-- <label for="progress-bar">Loading...</label> -->
         <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
     </div>
-    <!-- <div id="message">Please input your model</div> -->
-    <!-- <button id="myButton">Input 3D model</button>
-    <input type="file" id="model-file-input" accept=".gltf,.glb" style="display: none;"> -->
-    
-    <!--  -->
+<!-- </div> 新增的div -->
+
+
+
     <!-- Modal for file upload -->
     <div id="uploadModal" class="modal">
         <div class="modal-content">
@@ -74,7 +80,7 @@
     <canvas class="web-gl"></canvas>
     
 
-    
+    <script type="module" src="./index.js"></script>
     <script type="module" src="./client.js"></script>
 </body>
 </html>

@@ -262,7 +262,7 @@ width: 180px; /* 預設按鈕寬度 */
   /* background-color: #027efb;  */
   /* Semi-transparent for better visibility */
   color: white;
-  padding: 10px 20px;
+  padding: 20px 20px;
   position: fixed; /* Fixed position to stay at the top */
   width: 100%; /* Full width */
   z-index: 10; /* Ensure it sits above other content */
@@ -320,4 +320,35 @@ width: 180px; /* 預設按鈕寬度 */
 
 .auth-buttons button:hover {
   background-color: #e0e0e0; /* Change color on hover */
+}
+
+/* qr code */
+.qr-code-container {
+  position: relative; /* 這樣可以讓子元素相對於這個容器定位 */
+}
+
+.qr-code-icon {
+  width: 40px; /* 調整圖標大小 */
+  height: 40px;
+  cursor: pointer; /* 鼠標懸停時變成手形 */
+}
+
+.qr-code {
+  display: none; /* 預設不顯示 */
+  position: absolute; /* 絕對定位 */
+  top: 50px; /* 調整顯示位置 */
+  left: 0; /* 在圖標下方顯示 */
+  z-index: 10; /* 確保在其他元素上方 */
+}
+
+.qr-code-container:hover .qr-code {
+  display: block; /* 懸停時顯示二維碼 */
+}
+
+.qr-code-image {
+  width: 100px; /* 調整二維碼大小 */
+  height: 100px;
+  background-color: white; /* 背景顏色 */
+  padding: 10px; /* 內邊距 */
+  border-radius: 10px; /* 圓角 */
 }

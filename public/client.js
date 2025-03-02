@@ -309,19 +309,20 @@ textureInput.addEventListener('change', (event) => {
     controls.autoRotate = false; // Initially set to false
     controls.autoRotateSpeed = 5.0; // Set the speed of auto-rotation
 
-    const ambientLight = new THREE.AmbientLight(0x404040, 10); 
+    const ambientLight = new THREE.AmbientLight(0xffffff, 5); 
     scene.add(ambientLight);
 
     // Create a folder for ambient light controls
     const ambientLightFolder = gui.addFolder("Ambient Light").close();
 
-    const DEFAULT_INTENSITY = 10;
-    const DEFAULT_COLOR = '#404040';
+    const DEFAULT_INTENSITY = 5;
+    const DEFAULT_COLOR = '#ffffff';
     
     // Create control object
     const ambientLightControls = {
         intensity: DEFAULT_INTENSITY,
         color: DEFAULT_COLOR,
+        isEnabled: true, // 初始狀態為開啟
         reset: function() {
             ambientLight.intensity = DEFAULT_INTENSITY;
             intensityController.setValue(DEFAULT_INTENSITY);
@@ -347,60 +348,75 @@ textureInput.addEventListener('change', (event) => {
             ambientLight.color.set(value);
         });
 
+        // Add checkbox to control Ambient Light
+ambientLightFolder.add(ambientLightControls, 'isEnabled').name('Ambient Light').onChange((value) => {
+    ambientLight.visible = value; // 控制燈光的可見性
+});
+
     // Add reset button
     ambientLightFolder.add(ambientLightControls, 'reset').name('Reset Intensity');
     ambientLightFolder.add(ambientLightControls, 'resetColor').name('Reset Color');
 
 
-    const spotLight1 = new THREE.SpotLight(0xffffff, 500); // if 100 use 242 under
-    spotLight1.position.set(10, 10, 10); // 6,11,6  2, 4, 2
-    scene.add(spotLight1);
-    spotLightHelper1 = new THREE.SpotLightHelper(spotLight1, 1, 0xffffff);
-    // scene.add(spotLightHelper1);
+    // Create SpotLight1 and control its visibility and properties
+const spotLight1 = new THREE.SpotLight(0xffffff, 0); // 初始強度為 0
+spotLight1.position.set(30, 30, 30);
+scene.add(spotLight1);
+spotLightHelper1 = new THREE.SpotLightHelper(spotLight1, 1, 0xffffff);
 
-    const backLight = new THREE.SpotLight(0xffffff, 500);
-    backLight.position.set(-10, -10, -10);
-    scene.add(backLight);
-    spotLightHelper2 = new THREE.SpotLightHelper(backLight, 1, 0xffffff);
-    // scene.add(spotLightHelper2);
+// Create a folder for Spotlight 1 controls
+const lightHelperControl1 = { showHelpers: false, isEnabled: false }; 
+const Front_Light = gui.addFolder("Spotlight 1").close();
+Front_Light.add(lightHelperControl1, 'isEnabled').name('Spotlight 1').onChange((value) => {
+    spotLight1.visible = value; // 控制燈光的可見性
+    spotLight1.intensity = value ? 500 : 0; // 當開啟時設置強度，否則為 0
+});
+Front_Light.add(lightHelperControl1, "showHelpers").name("Show Spotlight 1 Helpers").onChange((value) => {
+    if (value) {
+        scene.add(spotLightHelper1); // 添加燈光幫助器
+    } else {
+        scene.remove(spotLightHelper1); // 移除燈光幫助器
+    }
+});
+Front_Light.add(spotLight1.position, 'x', -30, 30, 1).onChange(() => {
+    spotLightHelper1.update();
+});
+Front_Light.add(spotLight1.position, 'y', -30, 30, 1).onChange(() => {
+    spotLightHelper1.update();
+});
+Front_Light.add(spotLight1.position, 'z', -30, 30, 1).onChange(() => {
+    spotLightHelper1.update();
+});
 
-    const lightHelperControl1 = { showHelpers: false };
-    const Front_Light = gui.addFolder("Front Light").close();
-    Front_Light.add(lightHelperControl1, "showHelpers").name("Show Front Light Helpers").onChange((value) => {
-        if (value) {
-            scene.add(spotLightHelper1); // Add front light helper to the scene
-        } else {
-            scene.remove(spotLightHelper1); // Remove front light helper from the scene
-        }
-    });
-    Front_Light.add(spotLight1.position, 'x', -15, 15, 1).onChange(() => {
-        spotLightHelper1.update();
-    });
-    Front_Light.add(spotLight1.position, 'y', -15, 15, 1).onChange(() => {
-        spotLightHelper1.update();
-    });
-    Front_Light.add(spotLight1.position, 'z', -15, 15, 1).onChange(() => {
-        spotLightHelper1.update();
-    });
+// Create SpotLight2 and control its visibility and properties
+const spotLight2 = new THREE.SpotLight(0xffffff, 0); // 初始強度為 0
+spotLight2.position.set(-30, -30, -30);
+scene.add(spotLight2);
+spotLightHelper2 = new THREE.SpotLightHelper(spotLight2, 1, 0xffffff);
 
-    const lightHelperControl2 = { showHelpers: false };
-    const Back_Light = gui.addFolder("back Light").close();
-    Back_Light.add(lightHelperControl2, "showHelpers").name("Show Front Light Helpers").onChange((value) => {
-        if (value) {
-            scene.add(spotLightHelper2); // Add back light helper to the scene
-        } else {
-            scene.remove(spotLightHelper2); // Remove back light helper from the scene
-        }
-    });
-    Back_Light.add(backLight.position, 'x', -15, 15, 1).onChange(() => {
-        spotLightHelper2.update();
-    });
-    Back_Light.add(backLight.position, 'y', -15, 15, 1).onChange(() => {
-        spotLightHelper2.update();
-    });
-    Back_Light.add(backLight.position, 'z', -15, 15, 1).onChange(() => {
-        spotLightHelper2.update();
-    });
+// Create a folder for Spotlight 2 controls
+const lightHelperControl2 = { showHelpers: false, isEnabled: false }; 
+const Back_Light = gui.addFolder("Spotlight 2").close();
+Back_Light.add(lightHelperControl2, 'isEnabled').name('Spotlight 2').onChange((value) => {
+    spotLight2.visible = value; // 控制燈光的可見性
+    spotLight2.intensity = value ? 500 : 0; // 當開啟時設置強度，否則為 0
+});
+Back_Light.add(lightHelperControl2, "showHelpers").name("Show Spotlight 2 Helpers").onChange((value) => {
+    if (value) {
+        scene.add(spotLightHelper2); // 添加燈光幫助器
+    } else {
+        scene.remove(spotLightHelper2); // 移除燈光幫助器
+    }
+});
+Back_Light.add(spotLight2.position, 'x', -30, 30, 1).onChange(() => {
+    spotLightHelper2.update();
+});
+Back_Light.add(spotLight2.position, 'y', -30, 30, 1).onChange(() => {
+    spotLightHelper2.update();
+});
+Back_Light.add(spotLight2.position, 'z', -30, 30, 1).onChange(() => {
+    spotLightHelper2.update();
+});
 //
     //const loader = new GLTFLoader(loadingManager);
 
@@ -438,9 +454,98 @@ const stlloader = new STLLoader(loadingManager);
                 }
 
                 input_model = gltf.scene.children[0];
-                input_model.position.set(0, -1.3, 0);
-                input_model.rotation.x = Math.PI / -3;
-                scene.add(gltf.scene);
+                // input_model.position.set(0, -1.3, 0);
+                input_model.position.set(0, 0, 0);
+                // input_model.rotation.x = Math.PI / -3;
+
+                
+
+    // 創建包圍盒
+    const box = new THREE.Box3().setFromObject(input_model);
+    // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
+    // 計算模型的底部位置，使其位於網格上方
+    const offset = 1.00; // 調整這個值以減少高度
+    input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+    scene.add(gltf.scene);
+
+    const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
+    // scene.add(boxHelper); // 初始時加包圍盒助手
+
+    // 將包圍盒助手添加到場景中
+    // scene.add(boxHelper);
+    const axesHelper = new THREE.AxesHelper( 200 );
+    axesHelper.position.y = box.min.y - offset ; // 確保輔助軸與網格對齊
+    axesHelper.visible = false; // 初始設置為隱藏
+    scene.add( axesHelper );
+
+    // 創建 GridHelper
+const gridHelper = new THREE.GridHelper(200, 20); // 200 為大小，20 為細分數量
+gridHelper.position.y = box.min.y - offset; // 將網格放置在模型下方
+gridHelper.visible = false; // 初始設置為隱藏
+scene.add(gridHelper);
+
+    
+
+    const params = {
+        showBoxHelper: false, // 預設為不顯示包圍盒
+
+        showAxes: false, // x,y,z軸
+        showGrid: false,  //網格
+
+        scale: 1,
+        positionY: input_model.position.y
+    };
+
+    // Create a folder for Position Control in the GUI
+const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
+
+// 添加複選框到 GUI
+BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
+    if (value) {
+        // 如果選中，將包圍盒助手添加到場景中
+        scene.add(boxHelper);
+    } else {
+        // 如果未選中，從場景中移除包圍盒助手
+        if (boxHelper) {
+            scene.remove(boxHelper);
+        }
+    }
+});
+BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+    axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+    gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+//  // 添加縮放和位置控制
+//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
+//     input_model.scale.set(value, value, value);
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
+//     input_model.position.y = value;
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+ // 更新幫助器位置的函數
+ function updateHelpers() {
+    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+    boxHelper.box = box; // 更新包圍盒助手的包圍盒
+    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
+    gridHelper.position.y = box.min.y - offset; // 更新網格位置
+}
+
+updateHelpers(); // 初始化幫助器位置
+
+        // 更新包圍盒和包圍盒助手的大小
+        const updateBoxHelper = () => {
+            box.setFromObject(input_model); // 更新包圍盒
+            boxHelper.box = box; // 更新包圍盒助手的包圍盒
+            // boxHelper.update(); // 更新顯示
+        };
 
                 // Create a folder for Position Control in the GUI
 const positionControl = gui.addFolder("Position Control").close();
@@ -458,16 +563,20 @@ const posYControl = positionControl.add(positionControlValues, 'posY', -100, 100
 const posZControl = positionControl.add(positionControlValues, 'posZ', -100, 100, 0.1).name('Position Z');
 
 // Update the model's position when the GUI controls change
+// 在添加 Position Control 的位置更新
 posXControl.onChange((value) => {
     input_model.position.x = value;
+    updateHelpers(); // 更新網格位置
 });
 
 posYControl.onChange((value) => {
     input_model.position.y = value;
+    updateHelpers(); // 更新網格位置
 });
 
 posZControl.onChange((value) => {
     input_model.position.z = value;
+    updateHelpers(); // 更新網格位置
 });
 
 // Optionally, you can add a reset position button
@@ -480,6 +589,8 @@ positionControl.add({
         posXControl.updateDisplay(); // Update the GUI display
         posYControl.updateDisplay(); // Update the GUI display
         posZControl.updateDisplay(); // Update the GUI display
+        updateBoxHelper();
+        updateHelpers(); // 更新網格位置
         console.log("Position reset to default:", input_model.position);
     }
 }, 'resetPosition').name('Reset Position');
@@ -491,7 +602,8 @@ positionControl.add({
                 scaleControl = {
                     scaleX: defaultScale.x,
                     scaleY: defaultScale.y,
-                    scaleZ: defaultScale.z
+                    scaleZ: defaultScale.z,
+                    uniformScale: 1 //新增的屬性
                 };
 
         const Scale_control = gui.addFolder("Scale Control").close();
@@ -501,31 +613,80 @@ positionControl.add({
         const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
         const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
 
+// 在 Scale_control 中添加 uniformScale 控件
+const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.001, 3).name('Uniform Scale').onChange(value => {
+    input_model.scale.set(value, value, value); // 同時設置 x, y, z 的縮放
+    scaleControl.scaleX = value; // 更新 scaleControl 的值
+    scaleControl.scaleY = value; // 更新 scaleControl 的值
+    scaleControl.scaleZ = value; // 更新 scaleControl 的值
+
+    scaleXControl.setValue(value); // 更新 GUI 控件
+    scaleYControl.setValue(value); // 更新 GUI 控件
+    scaleZControl.setValue(value); // 更新 GUI 控件
+
+    scaleXControl.updateDisplay(); // 更新 GUI 顯示
+    scaleYControl.updateDisplay(); // 更新 GUI 顯示
+    scaleZControl.updateDisplay(); // 更新 GUI 顯示
+
+    updateBoxHelper(); // 更新包圍盒助手
+    updateHelpers(); // 更新網格位置
+});
+
         scaleXControl.onChange((value) => {
             input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
+            scaleControl.scaleX = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
             scaleXControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
         });
 
         scaleYControl.onChange((value) => {
             input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
+            scaleControl.scaleY = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
             scaleYControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
         });
     
         scaleZControl.onChange((value) => {
             input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
+            scaleControl.scaleZ = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
             scaleZControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
         });
 
-        Scale_control.add({ resetScale: () => {
-            input_model.scale.copy(defaultScale); // Reset the model scale to default
-            scaleXControl.setValue(defaultScale.x); // Update GUI control
-            scaleXControl.updateDisplay(); // Update the GUI display
-            scaleYControl.setValue(defaultScale.y); // Update GUI control
-            scaleYControl.updateDisplay(); // Update the GUI display
-            scaleZControl.setValue(defaultScale.z); // Update GUI control
-            scaleZControl.updateDisplay(); // Update the GUI display
-            console.log("Scale reset to default:", defaultScale);
-        }}, 'resetScale').name('Reset Scale');
+
+
+        Scale_control.add({ 
+            resetScale: () => {
+                input_model.scale.copy(defaultScale); // Reset the model scale to default
+        
+                // 更新所有縮放控制的值
+                scaleControl.scaleX = defaultScale.x; 
+                scaleControl.scaleY = defaultScale.y; 
+                scaleControl.scaleZ = defaultScale.z; 
+        
+                // 設置 uniformScale 為 1
+                scaleControl.uniformScale = 1;
+        
+                // 更新 GUI 控件
+                scaleXControl.setValue(defaultScale.x); 
+                scaleYControl.setValue(defaultScale.y); 
+                scaleZControl.setValue(defaultScale.z); 
+                scaleXControl.updateDisplay(); 
+                scaleYControl.updateDisplay(); 
+                scaleZControl.updateDisplay(); 
+        
+                // 直接使用 uniformScaleControl
+        uniformScaleControl.setValue(1); // 設置為 1
+        uniformScaleControl.updateDisplay(); // 更新顯示
+        
+                updateBoxHelper(); // 更新包圍盒助手
+                updateHelpers(); // 更新網格位置
+                console.log("Scale reset to default:", defaultScale);
+            }
+        }, 'resetScale').name('Reset Scale');
 
         // Show the GUI
         gui.domElement.style.display = 'block';            

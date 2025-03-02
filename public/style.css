@@ -164,6 +164,7 @@ label{
   width: 80vw; /* 在小屏幕上使用更大的相對寬度 */
   padding: 15px; /* 調整內邊距 */
 }
+
 }
 /*  */
 
@@ -290,12 +291,22 @@ width: 180px; /* 預設按鈕寬度 */
 .nav-links {
   list-style: none;
   display: flex;
-  margin: 0;
-  padding: 0;
+  flex-direction: column;
+  position: absolute;
+  top: 55px; /* 菜單距離頂部的距離 */
+  left: 20px; /* 菜單距離左側的距離 */
+  /* background-color: black; */
+  background-color: rgba(0, 0, 0, 0.9); /* 半透明背景顏色 */
+  width: 85px; /* 菜單的寬度 */
+  border-radius: 10px; /* 邊角圓滑 */
+  padding: 10px; /* 菜單內部的邊距 */
+  /* width: 100%; */
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* 陰影效果 */
 }
 
 .nav-links li {
-  margin-right: 20px; /* Space between links */
+  padding: 15px;
 }
 
 .nav-links a {
@@ -336,8 +347,8 @@ width: 180px; /* 預設按鈕寬度 */
 .qr-code {
   display: none; /* 預設不顯示 */
   position: absolute; /* 絕對定位 */
-  top: 50px; /* 調整顯示位置 */
-  left: 0; /* 在圖標下方顯示 */
+  top: 70px; /* 調整顯示位置 */
+  left: -25px; /* 在圖標下方顯示 */
   z-index: 10; /* 確保在其他元素上方 */
 }
 
@@ -351,4 +362,56 @@ width: 180px; /* 預設按鈕寬度 */
   background-color: white; /* 背景顏色 */
   padding: 10px; /* 內邊距 */
   border-radius: 10px; /* 圓角 */
+}
+
+
+
+.hamburger {
+  cursor: pointer;
+  display: none; /* 在較大螢幕上隱藏漢堡菜單 */
+  flex-direction: column;
+  justify-content: space-around;
+  height: 24px;
+  width: 40px; /* 調整整個漢堡菜單的寬度 */
+  position: absolute; /* 確保可以自由移動 */
+  top: 20px; /* 調整距離頂部的距離 */
+  left: 40px; /* 調整左側距離，增加這個值可向左移 */
+}
+
+.line {
+  width: 30px;
+  height: 3px;
+  background-color: white;
+  transition: all 0.3s ease;
+  margin: 0 auto; /* 確保每條線居中 */
+}
+
+/* 當菜單打開時 */
+.nav-links.show {
+  display: flex;
+}
+
+/* 漢堡菜單轉換為 X 樣式 */
+.hamburger.active .line:nth-child(1) {
+  /* top:50%; */
+  transform: rotate(45deg) translate(5.5px, 5.5px);
+}
+
+.hamburger.active .line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active .line:nth-child(3) {
+  transform: rotate(-45deg) translate(5.5px, -5.5px); /* 調整 translate 值 */
+}
+
+/* 媒體查詢：當螢幕寬度小於 768px 時 */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* 隱藏菜單 */
+  }
+
+  .hamburger {
+    display: flex; /* 顯示漢堡菜單 */
+  }
 }

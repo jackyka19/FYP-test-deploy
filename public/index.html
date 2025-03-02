@@ -26,10 +26,16 @@
 <!-- Navbar -->
 <nav class="navbar" id="navbar">
     <div class="navbar-container">
-        <!-- <div class="logo">FYP</div> -->
-        <ul class="nav-links">
-            <!-- <li><a href="#tinker">Try it</a></li> -->
-                <!-- <li><a href="#gallery">Buy it</a></li> -->
+        <div class="hamburger" id="hamburger">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#">P2104352</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Control</a></li>
+            <li><a href="#">Legals</a></li>
             <li class="qr-code-container">
                 <img src="../qr code/qr-code.png" alt="QR Code" class="qr-code-icon">
                 <div class="qr-code" id="qrCode">
@@ -88,5 +94,14 @@
 
     <script type="module" src="./index.js"></script>
     <script type="module" src="./client.js"></script>
+
+    <script>// JavaScript to toggle hamburger menu
+        document.getElementById("hamburger").addEventListener("click", function() {
+            this.classList.toggle("active");
+            const navLinks = document.getElementById("navLinks");
+            navLinks.classList.toggle("show");
+        });
+    </script>
+
 </body>
 </html>

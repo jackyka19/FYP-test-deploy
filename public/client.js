@@ -266,9 +266,9 @@ textureInput.addEventListener('change', (event) => {
     };
 
 
-    const camerapositionXControl = camera_position.add(camerapositionControl, 'x', -1000, 1000, 0.5).name(`x`);
-    const camerapositionYControl = camera_position.add(camerapositionControl, 'y', -1000, 1000, 0.5).name(`y`);
-    const camerapositionZControl = camera_position.add(camerapositionControl, 'z', -1000, 1000, 0.5).name(`z`);
+    const camerapositionXControl = camera_position.add(camerapositionControl, 'x', -300, 300, 0.5).name(`x`);
+    const camerapositionYControl = camera_position.add(camerapositionControl, 'y', -300, 300, 0.5).name(`y`);
+    const camerapositionZControl = camera_position.add(camerapositionControl, 'z', -300, 300, 0.5).name(`z`);
 
 
     camerapositionXControl.onChange((value) => {
@@ -465,7 +465,9 @@ const stlloader = new STLLoader(loadingManager);
     // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
     // 計算模型的底部位置，使其位於網格上方
     const offset = 1.00; // 調整這個值以減少高度
-    input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+
+    // input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+    input_model.position.y = 0;
     scene.add(gltf.scene);
 
     const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
@@ -499,6 +501,10 @@ scene.add(gridHelper);
     // Create a folder for Position Control in the GUI
 const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
 
+BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+    axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
 // 添加複選框到 GUI
 BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
     if (value) {
@@ -511,9 +517,7 @@ BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function
         }
     }
 });
-BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
-    axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
-});
+
 
 BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
     gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
@@ -582,7 +586,7 @@ posZControl.onChange((value) => {
 // Optionally, you can add a reset position button
 positionControl.add({
     resetPosition: () => {
-        input_model.position.set(0, -1.3, 0); // Reset to initial position
+        input_model.position.set(0, 0, 0); // Reset to initial position
         positionControlValues.posX = input_model.position.x; // Update GUI control
         positionControlValues.posY = input_model.position.y; // Update GUI control
         positionControlValues.posZ = input_model.position.z; // Update GUI control

@@ -63,8 +63,9 @@
        
         <label for="progress-bar" id="loading-label">
             <p>Import your 3D file here</p>
-            <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button>
-            <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .obj, .fbx" style="display: none;">
+            <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button> 
+            <input type="file" id="model-file-input" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;"> 
+            <!-- 因為gltf的問題解決不了, 所以不accept input gltf檔 -->
             <!-- <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .jpg, .png, .obj, .fbx" style="display: none;"> -->
         </label>
         <!-- <label for="progress-bar">Loading...</label> -->
@@ -82,10 +83,12 @@
             <div id="dropArea">
                 <p>Drag and drop a 3D model file here</p>
                 <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file</button>
-                <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;">
+                <input type="file" id="model-file-input-modal" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;">
+                <!-- <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;"> -->
             
             </div>
-            <p>supports format: glb, gltf, bin, obj, fbx, stl</p>
+            <!-- <p>supports format: glb, gltf, bin, obj, fbx, stl</p> -->
+            <p>supports format: .glb, .bin, .obj (.mtl), .fbx, .stl</p>
         </div>
     </div>
     

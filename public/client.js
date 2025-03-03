@@ -91,7 +91,7 @@ let controls;
 
 // 加入背顏色 (2D,3D背景有用)
 const params = {
-    color: '#ffffff', // Default background color
+    color: '#000000', // Default background color
     backgroundImage: '' // Default background image URL
 };
 
@@ -708,30 +708,158 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
             
         );
     } else if (fileExtension === 'gltf') {
-        loader.setMeshoptDecoder(MeshoptDecoder);
-
-        // Create a file reader to handle the GLTF file
-        const reader = new FileReader();
-        reader.onload = function(e){
-            const arrayBuffer = e.target.result;
-
-            // Create a blob URL from the file
-            const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
-            const blobUrl = URL.createObjectURL(blob);
-        
-
         loader.load(
-            // URL.createObjectURL(file),
-            blobUrl,
+            URL.createObjectURL(file),
             (gltf) => {
                 if (input_model) {
                     scene.remove(input_model); // Remove the existing model if there is one
                 }
 
                 input_model = gltf.scene.children[0];
-                input_model.position.set(0, -1.3, 0);
-                input_model.rotation.x = Math.PI / -3;
-                scene.add(gltf.scene);
+                // input_model.position.set(0, -1.3, 0);
+                input_model.position.set(0, 0, 0);
+                // input_model.rotation.x = Math.PI / -3;
+
+                
+
+    // 創建包圍盒
+    const box = new THREE.Box3().setFromObject(input_model);
+    // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
+    // 計算模型的底部位置，使其位於網格上方
+    const offset = 1.00; // 調整這個值以減少高度
+
+    // input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+    input_model.position.y = 0;
+    scene.add(gltf.scene);
+
+    const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
+    // scene.add(boxHelper); // 初始時加包圍盒助手
+
+    // 將包圍盒助手添加到場景中
+    // scene.add(boxHelper);
+    const axesHelper = new THREE.AxesHelper( 200 );
+    axesHelper.position.y = box.min.y - offset ; // 確保輔助軸與網格對齊
+    axesHelper.visible = false; // 初始設置為隱藏
+    scene.add( axesHelper );
+
+    // 創建 GridHelper
+const gridHelper = new THREE.GridHelper(200, 20); // 200 為大小，20 為細分數量
+gridHelper.position.y = box.min.y - offset; // 將網格放置在模型下方
+gridHelper.visible = false; // 初始設置為隱藏
+scene.add(gridHelper);
+
+    
+
+    const params = {
+        showBoxHelper: false, // 預設為不顯示包圍盒
+
+        showAxes: false, // x,y,z軸
+        showGrid: false,  //網格
+
+        scale: 1,
+        positionY: input_model.position.y
+    };
+
+    // Create a folder for Position Control in the GUI
+const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
+
+BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+    axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+// 添加複選框到 GUI
+BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
+    if (value) {
+        // 如果選中，將包圍盒助手添加到場景中
+        scene.add(boxHelper);
+    } else {
+        // 如果未選中，從場景中移除包圍盒助手
+        if (boxHelper) {
+            scene.remove(boxHelper);
+        }
+    }
+});
+
+
+BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+    gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+//  // 添加縮放和位置控制
+//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
+//     input_model.scale.set(value, value, value);
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
+//     input_model.position.y = value;
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+ // 更新幫助器位置的函數
+ function updateHelpers() {
+    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+    boxHelper.box = box; // 更新包圍盒助手的包圍盒
+    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
+    gridHelper.position.y = box.min.y - offset; // 更新網格位置
+}
+
+updateHelpers(); // 初始化幫助器位置
+
+        // 更新包圍盒和包圍盒助手的大小
+        const updateBoxHelper = () => {
+            box.setFromObject(input_model); // 更新包圍盒
+            boxHelper.box = box; // 更新包圍盒助手的包圍盒
+            // boxHelper.update(); // 更新顯示
+        };
+
+                // Create a folder for Position Control in the GUI
+const positionControl = gui.addFolder("Position Control").close();
+
+// Create an object to hold the position values
+const positionControlValues = {
+    posX: input_model.position.x,
+    posY: input_model.position.y,
+    posZ: input_model.position.z
+};
+
+// Add controls for x, y, and z positions
+const posXControl = positionControl.add(positionControlValues, 'posX', -100, 100, 0.1).name('Position X');
+const posYControl = positionControl.add(positionControlValues, 'posY', -100, 100, 0.1).name('Position Y');
+const posZControl = positionControl.add(positionControlValues, 'posZ', -100, 100, 0.1).name('Position Z');
+
+// Update the model's position when the GUI controls change
+// 在添加 Position Control 的位置更新
+posXControl.onChange((value) => {
+    input_model.position.x = value;
+    updateHelpers(); // 更新網格位置
+});
+
+posYControl.onChange((value) => {
+    input_model.position.y = value;
+    updateHelpers(); // 更新網格位置
+});
+
+posZControl.onChange((value) => {
+    input_model.position.z = value;
+    updateHelpers(); // 更新網格位置
+});
+
+// Optionally, you can add a reset position button
+positionControl.add({
+    resetPosition: () => {
+        input_model.position.set(0, 0, 0); // Reset to initial position
+        positionControlValues.posX = input_model.position.x; // Update GUI control
+        positionControlValues.posY = input_model.position.y; // Update GUI control
+        positionControlValues.posZ = input_model.position.z; // Update GUI control
+        posXControl.updateDisplay(); // Update the GUI display
+        posYControl.updateDisplay(); // Update the GUI display
+        posZControl.updateDisplay(); // Update the GUI display
+        updateBoxHelper();
+        updateHelpers(); // 更新網格位置
+        console.log("Position reset to default:", input_model.position);
+    }
+}, 'resetPosition').name('Reset Position');
 
                 // Get the default scale of the model
                 defaultScale = input_model.scale.clone();
@@ -740,7 +868,8 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
                 scaleControl = {
                     scaleX: defaultScale.x,
                     scaleY: defaultScale.y,
-                    scaleZ: defaultScale.z
+                    scaleZ: defaultScale.z,
+                    uniformScale: 1 //新增的屬性
                 };
 
         const Scale_control = gui.addFolder("Scale Control").close();
@@ -750,31 +879,80 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
         const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
         const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
 
+// 在 Scale_control 中添加 uniformScale 控件
+const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.001, 3).name('Uniform Scale').onChange(value => {
+    input_model.scale.set(value, value, value); // 同時設置 x, y, z 的縮放
+    scaleControl.scaleX = value; // 更新 scaleControl 的值
+    scaleControl.scaleY = value; // 更新 scaleControl 的值
+    scaleControl.scaleZ = value; // 更新 scaleControl 的值
+
+    scaleXControl.setValue(value); // 更新 GUI 控件
+    scaleYControl.setValue(value); // 更新 GUI 控件
+    scaleZControl.setValue(value); // 更新 GUI 控件
+
+    scaleXControl.updateDisplay(); // 更新 GUI 顯示
+    scaleYControl.updateDisplay(); // 更新 GUI 顯示
+    scaleZControl.updateDisplay(); // 更新 GUI 顯示
+
+    updateBoxHelper(); // 更新包圍盒助手
+    updateHelpers(); // 更新網格位置
+});
+
         scaleXControl.onChange((value) => {
             input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
+            scaleControl.scaleX = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
             scaleXControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
         });
 
         scaleYControl.onChange((value) => {
             input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
+            scaleControl.scaleY = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
             scaleYControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
         });
     
         scaleZControl.onChange((value) => {
             input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
+            scaleControl.scaleZ = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
             scaleZControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
         });
 
-        Scale_control.add({ resetScale: () => {
-            input_model.scale.copy(defaultScale); // Reset the model scale to default
-            scaleXControl.setValue(defaultScale.x); // Update GUI control
-            scaleXControl.updateDisplay(); // Update the GUI display
-            scaleYControl.setValue(defaultScale.y); // Update GUI control
-            scaleYControl.updateDisplay(); // Update the GUI display
-            scaleZControl.setValue(defaultScale.z); // Update GUI control
-            scaleZControl.updateDisplay(); // Update the GUI display
-            console.log("Scale reset to default:", defaultScale);
-        }}, 'resetScale').name('Reset Scale');
+
+
+        Scale_control.add({ 
+            resetScale: () => {
+                input_model.scale.copy(defaultScale); // Reset the model scale to default
+        
+                // 更新所有縮放控制的值
+                scaleControl.scaleX = defaultScale.x; 
+                scaleControl.scaleY = defaultScale.y; 
+                scaleControl.scaleZ = defaultScale.z; 
+        
+                // 設置 uniformScale 為 1
+                scaleControl.uniformScale = 1;
+        
+                // 更新 GUI 控件
+                scaleXControl.setValue(defaultScale.x); 
+                scaleYControl.setValue(defaultScale.y); 
+                scaleZControl.setValue(defaultScale.z); 
+                scaleXControl.updateDisplay(); 
+                scaleYControl.updateDisplay(); 
+                scaleZControl.updateDisplay(); 
+        
+                // 直接使用 uniformScaleControl
+        uniformScaleControl.setValue(1); // 設置為 1
+        uniformScaleControl.updateDisplay(); // 更新顯示
+        
+                updateBoxHelper(); // 更新包圍盒助手
+                updateHelpers(); // 更新網格位置
+                console.log("Scale reset to default:", defaultScale);
+            }
+        }, 'resetScale').name('Reset Scale');
 
         // Show the GUI
         gui.domElement.style.display = 'block';            
@@ -791,124 +969,365 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
             }
             
         );
-    };    
-    // Read the file as an array buffer
-    reader.readAsArrayBuffer(file);
-} else if (fileExtension === 'obj') {
-// 新增的mtl
-// Create an input for MTL file upload
-const mtlInput = document.createElement('input');
-mtlInput.type = 'file';
-mtlInput.accept = '.mtl'; // Allow only MTL files
-mtlInput.style.display = 'none'; // Hide the input
-document.body.appendChild(mtlInput);
+}else if (fileExtension === 'obj'){
 
-// Add a button to trigger MTL upload
-const mtlButton = document.createElement('button');
-mtlButton.innerText = 'Upload MTL';
-mtlButton.onclick = () => mtlInput.click();
-document.body.appendChild(mtlButton);
+    // 新增的mtl
+    // Create an input for MTL file upload
+    const mtlInput = document.createElement('input');
+    mtlInput.type = 'file';
+    mtlInput.accept = '.mtl';
+    mtlInput.style.display = 'none';
+    document.body.appendChild(mtlInput);
 
-// // Add a button to trigger MTL upload
-// gui.add({ uploadMTL: () => mtlInput.click() }, 'uploadMTL').name('Upload MTL');
+    // Create an object for GUI control
+    const uploadParams = {
+        uploadMTL: () => mtlInput.click()
+    };
 
-// Load the OBJ file
-objloader.load(
-    URL.createObjectURL(file),
-    (obj) => {
-        if (input_model) {
-            scene.remove(input_model); // Remove the existing model if there is one
-        }
+    // Add upload button to the GUI
+    gui.add(uploadParams, 'uploadMTL').name("Upload .mtl");
 
-        input_model = obj;
-        input_model.position.set(0, -1.3, 0);
-        scene.add(obj); // Add the OBJ model to the scene
 
-// ------------------------        
-            // Get the default scale of the model
-            defaultScale = input_model.scale.clone();
+    const mtlButton = document.createElement('button');
+    mtlButton.innerText = 'Upload MTL';
+    mtlButton.onclick = () => mtlInput.click();
+    document.body.appendChild(mtlButton);
 
-            // Scale control parameters
-            scaleControl = {
-                scaleX: defaultScale.x,
-                scaleY: defaultScale.y,
-                scaleZ: defaultScale.z
-            };
 
-    const Scale_control = gui.addFolder("Scale Control").close();
-
-    // Add GUI controls for scaling
-    const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
-    const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
-    const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
-
-    scaleXControl.onChange((value) => {
-        input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
-        scaleXControl.updateDisplay(); // Update the GUI display
-    });
-
-    scaleYControl.onChange((value) => {
-        input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
-        scaleYControl.updateDisplay(); // Update the GUI display
-    });
-
-    scaleZControl.onChange((value) => {
-        input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
-        scaleZControl.updateDisplay(); // Update the GUI display
-    });
-
-    Scale_control.add({ resetScale: () => {
-        input_model.scale.copy(defaultScale); // Reset the model scale to default
-        scaleXControl.setValue(defaultScale.x); // Update GUI control
-        scaleXControl.updateDisplay(); // Update the GUI display
-        scaleYControl.setValue(defaultScale.y); // Update GUI control
-        scaleYControl.updateDisplay(); // Update the GUI display
-        scaleZControl.setValue(defaultScale.z); // Update GUI control
-        scaleZControl.updateDisplay(); // Update the GUI display
-        console.log("Scale reset to default:", defaultScale);
-    }}, 'resetScale').name('Reset Scale');
-
-    // // Show the GUI
-    gui.domElement.style.display = 'block';
-
-    // Add a button to trigger MTL upload
-const material_change = gui.addFolder("Material").close();
-material_change.add({ uploadMTL: () => mtlInput.click() }, 'uploadMTL').name('Upload MTL');
-
-//_______________
-        // Handle MTL file upload
-        mtlInput.addEventListener('change', (mtlEvent) => {
-            const mtlFile = mtlEvent.target.files[0];
-            if (mtlFile) {
-                mtlloader.load(URL.createObjectURL(mtlFile), (mtl) => {
-                    mtl.preload();
-                    objloader.setMaterials(mtl); // Set materials for the OBJ loader
-
-                    // Apply materials to the model
-                    input_model.traverse((node) => {
-                        if (node.isMesh) {
-                            node.material = mtl.materials[node.material.name]; // Assign the material
-                        }
-                    });
-                }, undefined, (error) => {
-                    console.error('Error loading MTL file:', error);
-                });
-            } else {
-                console.error('No MTL file uploaded');
+    objloader.load(
+        URL.createObjectURL(file),
+        (obj) => {
+            if (input_model) {
+                scene.remove(input_model); // Remove the existing model if there is one
             }
-        });
-    },
-    (xhr) => {
-        if (xhr.lengthComputable) {
-            const percentComplete = (xhr.loaded / xhr.total) * 100;
-            progressBar.value = percentComplete; // Update progress bar
+
+            // input_model = fbx.scene.children[0];
+            input_model = obj;
+
+                // input_model.position.set(0, -1.3, 0);
+                input_model.position.set(0, 0, 0);
+                // input_model.rotation.x = Math.PI / -3;
+
+                scene.add(obj);
+    // 創建包圍盒
+    const box = new THREE.Box3().setFromObject(input_model);
+    // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
+    // 計算模型的底部位置，使其位於網格上方
+    const offset = 1.00; // 調整這個值以減少高度
+
+    //
+
+
+    // input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+    input_model.position.y = 0;
+
+            // input_model.position.set(0, -1.3, 0);
+            // input_model.rotation.x = Math.PI / -3;
+
+            const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
+    // scene.add(boxHelper); // 初始時加包圍盒助手
+
+
+    // 將包圍盒助手添加到場景中
+    // scene.add(boxHelper);
+    const axesHelper = new THREE.AxesHelper( 200 );
+    axesHelper.position.y = box.min.y - offset ; // 確保輔助軸與網格對齊
+    axesHelper.visible = false; // 初始設置為隱藏
+    scene.add( axesHelper );
+
+
+    // 創建 GridHelper
+const gridHelper = new THREE.GridHelper(200, 20); // 200 為大小，20 為細分數量
+gridHelper.position.y = box.min.y - offset; // 將網格放置在模型下方
+gridHelper.visible = false; // 初始設置為隱藏
+scene.add(gridHelper);
+
+
+   
+
+
+    const params = {
+        showBoxHelper: false, // 預設為不顯示包圍盒
+
+
+        showAxes: false, // x,y,z軸
+        showGrid: false,  //網格
+
+
+        scale: 1,
+        positionY: input_model.position.y
+    };
+
+
+    // Create a folder for Position Control in the GUI
+const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
+
+
+BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+    axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+
+// 添加複選框到 GUI
+BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
+    if (value) {
+        // 如果選中，將包圍盒助手添加到場景中
+        scene.add(boxHelper);
+    } else {
+        // 如果未選中，從場景中移除包圍盒助手
+        if (boxHelper) {
+            scene.remove(boxHelper);
         }
-    },
-    (error) => {
-        console.error('Error loading OBJ model:', error);
     }
-);
-}else if (fileExtension === 'fbx'){
+});
+
+
+
+
+BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+    gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+
+//  // 添加縮放和位置控制
+//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
+//     input_model.scale.set(value, value, value);
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+
+// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
+//     input_model.position.y = value;
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+
+ // 更新幫助器位置的函數
+ function updateHelpers() {
+    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+    boxHelper.box = box; // 更新包圍盒助手的包圍盒
+    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
+    gridHelper.position.y = box.min.y - offset; // 更新網格位置
+}
+
+
+updateHelpers(); // 初始化幫助器位置
+
+
+        // 更新包圍盒和包圍盒助手的大小
+        const updateBoxHelper = () => {
+            box.setFromObject(input_model); // 更新包圍盒
+            boxHelper.box = box; // 更新包圍盒助手的包圍盒
+            // boxHelper.update(); // 更新顯示
+        };
+
+
+                // Create a folder for Position Control in the GUI
+const positionControl = gui.addFolder("Position Control").close();
+
+
+// Create an object to hold the position values
+const positionControlValues = {
+    posX: input_model.position.x,
+    posY: input_model.position.y,
+    posZ: input_model.position.z
+};
+
+
+// Add controls for x, y, and z positions
+const posXControl = positionControl.add(positionControlValues, 'posX', -100, 100, 0.1).name('Position X');
+const posYControl = positionControl.add(positionControlValues, 'posY', -100, 100, 0.1).name('Position Y');
+const posZControl = positionControl.add(positionControlValues, 'posZ', -100, 100, 0.1).name('Position Z');
+
+
+// Update the model's position when the GUI controls change
+// 在添加 Position Control 的位置更新
+posXControl.onChange((value) => {
+    input_model.position.x = value;
+    updateHelpers(); // 更新網格位置
+});
+
+
+posYControl.onChange((value) => {
+    input_model.position.y = value;
+    updateHelpers(); // 更新網格位置
+});
+
+
+posZControl.onChange((value) => {
+    input_model.position.z = value;
+    updateHelpers(); // 更新網格位置
+});
+
+
+// Optionally, you can add a reset position button
+positionControl.add({
+    resetPosition: () => {
+        input_model.position.set(0, 0, 0); // Reset to initial position
+        positionControlValues.posX = input_model.position.x; // Update GUI control
+        positionControlValues.posY = input_model.position.y; // Update GUI control
+        positionControlValues.posZ = input_model.position.z; // Update GUI control
+        posXControl.updateDisplay(); // Update the GUI display
+        posYControl.updateDisplay(); // Update the GUI display
+        posZControl.updateDisplay(); // Update the GUI display
+        updateBoxHelper();
+        updateHelpers(); // 更新網格位置
+        console.log("Position reset to default:", input_model.position);
+    }
+}, 'resetPosition').name('Reset Position');
+
+
+                // Get the default scale of the model
+                defaultScale = input_model.scale.clone();
+
+
+                // Scale control parameters
+                scaleControl = {
+                    scaleX: defaultScale.x,
+                    scaleY: defaultScale.y,
+                    scaleZ: defaultScale.z,
+                    uniformScale: 1 //新增的屬性
+                };
+
+
+        const Scale_control = gui.addFolder("Scale Control").close();
+
+
+        // Add GUI controls for scaling
+        const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
+        const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
+        const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
+
+
+// 在 Scale_control 中添加 uniformScale 控件
+const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.001, 3).name('Uniform Scale').onChange(value => {
+    input_model.scale.set(value, value, value); // 同時設置 x, y, z 的縮放
+    scaleControl.scaleX = value; // 更新 scaleControl 的值
+    scaleControl.scaleY = value; // 更新 scaleControl 的值
+    scaleControl.scaleZ = value; // 更新 scaleControl 的值
+
+
+    scaleXControl.setValue(value); // 更新 GUI 控件
+    scaleYControl.setValue(value); // 更新 GUI 控件
+    scaleZControl.setValue(value); // 更新 GUI 控件
+
+
+    scaleXControl.updateDisplay(); // 更新 GUI 顯示
+    scaleYControl.updateDisplay(); // 更新 GUI 顯示
+    scaleZControl.updateDisplay(); // 更新 GUI 顯示
+
+
+    updateBoxHelper(); // 更新包圍盒助手
+    updateHelpers(); // 更新網格位置
+});
+
+
+        scaleXControl.onChange((value) => {
+            input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
+            scaleControl.scaleX = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
+            scaleXControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
+        });
+
+
+        scaleYControl.onChange((value) => {
+            input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
+            scaleControl.scaleY = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
+            scaleYControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
+        });
+   
+        scaleZControl.onChange((value) => {
+            input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
+            scaleControl.scaleZ = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
+            scaleZControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
+        });
+
+
+
+
+
+
+        Scale_control.add({
+            resetScale: () => {
+                input_model.scale.copy(defaultScale); // Reset the model scale to default
+       
+                // 更新所有縮放控制的值
+                scaleControl.scaleX = defaultScale.x;
+                scaleControl.scaleY = defaultScale.y;
+                scaleControl.scaleZ = defaultScale.z;
+       
+                // 設置 uniformScale 為 1
+                scaleControl.uniformScale = 1;
+       
+                // 更新 GUI 控件
+                scaleXControl.setValue(defaultScale.x);
+                scaleYControl.setValue(defaultScale.y);
+                scaleZControl.setValue(defaultScale.z);
+                scaleXControl.updateDisplay();
+                scaleYControl.updateDisplay();
+                scaleZControl.updateDisplay();
+       
+                // 直接使用 uniformScaleControl
+        uniformScaleControl.setValue(1); // 設置為 1
+        uniformScaleControl.updateDisplay(); // 更新顯示
+       
+                updateBoxHelper(); // 更新包圍盒助手
+                updateHelpers(); // 更新網格位置
+                console.log("Scale reset to default:", defaultScale);
+            }
+        }, 'resetScale').name('Reset Scale');
+
+
+        // Show the GUI
+        gui.domElement.style.display = 'block';  
+        
+        
+        //
+// Handle MTL file upload
+mtlInput.addEventListener('change', (mtlEvent) => {
+    const mtlFile = mtlEvent.target.files[0];
+    if(mtlFile){
+        mtlloader.load(URL.createObjectURL(mtlFile), (mtl) => {
+            mtl.preload();
+            objloader.setMaterials(mtl);
+
+            //Apply materials to the model
+            input_model.traverse((node)=>{
+                if(node.isMesh){
+                    node.material = mtl.materials[node.material.name];
+                }
+            });
+        }, undefined, (error) => {
+            console.error("Error Loading MTL file:" , error);
+        }
+    );
+    } else{
+        console.error("No MTL file uploaded");
+    }
+});
+
+        //
+            },
+            (xhr) => {
+                const progressBar = document.getElementById('progress-bar');
+                if (xhr.lengthComputable) {
+                    const percentComplete = (xhr.loaded / xhr.total) * 100;
+                    progressBar.value = percentComplete;
+                }
+            },
+            (error) => {
+                console.error('Error loading model:', error);
+            }
+           
+        );
+
+}
+else if (fileExtension === 'fbx'){
     fbxloader.load(
         URL.createObjectURL(file),
         (fbx) => {
@@ -918,68 +1337,300 @@ material_change.add({ uploadMTL: () => mtlInput.click() }, 'uploadMTL').name('Up
 
             // input_model = fbx.scene.children[0];
             input_model = fbx;
+
+                // input_model.position.set(0, -1.3, 0);
+                input_model.position.set(0, 0, 0);
+                // input_model.rotation.x = Math.PI / -3;
+
+    // 創建包圍盒
+    const box = new THREE.Box3().setFromObject(input_model);
+    // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
+    // 計算模型的底部位置，使其位於網格上方
+    const offset = 1.00; // 調整這個值以減少高度
+
+
+    // input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+    input_model.position.y = 0;
+
             // input_model.position.set(0, -1.3, 0);
             // input_model.rotation.x = Math.PI / -3;
             scene.add(fbx);
 
-            // Get the default scale of the model
-            defaultScale = input_model.scale.clone();
+            const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
+    // scene.add(boxHelper); // 初始時加包圍盒助手
 
-            // Scale control parameters
-            scaleControl = {
-                scaleX: defaultScale.x,
-                scaleY: defaultScale.y,
-                scaleZ: defaultScale.z
-            };
 
-    const Scale_control = gui.addFolder("Scale Control").close();
+    // 將包圍盒助手添加到場景中
+    // scene.add(boxHelper);
+    const axesHelper = new THREE.AxesHelper( 200 );
+    axesHelper.position.y = box.min.y - offset ; // 確保輔助軸與網格對齊
+    axesHelper.visible = false; // 初始設置為隱藏
+    scene.add( axesHelper );
 
-    // Add GUI controls for scaling
-    const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
-    const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
-    const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
 
-    scaleXControl.onChange((value) => {
-        input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
-        scaleXControl.updateDisplay(); // Update the GUI display
-    });
+    // 創建 GridHelper
+const gridHelper = new THREE.GridHelper(200, 20); // 200 為大小，20 為細分數量
+gridHelper.position.y = box.min.y - offset; // 將網格放置在模型下方
+gridHelper.visible = false; // 初始設置為隱藏
+scene.add(gridHelper);
 
-    scaleYControl.onChange((value) => {
-        input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
-        scaleYControl.updateDisplay(); // Update the GUI display
-    });
 
-    scaleZControl.onChange((value) => {
-        input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
-        scaleZControl.updateDisplay(); // Update the GUI display
-    });
+   
 
-    Scale_control.add({ resetScale: () => {
-        input_model.scale.copy(defaultScale); // Reset the model scale to default
-        scaleXControl.setValue(defaultScale.x); // Update GUI control
-        scaleXControl.updateDisplay(); // Update the GUI display
-        scaleYControl.setValue(defaultScale.y); // Update GUI control
-        scaleYControl.updateDisplay(); // Update the GUI display
-        scaleZControl.setValue(defaultScale.z); // Update GUI control
-        scaleZControl.updateDisplay(); // Update the GUI display
-        console.log("Scale reset to default:", defaultScale);
-    }}, 'resetScale').name('Reset Scale');
 
-    // Show the GUI
-    gui.domElement.style.display = 'block';            
-        },
-        (xhr) => {
-            const progressBar = document.getElementById('progress-bar');
-            if (xhr.lengthComputable) {
-                const percentComplete = (xhr.loaded / xhr.total) * 100;
-                progressBar.value = percentComplete;
-            }
-        },
-        (error) => {
-            console.error('Error loading model:', error);
+    const params = {
+        showBoxHelper: false, // 預設為不顯示包圍盒
+
+
+        showAxes: false, // x,y,z軸
+        showGrid: false,  //網格
+
+
+        scale: 1,
+        positionY: input_model.position.y
+    };
+
+
+    // Create a folder for Position Control in the GUI
+const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
+
+
+BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+    axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+
+// 添加複選框到 GUI
+BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
+    if (value) {
+        // 如果選中，將包圍盒助手添加到場景中
+        scene.add(boxHelper);
+    } else {
+        // 如果未選中，從場景中移除包圍盒助手
+        if (boxHelper) {
+            scene.remove(boxHelper);
         }
-        
-    );
+    }
+});
+
+
+
+
+BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+    gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+});
+
+
+//  // 添加縮放和位置控制
+//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
+//     input_model.scale.set(value, value, value);
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+
+// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
+//     input_model.position.y = value;
+//     updateHelpers(); // 更新幫助器位置
+// });
+
+
+ // 更新幫助器位置的函數
+ function updateHelpers() {
+    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+    boxHelper.box = box; // 更新包圍盒助手的包圍盒
+    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
+    gridHelper.position.y = box.min.y - offset; // 更新網格位置
+}
+
+
+updateHelpers(); // 初始化幫助器位置
+
+
+        // 更新包圍盒和包圍盒助手的大小
+        const updateBoxHelper = () => {
+            box.setFromObject(input_model); // 更新包圍盒
+            boxHelper.box = box; // 更新包圍盒助手的包圍盒
+            // boxHelper.update(); // 更新顯示
+        };
+
+
+                // Create a folder for Position Control in the GUI
+const positionControl = gui.addFolder("Position Control").close();
+
+
+// Create an object to hold the position values
+const positionControlValues = {
+    posX: input_model.position.x,
+    posY: input_model.position.y,
+    posZ: input_model.position.z
+};
+
+
+// Add controls for x, y, and z positions
+const posXControl = positionControl.add(positionControlValues, 'posX', -100, 100, 0.1).name('Position X');
+const posYControl = positionControl.add(positionControlValues, 'posY', -100, 100, 0.1).name('Position Y');
+const posZControl = positionControl.add(positionControlValues, 'posZ', -100, 100, 0.1).name('Position Z');
+
+
+// Update the model's position when the GUI controls change
+// 在添加 Position Control 的位置更新
+posXControl.onChange((value) => {
+    input_model.position.x = value;
+    updateHelpers(); // 更新網格位置
+});
+
+
+posYControl.onChange((value) => {
+    input_model.position.y = value;
+    updateHelpers(); // 更新網格位置
+});
+
+
+posZControl.onChange((value) => {
+    input_model.position.z = value;
+    updateHelpers(); // 更新網格位置
+});
+
+
+// Optionally, you can add a reset position button
+positionControl.add({
+    resetPosition: () => {
+        input_model.position.set(0, 0, 0); // Reset to initial position
+        positionControlValues.posX = input_model.position.x; // Update GUI control
+        positionControlValues.posY = input_model.position.y; // Update GUI control
+        positionControlValues.posZ = input_model.position.z; // Update GUI control
+        posXControl.updateDisplay(); // Update the GUI display
+        posYControl.updateDisplay(); // Update the GUI display
+        posZControl.updateDisplay(); // Update the GUI display
+        updateBoxHelper();
+        updateHelpers(); // 更新網格位置
+        console.log("Position reset to default:", input_model.position);
+    }
+}, 'resetPosition').name('Reset Position');
+
+
+                // Get the default scale of the model
+                defaultScale = input_model.scale.clone();
+
+
+                // Scale control parameters
+                scaleControl = {
+                    scaleX: defaultScale.x,
+                    scaleY: defaultScale.y,
+                    scaleZ: defaultScale.z,
+                    uniformScale: 1 //新增的屬性
+                };
+
+
+        const Scale_control = gui.addFolder("Scale Control").close();
+
+
+        // Add GUI controls for scaling
+        const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
+        const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
+        const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
+
+
+// 在 Scale_control 中添加 uniformScale 控件
+const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.001, 3).name('Uniform Scale').onChange(value => {
+    input_model.scale.set(value, value, value); // 同時設置 x, y, z 的縮放
+    scaleControl.scaleX = value; // 更新 scaleControl 的值
+    scaleControl.scaleY = value; // 更新 scaleControl 的值
+    scaleControl.scaleZ = value; // 更新 scaleControl 的值
+
+
+    scaleXControl.setValue(value); // 更新 GUI 控件
+    scaleYControl.setValue(value); // 更新 GUI 控件
+    scaleZControl.setValue(value); // 更新 GUI 控件
+
+
+    scaleXControl.updateDisplay(); // 更新 GUI 顯示
+    scaleYControl.updateDisplay(); // 更新 GUI 顯示
+    scaleZControl.updateDisplay(); // 更新 GUI 顯示
+
+
+    updateBoxHelper(); // 更新包圍盒助手
+    updateHelpers(); // 更新網格位置
+});
+
+
+        scaleXControl.onChange((value) => {
+            input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
+            scaleControl.scaleX = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
+            scaleXControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
+        });
+
+
+        scaleYControl.onChange((value) => {
+            input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
+            scaleControl.scaleY = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
+            scaleYControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
+        });
+   
+        scaleZControl.onChange((value) => {
+            input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
+            scaleControl.scaleZ = value; // 更新 scaleControl 的值
+            updateBoxHelper(); // 更新包圍盒助手
+            scaleZControl.updateDisplay(); // Update the GUI display
+            updateHelpers(); // 更新網格位置
+        });
+
+
+
+
+
+
+        Scale_control.add({
+            resetScale: () => {
+                input_model.scale.copy(defaultScale); // Reset the model scale to default
+       
+                // 更新所有縮放控制的值
+                scaleControl.scaleX = defaultScale.x;
+                scaleControl.scaleY = defaultScale.y;
+                scaleControl.scaleZ = defaultScale.z;
+       
+                // 設置 uniformScale 為 1
+                scaleControl.uniformScale = 1;
+       
+                // 更新 GUI 控件
+                scaleXControl.setValue(defaultScale.x);
+                scaleYControl.setValue(defaultScale.y);
+                scaleZControl.setValue(defaultScale.z);
+                scaleXControl.updateDisplay();
+                scaleYControl.updateDisplay();
+                scaleZControl.updateDisplay();
+       
+                // 直接使用 uniformScaleControl
+        uniformScaleControl.setValue(1); // 設置為 1
+        uniformScaleControl.updateDisplay(); // 更新顯示
+       
+                updateBoxHelper(); // 更新包圍盒助手
+                updateHelpers(); // 更新網格位置
+                console.log("Scale reset to default:", defaultScale);
+            }
+        }, 'resetScale').name('Reset Scale');
+
+
+        // Show the GUI
+        gui.domElement.style.display = 'block';            
+            },
+            (xhr) => {
+                const progressBar = document.getElementById('progress-bar');
+                if (xhr.lengthComputable) {
+                    const percentComplete = (xhr.loaded / xhr.total) * 100;
+                    progressBar.value = percentComplete;
+                }
+            },
+            (error) => {
+                console.error('Error loading model:', error);
+            }
+           
+        );
+
 }else if (fileExtension === 'stl'){
     stlloader.load(
         URL.createObjectURL(file), // Use the file URL
@@ -992,68 +1643,304 @@ material_change.add({ uploadMTL: () => mtlInput.click() }, 'uploadMTL').name('Up
             // input_model = stl.scene.children[0];
             // input_model = new THREE.Mesh(geometry);
             input_model = new THREE.Mesh(geometry, material);
+
+            input_model.position.set(0, 0, 0);
+            // input_model.rotation.x = Math.PI / -3;
+
+
+           
+
+
+// 創建包圍盒
+const box = new THREE.Box3().setFromObject(input_model);
+// const modelHeight = box.max.y - box.min.y; // 計算模型的高度
+// 計算模型的底部位置，使其位於網格上方
+const offset = 1.00; // 調整這個值以減少高度
+
+
+// input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
+input_model.position.y = 0;
+
+
             // input_model.position.set(0, -1.3, 0);
             // input_model.rotation.x = Math.PI / -3;
             scene.add(input_model);
 
-            // Get the default scale of the model
-            defaultScale = input_model.scale.clone();
-
-            // Scale control parameters
-            scaleControl = {
-                scaleX: defaultScale.x,
-                scaleY: defaultScale.y,
-                scaleZ: defaultScale.z
+            const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
+            // scene.add(boxHelper); // 初始時加包圍盒助手
+        
+        
+            // 將包圍盒助手添加到場景中
+            // scene.add(boxHelper);
+            const axesHelper = new THREE.AxesHelper( 200 );
+            axesHelper.position.y = box.min.y - offset ; // 確保輔助軸與網格對齊
+            axesHelper.visible = false; // 初始設置為隱藏
+            scene.add( axesHelper );
+        
+        
+            // 創建 GridHelper
+        const gridHelper = new THREE.GridHelper(200, 20); // 200 為大小，20 為細分數量
+        gridHelper.position.y = box.min.y - offset; // 將網格放置在模型下方
+        gridHelper.visible = false; // 初始設置為隱藏
+        scene.add(gridHelper);
+        
+        
+           
+        
+        
+            const params = {
+                showBoxHelper: false, // 預設為不顯示包圍盒
+        
+        
+                showAxes: false, // x,y,z軸
+                showGrid: false,  //網格
+        
+        
+                scale: 1,
+                positionY: input_model.position.y
             };
-
-    const Scale_control = gui.addFolder("Scale Control").close();
-
-    // Add GUI controls for scaling
-    const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
-    const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
-    const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
-
-    scaleXControl.onChange((value) => {
-        input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
-        scaleXControl.updateDisplay(); // Update the GUI display
-    });
-
-    scaleYControl.onChange((value) => {
-        input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
-        scaleYControl.updateDisplay(); // Update the GUI display
-    });
-
-    scaleZControl.onChange((value) => {
-        input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
-        scaleZControl.updateDisplay(); // Update the GUI display
-    });
-
-    Scale_control.add({ resetScale: () => {
-        input_model.scale.copy(defaultScale); // Reset the model scale to default
-        scaleXControl.setValue(defaultScale.x); // Update GUI control
-        scaleXControl.updateDisplay(); // Update the GUI display
-        scaleYControl.setValue(defaultScale.y); // Update GUI control
-        scaleYControl.updateDisplay(); // Update the GUI display
-        scaleZControl.setValue(defaultScale.z); // Update GUI control
-        scaleZControl.updateDisplay(); // Update the GUI display
-        console.log("Scale reset to default:", defaultScale);
-    }}, 'resetScale').name('Reset Scale');
-
-    // Show the GUI
-    gui.domElement.style.display = 'block';            
-        },
-        (xhr) => {
-            const progressBar = document.getElementById('progress-bar');
-            if (xhr.lengthComputable) {
-                const percentComplete = (xhr.loaded / xhr.total) * 100;
-                progressBar.value = percentComplete;
+        
+        
+            // Create a folder for Position Control in the GUI
+        const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
+        
+        
+        BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+            axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+        });
+        
+        
+        // 添加複選框到 GUI
+        BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
+            if (value) {
+                // 如果選中，將包圍盒助手添加到場景中
+                scene.add(boxHelper);
+            } else {
+                // 如果未選中，從場景中移除包圍盒助手
+                if (boxHelper) {
+                    scene.remove(boxHelper);
+                }
             }
-        },
-        (error) => {
-            console.error('Error loading model:', error);
+        });
+        
+        
+        
+        
+        BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+            gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
+        });
+        
+        
+        //  // 添加縮放和位置控制
+        //  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
+        //     input_model.scale.set(value, value, value);
+        //     updateHelpers(); // 更新幫助器位置
+        // });
+        
+        
+        // BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
+        //     input_model.position.y = value;
+        //     updateHelpers(); // 更新幫助器位置
+        // });
+        
+        
+         // 更新幫助器位置的函數
+         function updateHelpers() {
+            const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+            boxHelper.box = box; // 更新包圍盒助手的包圍盒
+            axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
+            gridHelper.position.y = box.min.y - offset; // 更新網格位置
         }
         
-    );
+        
+        updateHelpers(); // 初始化幫助器位置
+        
+        
+                // 更新包圍盒和包圍盒助手的大小
+                const updateBoxHelper = () => {
+                    box.setFromObject(input_model); // 更新包圍盒
+                    boxHelper.box = box; // 更新包圍盒助手的包圍盒
+                    // boxHelper.update(); // 更新顯示
+                };
+        
+        
+                        // Create a folder for Position Control in the GUI
+        const positionControl = gui.addFolder("Position Control").close();
+        
+        
+        // Create an object to hold the position values
+        const positionControlValues = {
+            posX: input_model.position.x,
+            posY: input_model.position.y,
+            posZ: input_model.position.z
+        };
+        
+        
+        // Add controls for x, y, and z positions
+        const posXControl = positionControl.add(positionControlValues, 'posX', -100, 100, 0.1).name('Position X');
+        const posYControl = positionControl.add(positionControlValues, 'posY', -100, 100, 0.1).name('Position Y');
+        const posZControl = positionControl.add(positionControlValues, 'posZ', -100, 100, 0.1).name('Position Z');
+        
+        
+        // Update the model's position when the GUI controls change
+        // 在添加 Position Control 的位置更新
+        posXControl.onChange((value) => {
+            input_model.position.x = value;
+            updateHelpers(); // 更新網格位置
+        });
+        
+        
+        posYControl.onChange((value) => {
+            input_model.position.y = value;
+            updateHelpers(); // 更新網格位置
+        });
+        
+        
+        posZControl.onChange((value) => {
+            input_model.position.z = value;
+            updateHelpers(); // 更新網格位置
+        });
+        
+        
+        // Optionally, you can add a reset position button
+        positionControl.add({
+            resetPosition: () => {
+                input_model.position.set(0, 0, 0); // Reset to initial position
+                positionControlValues.posX = input_model.position.x; // Update GUI control
+                positionControlValues.posY = input_model.position.y; // Update GUI control
+                positionControlValues.posZ = input_model.position.z; // Update GUI control
+                posXControl.updateDisplay(); // Update the GUI display
+                posYControl.updateDisplay(); // Update the GUI display
+                posZControl.updateDisplay(); // Update the GUI display
+                updateBoxHelper();
+                updateHelpers(); // 更新網格位置
+                console.log("Position reset to default:", input_model.position);
+            }
+        }, 'resetPosition').name('Reset Position');
+        
+        
+                        // Get the default scale of the model
+                        defaultScale = input_model.scale.clone();
+        
+        
+                        // Scale control parameters
+                        scaleControl = {
+                            scaleX: defaultScale.x,
+                            scaleY: defaultScale.y,
+                            scaleZ: defaultScale.z,
+                            uniformScale: 1 //新增的屬性
+                        };
+        
+        
+                const Scale_control = gui.addFolder("Scale Control").close();
+        
+        
+                // Add GUI controls for scaling
+                const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
+                const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
+                const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
+        
+        
+        // 在 Scale_control 中添加 uniformScale 控件
+        const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.001, 3).name('Uniform Scale').onChange(value => {
+            input_model.scale.set(value, value, value); // 同時設置 x, y, z 的縮放
+            scaleControl.scaleX = value; // 更新 scaleControl 的值
+            scaleControl.scaleY = value; // 更新 scaleControl 的值
+            scaleControl.scaleZ = value; // 更新 scaleControl 的值
+        
+        
+            scaleXControl.setValue(value); // 更新 GUI 控件
+            scaleYControl.setValue(value); // 更新 GUI 控件
+            scaleZControl.setValue(value); // 更新 GUI 控件
+        
+        
+            scaleXControl.updateDisplay(); // 更新 GUI 顯示
+            scaleYControl.updateDisplay(); // 更新 GUI 顯示
+            scaleZControl.updateDisplay(); // 更新 GUI 顯示
+        
+        
+            updateBoxHelper(); // 更新包圍盒助手
+            updateHelpers(); // 更新網格位置
+        });
+        
+        
+                scaleXControl.onChange((value) => {
+                    input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
+                    scaleControl.scaleX = value; // 更新 scaleControl 的值
+                    updateBoxHelper(); // 更新包圍盒助手
+                    scaleXControl.updateDisplay(); // Update the GUI display
+                    updateHelpers(); // 更新網格位置
+                });
+        
+        
+                scaleYControl.onChange((value) => {
+                    input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
+                    scaleControl.scaleY = value; // 更新 scaleControl 的值
+                    updateBoxHelper(); // 更新包圍盒助手
+                    scaleYControl.updateDisplay(); // Update the GUI display
+                    updateHelpers(); // 更新網格位置
+                });
+           
+                scaleZControl.onChange((value) => {
+                    input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
+                    scaleControl.scaleZ = value; // 更新 scaleControl 的值
+                    updateBoxHelper(); // 更新包圍盒助手
+                    scaleZControl.updateDisplay(); // Update the GUI display
+                    updateHelpers(); // 更新網格位置
+                });
+        
+        
+        
+        
+        
+        
+                Scale_control.add({
+                    resetScale: () => {
+                        input_model.scale.copy(defaultScale); // Reset the model scale to default
+               
+                        // 更新所有縮放控制的值
+                        scaleControl.scaleX = defaultScale.x;
+                        scaleControl.scaleY = defaultScale.y;
+                        scaleControl.scaleZ = defaultScale.z;
+               
+                        // 設置 uniformScale 為 1
+                        scaleControl.uniformScale = 1;
+               
+                        // 更新 GUI 控件
+                        scaleXControl.setValue(defaultScale.x);
+                        scaleYControl.setValue(defaultScale.y);
+                        scaleZControl.setValue(defaultScale.z);
+                        scaleXControl.updateDisplay();
+                        scaleYControl.updateDisplay();
+                        scaleZControl.updateDisplay();
+               
+                        // 直接使用 uniformScaleControl
+                uniformScaleControl.setValue(1); // 設置為 1
+                uniformScaleControl.updateDisplay(); // 更新顯示
+               
+                        updateBoxHelper(); // 更新包圍盒助手
+                        updateHelpers(); // 更新網格位置
+                        console.log("Scale reset to default:", defaultScale);
+                    }
+                }, 'resetScale').name('Reset Scale');
+        
+        
+                // Show the GUI
+                gui.domElement.style.display = 'block';            
+                    },
+                    (xhr) => {
+                        const progressBar = document.getElementById('progress-bar');
+                        if (xhr.lengthComputable) {
+                            const percentComplete = (xhr.loaded / xhr.total) * 100;
+                            progressBar.value = percentComplete;
+                        }
+                    },
+                    (error) => {
+                        console.error('Error loading model:', error);
+                    }
+                   
+                );
+        
 }
 else {
         console.error('Unsupported file format:', fileExtension);

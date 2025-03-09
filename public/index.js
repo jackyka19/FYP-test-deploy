@@ -158,13 +158,14 @@ const camera_position = gui.addFolder("Camera").close();
     camerapositionControl = {
         x: defaultCameraPosition.x,
         y: defaultCameraPosition.y,
-        z: defaultCameraPosition.z
+        // z: defaultCameraPosition.z // 10
+        z: 10 // 10
     };
 
 
-    const camerapositionXControl = camera_position.add(camerapositionControl, 'x', -300, 300, 0.5).name(`x`);
-    const camerapositionYControl = camera_position.add(camerapositionControl, 'y', -300, 300, 0.5).name(`y`);
-    const camerapositionZControl = camera_position.add(camerapositionControl, 'z', -300, 300, 0.5).name(`z`);
+    const camerapositionXControl = camera_position.add(camerapositionControl, 'x', -10, 10, 0.1).name(`x`);
+    const camerapositionYControl = camera_position.add(camerapositionControl, 'y', -8, 8, 0.1).name(`y`);
+    const camerapositionZControl = camera_position.add(camerapositionControl, 'z', 1, 20, 0.1).name(`z`);
 
 
     camerapositionXControl.onChange((value) => {
@@ -184,13 +185,16 @@ const camera_position = gui.addFolder("Camera").close();
 
     camera_position.add({ resetPosition: () => {
     camera.position.copy(defaultCameraPosition); // Reset the model scale to default
-    camerapositionXControl.setValue(defaultCameraPosition.x); // Update GUI control
+    // camerapositionXControl.setValue(defaultCameraPosition.x); // Update GUI control
+    camerapositionXControl.setValue(0);
     camerapositionXControl.updateDisplay(); // Update the GUI display
-    camerapositionYControl.setValue(defaultCameraPosition.y); // Update GUI control
+    // camerapositionYControl.setValue(defaultCameraPosition.y); // Update GUI control
+    camerapositionYControl.setValue(0);
     camerapositionYControl.updateDisplay(); // Update the GUI display
-    camerapositionZControl.setValue(defaultCameraPosition.z); // Update GUI control
+    // camerapositionZControl.setValue(defaultCameraPosition.z); // Update GUI control
+    camerapositionZControl.setValue(10);
     camerapositionZControl.updateDisplay(); // Update the GUI display
-    console.log("Scale reset to default:", defaultCameraPosition );
+    // console.log("Scale reset to default:", defaultCameraPosition );
     }}, 'resetPosition').name('Reset Position');
 
     renderer = new THREE.WebGLRenderer({
@@ -234,8 +238,8 @@ loader.load(
                 
 
                 input_model = gltf.scene.children[0];
-                input_model.position.set(0, -1, 0);
-                input_model.scale.set(0.13, 0.13, 0.13); // 將模型縮放到原來的0.13%
+                input_model.position.set(0, -1.9, 0);
+                input_model.scale.set(0.12, 0.12, 0.12); // 將模型縮放到原來的0.13%
                 input_model.rotation.x = Math.PI / -3;
 
                 // 創建包圍盒
@@ -330,9 +334,9 @@ loader.load(
     };
     
     // Add controls for x, y, and z positions
-    const posXControl = positionControl.add(positionControlValues, 'posX', -100, 100, 0.1).name('Position X');
-    const posYControl = positionControl.add(positionControlValues, 'posY', -100, 100, 0.1).name('Position Y');
-    const posZControl = positionControl.add(positionControlValues, 'posZ', -100, 100, 0.1).name('Position Z');
+    const posXControl = positionControl.add(positionControlValues, 'posX', -10, 10, 0.1).name('Position X');
+    const posYControl = positionControl.add(positionControlValues, 'posY', -10, 10, 0.1).name('Position Y');
+    const posZControl = positionControl.add(positionControlValues, 'posZ', -10, 10, 0.1).name('Position Z');
     
     // Update the model's position when the GUI controls change
     // 在添加 Position Control 的位置更新
@@ -354,7 +358,7 @@ loader.load(
     // Optionally, you can add a reset position button
     positionControl.add({
         resetPosition: () => {
-            input_model.position.set(0, 0, 0); // Reset to initial position
+            input_model.position.set(0, -1.9, 0); // Reset to initial position
             positionControlValues.posX = input_model.position.x; // Update GUI control
             positionControlValues.posY = input_model.position.y; // Update GUI control
             positionControlValues.posZ = input_model.position.z; // Update GUI control
@@ -375,7 +379,7 @@ loader.load(
                         scaleX: defaultScale.x,
                         scaleY: defaultScale.y,
                         scaleZ: defaultScale.z,
-                        uniformScale: 0.13 //新增的屬性
+                        uniformScale: 0.12 //新增的屬性
                     };
     
             const Scale_control = gui.addFolder("Scale Control").close();
@@ -440,7 +444,7 @@ loader.load(
                     scaleControl.scaleZ = defaultScale.z; 
             
                     // 設置 uniformScale 為 0.15
-                    scaleControl.uniformScale = 0.13;
+                    scaleControl.uniformScale = 0.12;
             
                     // 更新 GUI 控件
                     scaleXControl.setValue(defaultScale.x); 
@@ -451,7 +455,7 @@ loader.load(
                     scaleZControl.updateDisplay(); 
             
                     // 直接使用 uniformScaleControl
-            uniformScaleControl.setValue(0.13); // 設置為 0.13
+            uniformScaleControl.setValue(0.12); // 設置為 0.13
             uniformScaleControl.updateDisplay(); // 更新顯示
             
                     updateBoxHelper(); // 更新包圍盒助手
@@ -480,12 +484,13 @@ loader.load(
 );
 
 // const renderer = new THREE.WebGLRenderer({ alpha:true });
-renderer.setSize(window.innerWidth*0.8, window.innerHeight*0.8);
+// renderer.setSize(window.innerWidth*0.8, window.innerHeight*0.8);
+renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Add the renderer to the DOM
 document.getElementById("container3D").appendChild(renderer.domElement);
 
-controls = new OrbitControls(camera, renderer.domElement);
+// controls = new OrbitControls(camera, renderer.domElement);
 
 // camera.position.z = example === "example" ? 25 : 500;
 
@@ -640,7 +645,7 @@ function animate(){
 window.addEventListener("resize", function(){
     camera.aspect = this.window.innerWidth / this.window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(this.window.innerWidth*0.8, this.window.innerHeight*0.8);
+    renderer.setSize(this.window.innerWidth, this.window.innerHeight);
 });
 
 // Start the 3D rendering

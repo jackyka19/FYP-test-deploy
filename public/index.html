@@ -2,22 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'nonce-random-value';"> -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D model load</title>
     <link rel="stylesheet" href="./style.css">
     <script type="importmap">
         {
-            "imports" : {
-                "three" : "./build/three.module.js",
-                "three/examples/loaders/GLTFLoader" : "./jsm/loaders/GLTFLoader.js",
-                "three/examples/controls/OrbitControls" : "./jsm/controls/OrbitControls.js",
-                "three/examples/jsm/libs/lil-gui.module.min" : "/jsm/libs/lil-gui.module.min.js",
-                "three/examples/jsm/libs/meshopt_decoder.module" : "/jsm/libs/meshopt_decoder.module.js",
-                "three/examples/loaders/OBJLoader" : "./jsm/loaders/OBJLoader.js",
-                "three/examples/loaders/MTLLoader" : "./jsm/loaders/MTLLoader.js",
-                "three/examples/loaders/FBXLoader" : "./jsm/loaders/FBXLoader.js",
-                "three/examples/loaders/RGBELoader" : "./jsm/loaders/RGBELoader.js",
-                "three/examples/loaders/STLLoader" : "./jsm/loaders/STLLoader.js"
+            "imports": {
+                "three": "./build/three.module.js",
+                "three/examples/jsm/loaders/GLTFLoader.js": "./jsm/loaders/GLTFLoader.js",
+                "three/examples/jsm/controls/OrbitControls.js": "./jsm/controls/OrbitControls.js",
+                "three/examples/jsm/libs/lil-gui.module.min.js": "./jsm/libs/lil-gui.module.min.js",
+                "three/examples/jsm/libs/meshopt_decoder.module.js": "./jsm/libs/meshopt_decoder.module.js",
+                "three/examples/jsm/loaders/OBJLoader.js": "./jsm/loaders/OBJLoader.js",
+                "three/examples/jsm/loaders/MTLLoader.js": "./jsm/loaders/MTLLoader.js",
+                "three/examples/jsm/loaders/FBXLoader.js": "./jsm/loaders/FBXLoader.js",
+                "three/examples/jsm/loaders/RGBELoader.js": "./jsm/loaders/RGBELoader.js",
+                "three/examples/jsm/loaders/STLLoader.js": "./jsm/loaders/STLLoader.js"
             }
         }
     </script>
@@ -33,15 +35,17 @@
         </div>
         <ul class="nav-links" id="navLinks">
             <li><a href="#">P2104352</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Control</a></li>
-            <li><a href="#">Legals</a></li>
+            <li><a href="#" id="aboutLink">About</a></li>
+            <li><a href="#" id="controlsLink">Control</a></li>
+            <li><a href="#" id="legalsLink">Legals</a></li>
+            <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  <!-- 初始隱藏 -->
             <li class="qr-code-container">
                 <img src="../qr code/qr-code.png" alt="QR Code" class="qr-code-icon">
                 <div class="qr-code" id="qrCode">
                     <img src="../qr code/fyp qr code .png" alt="QR Code" class="qr-code-image">
                 </div>
             </li>
+            <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  <!-- 初始隱藏 -->
         </ul>
     </div>
 </nav>
@@ -94,17 +98,135 @@
     
     <canvas class="web-gl"></canvas>
     
+    <!-- Modal for About -->
+<div id="aboutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeAboutModal">&times;</span>
+        <h2>Interactive 3D Models Rendering Web App</h2>
+        <p>This project developed an interactive website which can use in PC, mobile phone, and different operating system, provides the user a can control the 3D models with interface. User also can use the mouse or touch control in mobile such as move 3d model, zoom in and out, etc.
+            The project infrastructure in a 3D model rendering uses the WebGL and Three.js. WebGL is a cross-platform JavaScript API that works with all the major browsers and allows 3D visuals to be rendered in the browser without the need for plugins. Moreover, Three.js is the most popular library/API for WebGL-based 3D graphics, making it easy for developers to create complex 3D scenes and visualizations.
+            </p>
+    </div>
+</div>
+
+<!-- Modal for Controls -->
+<div id="controlsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeControlsModal">&times;</span>
+        <h2>Controls</h2>
+        <p>Here you can find information about how to use the controls for the 3D model viewer.</p>
+        <p>Use the mouse to rotate, zoom, and pan the model.</p>
+    </div>
+</div>
+
+<!-- Modal for Legals -->
+<div id="legalsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeLegalsModal">&times;</span>
+        <h2>Legals</h2>
+        <p>This section contains legal information regarding the use of this tool.</p>
+        <p>Please read and understand the terms and conditions.</p>
+    </div>
+</div>
+<!--  -->
 
     <script type="module" src="./index.js"></script>
     <script type="module" src="./client.js"></script>
 
-    <script>// JavaScript to toggle hamburger menu
+    <!-- <script nonce="random-value">
+        console.log("This inline script is allowed.");
+    </script> -->
+
+<script>
+    // <!-- <script nonce="random-value"> -->
+        // JavaScript to toggle hamburger menu
         document.getElementById("hamburger").addEventListener("click", function() {
             this.classList.toggle("active");
             const navLinks = document.getElementById("navLinks");
             navLinks.classList.toggle("show");
         });
+    
+        // <script>
+    // JavaScript to toggle hamburger menu
+        document.getElementById("hamburger").addEventListener("click", function() {
+            this.classList.toggle("active");
+            const navLinks = document.getElementById("navLinks");
+            navLinks.classList.toggle("show");
+        });
+        
+        document.addEventListener("DOMContentLoaded", function() {
+    // 獲取模態框元素
+    const aboutModal = document.getElementById("aboutModal");
+    const controlsModal = document.getElementById("controlsModal");
+    const legalsModal = document.getElementById("legalsModal");
+
+    const closeAboutModal = document.getElementById("closeAboutModal");
+    const closeControlsModal = document.getElementById("closeControlsModal");
+    const closeLegalsModal = document.getElementById("closeLegalsModal");
+
+    // 函數用於隱藏所有模態框
+    function hideAllModals() {
+        aboutModal.style.display = "none";
+        controlsModal.style.display = "none";
+        legalsModal.style.display = "none";
+    }
+
+    // 當用戶點擊 "About" 菜單時顯示模態框
+    document.getElementById("aboutLink").addEventListener("click", function(event) {
+        event.preventDefault();
+        hideAllModals(); // 隱藏其他模態框
+        aboutModal.style.display = "block"; // 顯示模態框
+    });
+
+    // 當用戶點擊 "Controls" 菜單時顯示模態框
+    document.getElementById("controlsLink").addEventListener("click", function(event) {
+        event.preventDefault();
+        hideAllModals(); // 隱藏其他模態框
+        controlsModal.style.display = "block"; // 顯示模態框
+    });
+
+    // 當用戶點擊 "Legals" 菜單時顯示模態框
+    document.getElementById("legalsLink").addEventListener("click", function(event) {
+        event.preventDefault();
+        hideAllModals(); // 隱藏其他模態框
+        legalsModal.style.display = "block"; // 顯示模態框
+    });
+
+    // 關閉模態框的事件處理器
+    closeAboutModal.onclick = function() {
+        aboutModal.style.display = "none";
+    };
+
+    closeControlsModal.onclick = function() {
+        controlsModal.style.display = "none";
+    };
+
+    closeLegalsModal.onclick = function() {
+        legalsModal.style.display = "none";
+    };
+
+    // 當用戶點擊模態框外部時隱藏模態框
+    window.onclick = function(event) {
+        if (event.target == aboutModal) {
+            aboutModal.style.display = "none";
+        }
+        if (event.target == controlsModal) {
+            controlsModal.style.display = "none";
+        }
+        if (event.target == legalsModal) {
+            legalsModal.style.display = "none";
+        }
+    };
+
+    
+    
+});
+// 
+
     </script>
+
+
+
 
 </body>
 </html>

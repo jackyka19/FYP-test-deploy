@@ -2,6 +2,8 @@
     margin: 0;
     padding: 0;
     /* box-sizing: border-box; */
+    box-sizing: border-box; /* 確保所有元素的邊框及填充計入寬度和高度 */
+    
 }
 
 /* #container3D canvas {
@@ -11,6 +13,16 @@
   top: 0;
   left: 0;
 } */
+#container3D {
+  width: 100vw; /* 確保寬度佔滿視窗 */
+    height: 100vh; /* 確保高度佔滿視窗 */
+    background-color: black; /* 背景顏色 */
+    display: flex; /* 使用 Flexbox */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    position: relative; /* 使其為相對定位 */
+}
+
 
 .model-container {
   display: flex;
@@ -33,7 +45,12 @@
   /* margin-top: 20px;  */
   /* 與 3D 模型區域的距離 */
   /* text-align: center; */
-  position: relative; /* 改為相對定位 */
+  transform: translate(-50%, -50%);
+  position: absolute;
+    top: 50%;
+    left: 50%;
+  /* position: relative;  */
+  /* 改為相對定位 */
     width: 100%;
     height: auto; /* 自動調整高度以適應內容 */
     padding-bottom: 120px; /* 給按鈕留出空間 */
@@ -47,18 +64,17 @@
 
 
 #myButton {
-  /* width: 330px;
-  height: 80px; */
+  position: relative; /* 使用相對定位 */
   width: 40vw; /* 按鈕寬度相對於視窗寬度的 40% */
-  height: 10vh; /* 按鈕高度相對於視窗高度的 10% */
+  height: 5vh; /* 按鈕高度相對於視窗高度的 5% */
   border: none;
   border-radius: 15px;
   background: #027efb;
   color: #fff;
   text-align: center;
-  /* font-size: 32px; */
   font-size: 3vw; /* 字體大小相對於視窗寬度的 3% */
   cursor: pointer;
+  margin-top: 20px; /* 添加一些上邊距以分隔內容 */
 }
 
 header {
@@ -68,6 +84,12 @@ header {
   text-align: center; /* 使標題居中 */
 }
 /*  */
+
+html, body {
+  height: 100%; /* 確保頁面佔滿整個高度 */
+  margin: 0; /* 去掉默認的邊距 */
+    overflow: hidden; /* 隱藏滾動條 */
+}
 
 body {
     overflow: hidden;
@@ -121,18 +143,19 @@ canvas {
 }
 
 .progress-bar-container {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+  position: absolute; /* 使用絕對定位 */
+  left: 50%; /* 水平居中 */
+  top: 40%; /* 調整這個值來改變垂直位置 */
+  transform: translate(-50%, -50%); /* 確保居中 */
+  width: 100%;
+  height: auto; /* 自動調整高度以適應內容 */
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  
 }
 #progress-bar{
     width:30%;
@@ -178,6 +201,7 @@ label{
   /* Full width */
   height: 100%; /* Full height */
   overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* 背景顏色 */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 
 }
@@ -199,7 +223,7 @@ label{
 
 .dmodal-content {
   background-color: #fefefe;
-  margin: auto; /* Center the modal */
+  margin: 15% auto; /* Center the modal */
   padding: 20px;
   border: 1px solid #888;
   width: 80vw; /* 80% of the viewport width */
@@ -262,6 +286,7 @@ width: 180px; /* 預設按鈕寬度 */
 .navbar {
   /* background-color: #027efb;  */
   /* Semi-transparent for better visibility */
+  position: fixed; /* 固定在頂部 */
   color: white;
   padding: 20px 20px;
   position: fixed; /* Fixed position to stay at the top */
@@ -271,7 +296,8 @@ width: 180px; /* 預設按鈕寬度 */
 }
 
 .navbar.hidden {
-  opacity: 0; /* Hide the navbar */
+  /* opacity: 0;   Hide the navbar */
+  display: none; /* 隱藏導航欄 */
   pointer-events: none; /* Prevent interaction when hidden */
 }
 
@@ -290,14 +316,16 @@ width: 180px; /* 預設按鈕寬度 */
 
 .nav-links {
   list-style: none;
-  display: flex;
+  /* display: flex; */
+  display: none; /* 隱藏菜單 */
+
   flex-direction: column;
   position: absolute;
   top: 55px; /* 菜單距離頂部的距離 */
-  left: 20px; /* 菜單距離左側的距離 */
+  left: 10px; /* 菜單距離左側的距離 */
   /* background-color: black; */
   background-color: rgba(0, 0, 0, 0.9); /* 半透明背景顏色 */
-  width: 85px; /* 菜單的寬度 */
+  width: 100px; /* 菜單的寬度 */
   border-radius: 10px; /* 邊角圓滑 */
   padding: 10px; /* 菜單內部的邊距 */
   /* width: 100%; */
@@ -348,7 +376,7 @@ width: 180px; /* 預設按鈕寬度 */
   display: none; /* 預設不顯示 */
   position: absolute; /* 絕對定位 */
   top: 70px; /* 調整顯示位置 */
-  left: -25px; /* 在圖標下方顯示 */
+  left: -15px; /* 在圖標下方顯示 */
   z-index: 10; /* 確保在其他元素上方 */
 }
 
@@ -368,7 +396,8 @@ width: 180px; /* 預設按鈕寬度 */
 
 .hamburger {
   cursor: pointer;
-  display: none; /* 在較大螢幕上隱藏漢堡菜單 */
+  /* display: none; 在較大螢幕上隱藏漢堡菜單 */
+  display: flex; /* 確保漢堡菜單在大屏幕上隱藏 */
   flex-direction: column;
   justify-content: space-around;
   height: 24px;
@@ -405,6 +434,8 @@ width: 180px; /* 預設按鈕寬度 */
   transform: rotate(-45deg) translate(5.5px, -5.5px); /* 調整 translate 值 */
 }
 
+
+
 /* 媒體查詢：當螢幕寬度小於 768px 時 */
 @media (max-width: 768px) {
   .nav-links {
@@ -413,5 +444,9 @@ width: 180px; /* 預設按鈕寬度 */
 
   .hamburger {
     display: flex; /* 顯示漢堡菜單 */
+  }
+
+  .nav-links.show {
+    display: flex; /* 當菜單顯示時 */
   }
 }

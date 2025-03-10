@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'nonce-random-value';"> -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';"> -->
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D model load</title>
     <link rel="stylesheet" href="./style.css">
@@ -63,7 +62,7 @@
             <div id="container3D"></div>
             <!-- <canvas id="container3D"></canvas> -->
             <!-- </main> -->
- <!-- 新增的 -->
+    <!-- 新增的 -->
        
         <label for="progress-bar" id="loading-label">
             <p>Import your 3D file here</p>
@@ -73,6 +72,7 @@
             <!-- <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .jpg, .png, .obj, .fbx" style="display: none;"> -->
         </label>
         <!-- <label for="progress-bar">Loading...</label> -->
+         <p class="loading-text">Loading...</p>
         <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
     </div>
 <!-- </div> 新增的div -->
@@ -97,6 +97,7 @@
     </div>
     
     <canvas class="web-gl"></canvas>
+    
     
     <!-- Modal for About -->
 <div id="aboutModal" class="modal">
@@ -128,25 +129,20 @@
         <p>Please read and understand the terms and conditions.</p>
     </div>
 </div>
-<!--  -->
+
 
     <script type="module" src="./index.js"></script>
     <script type="module" src="./client.js"></script>
 
-    <!-- <script nonce="random-value">
-        console.log("This inline script is allowed.");
-    </script> -->
 
 <script>
-    // <!-- <script nonce="random-value"> -->
-        // JavaScript to toggle hamburger menu
-        document.getElementById("hamburger").addEventListener("click", function() {
-            this.classList.toggle("active");
-            const navLinks = document.getElementById("navLinks");
-            navLinks.classList.toggle("show");
-        });
+        // // JavaScript to toggle hamburger menu
+        // document.getElementById("hamburger").addEventListener("click", function() {
+        //     this.classList.toggle("active");
+        //     const navLinks = document.getElementById("navLinks");
+        //     navLinks.classList.toggle("show");
+        // });
     
-        // <script>
     // JavaScript to toggle hamburger menu
         document.getElementById("hamburger").addEventListener("click", function() {
             this.classList.toggle("active");
@@ -221,8 +217,6 @@
     
     
 });
-// 
-
     </script>
 
 

@@ -45,19 +45,21 @@ navbar.style.display = "block"; // or "block" depending on your CSS
 
 
 loadingManager.onProgress = function(url, loaded, total){
-    const hamburger = document.getElementById("hamburger");
-    const navLinks = document.getElementById("navLinks");
+    // const hamburger = document.getElementById("hamburger");
+    // const navLinks = document.getElementById("navLinks");
 
-    hamburger.classList.remove("active"); // 確保漢堡菜單關閉
-    navLinks.classList.remove("show"); // 確保導航選項隱藏
+    // hamburger.classList.remove("active"); // 確保漢堡菜單關閉
+    // navLinks.classList.remove("show"); // 確保導航選項隱藏
 
 
-    console.log('Loading progress:', (loaded / total) * 100);
-    progressBar.style.display = 'block'; // 顯示進度條
+    // console.log('Loading progress:', (loaded / total) * 100);
+    // console.log(`Started loading: ${url}`);
+    // progressBar.style.display = 'block'; // 顯示進度條
     progressBar.value = (loaded / total) * 100;
     // Hide the navbar when loading starts
     // navbar.style.display = "none"; // 隱藏導航欄
-    navbar.style.display = "block"; // 或者使用 navbar.classList.remove('hidden');
+    // navbar.style.display = "block"; // 或者使用 navbar.classList.remove('hidden');
+    
 }
 
 const progressBarContainer = document.querySelector(".progress-bar-container");
@@ -447,7 +449,7 @@ Back_Light.add(spotLight2.position, 'z', -30, 30, 1).onChange(() => {
 // 當模型加載完成後，更新導航欄
 loadingManager.onLoad = function() {
     progressBarContainer.style.display = "none"; // 隱藏加載條
-    navbar.classList.remove('hidden'); // 顯示導航欄
+    // navbar.classList.remove('hidden'); // 顯示導航欄
 
     // 顯示 refreshPage 選項
     // 顯示 refreshPage 選項
@@ -2009,6 +2011,7 @@ else {
     // loadModelBtn.addEventListener('click', () => {
     //     modelFileInput.click(); // Trigger the file input when the button is clicked
     // });
+    
 
     modelFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -2042,16 +2045,17 @@ fileInputModal.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
         // 顯示進度條並隱藏導航欄
-        progressBarContainer.style.display = "flex"; // 顯示進度條
+        // progressBarContainer.style.display = "flex"; // 顯示進度條
         // 這裡確保漢堡菜單關閉
-        const hamburger = document.getElementById("hamburger");
+        // const hamburger = document.getElementById("hamburger");
         // hamburger.classList.remove("active"); // 確保漢堡菜單顯示為未打開狀態
-        hamburger.classList.add("active"); // 漢堡菜單設置為打開狀態
+        // hamburger.classList.add("active"); // 漢堡菜單設置為打開狀態
 
-        const navLinks = document.getElementById("navLinks");
+        // const navLinks = document.getElementById("navLinks");
         // navLinks.classList.remove("show"); // 隱藏導航選項
-        navLinks.classList.add("show"); // 顯示導航選項
-        
+        // navLinks.classList.add("show"); // 顯示導航選項
+        progressBarContainer.style.display = "flex"; // Assuming you want to show it
+        // navbar.classList.add('hidden'); // Hide navbar during upload
 
         loadModel(file);
         modal.style.display = "none"; // 關閉模態框

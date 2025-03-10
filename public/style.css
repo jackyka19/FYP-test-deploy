@@ -157,11 +157,28 @@ canvas {
   text-align: center;
   
 }
-#progress-bar{
+/* #progress-bar{
     width:30%;
     margin-top: 0.5%;
     height: 2%;
+} */
+
+.progress-bar {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  overflow: hidden;
+  height: 10px; /* 調整高度 */
+  position: relative;
 }
+
+.progress-fill {
+    height: 100%;
+    background-color: #027efb; /* 進度條顏色 */
+    width: 0; /* 初始寬度 */
+    transition: width 0.3s ease; /* 平滑過渡 */
+}
+
 label{
     color: white;
     font-size: 2rem;

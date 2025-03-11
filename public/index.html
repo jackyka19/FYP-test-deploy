@@ -56,7 +56,7 @@
     <!-- <main>
     <div id="container3D"></div>
     </main> -->
-    <div class = "progress-bar-container">
+    <div class = "progress-bar-container" >
         <!-- <canvas id="container3D"></canvas> -->
         <!-- <main> -->
             <div id="container3D"></div>
@@ -72,6 +72,7 @@
             <!-- <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .jpg, .png, .obj, .fbx" style="display: none;"> -->
         </label>
         <!-- <label for="progress-bar">Loading...</label> -->
+         
         <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
     </div>
 <!-- </div> 新增的div -->
@@ -85,13 +86,13 @@
             <h2>Import your 3D file here</h2>
             <div id="dropArea">
                 <p>Drag and drop a 3D model file here</p>
-                <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file</button>
+                <button id="uploadButton" class="btn-animate__underline-from-center">Upload a file</button>
                 <input type="file" id="model-file-input-modal" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;">
                 <!-- <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;"> -->
             
             </div>
             <!-- <p>supports format: glb, gltf, bin, obj, fbx, stl</p> -->
-            <p>supports format: .glb, .bin, .obj (.mtl), .fbx, .stl</p>
+            <p class="support">supports format: .glb, .bin, .obj (.mtl), .fbx, .stl</p>
         </div>
     </div>
     

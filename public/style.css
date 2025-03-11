@@ -2,17 +2,12 @@
     margin: 0;
     padding: 0;
     /* box-sizing: border-box; */
+    font-family: 'Helvetica', sans-serif; /*設置 Helvetica 為字體*/
+    /* font-family: 'Helvetica', sans-serif; */
     box-sizing: border-box; /* 確保所有元素的邊框及填充計入寬度和高度 */
     
 }
 
-/* #container3D canvas {
-  width: 100vw !important;
-  height: 100vh !important;
-  position: absolute;
-  top: 0;
-  left: 0;
-} */
 #container3D {
   width: 100vw; /* 確保寬度佔滿視窗 */
     height: 100vh; /* 確保高度佔滿視窗 */
@@ -33,24 +28,15 @@
 }
 
 #conatiner3D{
-  /* width:100vw;
-  height:100vh; */
   position: relative;
-  /* top:0; */
-  /* left:0; */
   background-color: black;
 }
 
 .progress-bar-container {
-  /* margin-top: 20px;  */
-  /* 與 3D 模型區域的距離 */
-  /* text-align: center; */
   transform: translate(-50%, -50%);
   position: absolute;
     top: 50%;
     left: 50%;
-  /* position: relative;  */
-  /* 改為相對定位 */
     width: 100%;
     height: auto; /* 自動調整高度以適應內容 */
     padding-bottom: 120px; /* 給按鈕留出空間 */
@@ -77,6 +63,24 @@
   margin-top: 20px; /* 添加一些上邊距以分隔內容 */
 }
 
+#myButton{
+
+position: relative;
+width: 330px;
+height: 80px;
+line-height: 40px;
+border: none;
+border-radius: 15px;
+background: #027efb;
+color: #fff;
+text-align: center;
+cursor: pointer;
+font-size: 32px;
+
+
+  z-index:1;
+}
+
 header {
   color: white; /* 更改為可見的顏色 */
   background-color: black; /* 設置背景顏色以便於查看 */
@@ -98,25 +102,7 @@ body {
 canvas {
     display: block;
 }
-#myButton{
-    /* position: absolute; */
-    /* top:10px; */
-    /* left:10px; */
-  position: relative;
-  width: 330px;
-  height: 80px;
-  line-height: 40px;
-  border: none;
-  border-radius: 15px;
-  background: #027efb;
-  color: #fff;
-  text-align: center;
-  cursor: pointer;
-  font-size: 32px;
-  
-  
-    z-index:1;
-}
+
 
 .btn-animate__underline-from-center {
     &::before {
@@ -187,7 +173,7 @@ label{
 #loading-label{
   /* font-size: 72px;
   font-family: 'Quicksand'; */
-  font-size: 5vw; /* 使用相對單位 */
+  font-size: 4.5vw; /* 使用相對單位 */
     color: white;
     margin-bottom: 20px;
 }
@@ -196,16 +182,39 @@ label{
 }
 /* 設置最小字體大小 */
 @media (max-width: 768px) {
-  #myButton, #loading-label {
-      font-size: 32px; /* 設置最小字體大小為 16px */
+  
+  /* #myButton, #loading-label {
+      font-size: 16px; /* 設置最小字體大小為 16px */
+  /* } */
+  #loading-label {
+    font-size: 32px; /* 設置最小字體大小為 16px */
   }
+
+  #myButton {
+    width: 220px;
+    font-size: 24px;
+    height: 8vh; /* 調整高度 */
+}
+
 
 .modal-content {
   width: 80vw; /* 在小屏幕上使用更大的相對寬度 */
   padding: 15px; /* 調整內邊距 */
 }
 
+
+#dropArea p{
+  font-size: 18px;
 }
+
+.support {
+  font-size:16px;
+}
+
+
+}
+
+
 /*  */
 
 .modal {
@@ -220,6 +229,7 @@ label{
   overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0,0,0); /* 背景顏色 */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  
 
 }
 
@@ -235,6 +245,11 @@ label{
    /* Could be more or less, depending on screen size */
   text-align: center;
   border-radius: 15px;
+}
+
+#dropArea p {
+  
+  margin: 5px 0; /* Spacing above and below */
 }
 
 
@@ -295,6 +310,19 @@ width: 180px; /* 預設按鈕寬度 */
 
   z-index:1;
 }
+/* 媒體查詢：當螢幕寬度小於 330px 時 */
+
+@media (max-width: 330px) {
+  #uploadButton {
+    width: 70%; /* 增加按鈕寬度以適應小屏幕 */
+    min-width: 125px; /* 設定最小寬度 */
+    height: 5vh; /* 調整高度 */
+    min-height: 25px; /* 設定最小高度 */
+    font-size: 0.8rem; /* 預設按鈕字體大小 */
+  }
+}
+
+
 
 
 
@@ -357,12 +385,18 @@ width: 180px; /* 預設按鈕寬度 */
 .nav-links a {
   color: white;
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
 }
 
-.auth-buttons {
-  display: flex;
-  gap: 10px; /* Space between buttons */
+@media (max-width: 768px) {
+  .nav-links a {
+    font-size: 12px;
+  }
+  .nav-links {
+    top: 55px; /* 菜單距離頂部的距離 */
+    left: 10px; /* 菜單距離左側的距離 */
+    width: 90px; /* 菜單的寬度 */
+  }
 }
 
 .auth-buttons button {
@@ -465,5 +499,36 @@ width: 180px; /* 預設按鈕寬度 */
 
   .nav-links.show {
     display: flex; /* 當菜單顯示時 */
+  }
+}
+
+/* 設置 GUI 標題和其他元素的字體大小 */
+.lil-gui {
+  /* font-family: 'Helvetica', sans-serif; 使用 Helvetica 字體 */
+  font-size: 0.7rem; /* 基準字體大小 */
+  opacity: 0.9;
+  /* max-width: 300px; 設置最大寬度 */
+    /* max-height: 80%; 設置最大高度 */
+    /* overflow: auto; 如果內容過多，顯示滾動條 */
+    /* padding: 10px; 減少內部填充 */
+}
+
+.lil-gui .title {
+  font-size: 0.7rem; /* 控制標題的字體大小 */
+}
+
+/* 在小屏幕上縮小字體 */
+@media (max-width: 768px) {
+  .lil-gui {
+    font-family: 'Helvetica', sans-serif; /*使用 Helvetica 字體*/
+    font-size: 0.7rem; /* 基準字體大小 */
+    
+    max-width: 200px;  /*設置最大寬度 */
+
+  }
+
+
+  .lil-gui .title {
+      font-size: 0.7rem; /* 調整標題的字體大小 */
   }
 }

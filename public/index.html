@@ -48,35 +48,20 @@
         </ul>
     </div>
 </nav>
-    <!--  -->
-<!-- 3D Model Section -->
-<!-- <div class="model-container">
-     -->
-     <!-- <canvas class="web-gl" id="container3D"></canvas> -->
-    <!-- <main>
-    <div id="container3D"></div>
-    </main> -->
+
     <div class = "progress-bar-container" >
-        <!-- <canvas id="container3D"></canvas> -->
-        <!-- <main> -->
+
             <div id="container3D"></div>
-            <!-- <canvas id="container3D"></canvas> -->
-            <!-- </main> -->
-    <!-- 新增的 -->
-       
+
         <label for="progress-bar" id="loading-label">
             <p>Import your 3D file here</p>
             <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button> 
             <input type="file" id="model-file-input" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;"> 
-            <!-- 因為gltf的問題解決不了, 所以不accept input gltf檔 -->
-            <!-- <input type="file" id="model-file-input" accept=".gltf, .glb, .bin, .jpg, .png, .obj, .fbx" style="display: none;"> -->
         </label>
-        <!-- <label for="progress-bar">Loading...</label> -->
+
          
         <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
     </div>
-<!-- </div> 新增的div -->
-
 
 
     <!-- Modal for file upload -->
@@ -104,8 +89,13 @@
     <div class="modal-content">
         <span class="close" id="closeAboutModal">&times;</span>
         <h2>Interactive 3D Models Rendering Web App</h2>
-        <p>This project developed an interactive website which can use in PC, mobile phone, and different operating system, provides the user a can control the 3D models with interface. User also can use the mouse or touch control in mobile such as move 3d model, zoom in and out, etc.
-            The project infrastructure in a 3D model rendering uses the WebGL and Three.js. WebGL is a cross-platform JavaScript API that works with all the major browsers and allows 3D visuals to be rendered in the browser without the need for plugins. Moreover, Three.js is the most popular library/API for WebGL-based 3D graphics, making it easy for developers to create complex 3D scenes and visualizations.
+    
+        <p>     This project developed an interactive website which can use in PC, mobile phone, and different operating system, 
+            provides the user a can control the 3D models with interface. User also can use the mouse or touch control in mobile such as move 3d model, zoom in and out, etc.</p>
+            <hr>
+            <p>     The project infrastructure in a 3D model rendering uses the WebGL and Three.js. 
+                WebGL is a cross-platform JavaScript API that works with all the major browsers and allows 3D visuals to be rendered in the browser without the need for plugins. 
+                Moreover, Three.js is the most popular library/API for WebGL-based 3D graphics, making it easy for developers to create complex 3D scenes and visualizations.
             </p>
     </div>
 </div>
@@ -124,15 +114,22 @@
 <div id="legalsModal" class="modal">
     <div class="modal-content">
         <span class="close" id="closeLegalsModal">&times;</span>
-        <h2>Legals</h2>
-        <p>This section contains legal information regarding the use of this tool.</p>
-        <p>Please read and understand the terms and conditions.</p>
+        <h2>Disclaimer</h2>
+        <p>     This project does not guarantee that the service or its content and functions are error-free or uninterrupted, nor that all defects will be corrected, or that your use will yield specific results.
+            The service and its content are provided "as is." Information provided through the service may change at any time without notice. 
+            This project does not guarantee that downloaded files or other data are free from viruses or harmful components. 
+            No express or implied warranties are provided, including accuracy of content, non-infringement, or merchantability for specific purposes. 
+            The project is not liable for any third-party actions related to your use of the service. You assume all responsibility for using the service and linked websites. 
+            If you are dissatisfied with the service or its content, your sole remedy is to stop using it. This limitation is part of the agreement between the parties.</p>
+            <hr>
+        <p>     This disclaimer applies to damages or liabilities arising from any breach, error, omission, interruption, deletion, defect, delay in operation or transmission, 
+            computer viruses, communication line failures, theft, destruction, or unauthorized access, alteration, and use, regardless of the legal basis.</p>
     </div>
 </div>
 
-
+<script type="module" src="./client.js"></script>
     <script type="module" src="./index.js"></script>
-    <script type="module" src="./client.js"></script>
+    
 
 
 <script>

@@ -11,8 +11,11 @@ import {RGBELoader} from "./jsm/loaders/RGBELoader.js";
 import {STLLoader} from "./jsm/loaders/STLLoader.js";
 
 
+// let scene;
 let scene;
+// let camera;
 let camera;
+// let renderer;
 let renderer;
 let input_model;
 let spotLightHelper1; 
@@ -118,7 +121,7 @@ const init = () => {
     const near = 0.1;
     const far = 1000;
 
-    camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    camera =  window.camera || new THREE.PerspectiveCamera(fov, aspect, near, far);
 
     const gui = new GUI();
     gui.domElement.style.display = 'none'; // Hide the GUI by default
@@ -312,11 +315,12 @@ textureInput.addEventListener('change', (event) => {
     renderer = new THREE.WebGLRenderer({
         antialias: true, 
         alpha: false,
+        powerPreference: "high-performance", // 優先使用高性能模式
         canvas: model_container
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    controls = new OrbitControls(camera, renderer.domElement);
+    controls = window.controls || new OrbitControls(camera, renderer.domElement);
     
     controls.autoRotate = false; // Initially set to false
     controls.autoRotateSpeed = 5.0; // Set the speed of auto-rotation
@@ -429,16 +433,12 @@ Back_Light.add(spotLight2.position, 'y', -30, 30, 1).onChange(() => {
 Back_Light.add(spotLight2.position, 'z', -30, 30, 1).onChange(() => {
     spotLightHelper2.update();
 });
-//
-    //const loader = new GLTFLoader(loadingManager);
 
 
     
-// 這部份是關於load 3d model 載入畫面和 載入3d model
+// 這部份是關於load 3d model 載入畫面和 載入3d model // loadmodel 由呢行到linezz  (即係將呢一行減到1500左右的行數就到開頭)
     const loadModel = (file) => {
-        // Change label to "Loading..."
-        // navbar.classList.remove('hidden'); // 確保導航欄可見
-        // console.log(navbar.classList); // 檢查類
+
         document.getElementById('loading-label').innerText = 'Loading...';
         const progressBar = document.getElementById('progress-bar');
         progressBar.style.display = 'block'; // Show loading bar
@@ -449,33 +449,26 @@ Back_Light.add(spotLight2.position, 'z', -30, 30, 1).onChange(() => {
 // 當模型加載完成後，更新導航欄
 loadingManager.onLoad = function() {
     progressBarContainer.style.display = "none"; // 隱藏加載條
-    // navbar.classList.remove('hidden'); // 顯示導航欄
 
-    // 顯示 refreshPage 選項
     // 顯示 refreshPage 選項
     const refreshPageLink = document.getElementById("refreshPage");
     refreshPageLink.style.display = "block"; // 顯示選項
-    // document.getElementById("refreshPage").style.display = "block"; // 顯示選項
+
 
     // 添加選項以刷新頁面
     refreshPageLink.addEventListener("click", (event) => {
         event.preventDefault(); // 防止默認行為
         location.reload(); // 刷新頁面
     });
-    // 添加選項以刷新頁面
-    // document.getElementById("refreshPage").addEventListener("click", (event) => {
-    //     event.preventDefault(); // 防止默認行為
-    //     location.reload(); // 刷新頁面
-    // });
+
 
     // 將漢堡菜單設置為未打開狀態
     const hamburger = document.getElementById("hamburger");
     hamburger.classList.remove("active"); // 確保漢堡菜單顯示為未打開狀態
-    // hamburger.classList.add("active"); // 漢堡菜單設置為打開狀態
-    // hamburger.classList.add("active"); // 漢堡菜單設置為打開狀態
+
     const navLinks = document.getElementById("navLinks");
     navLinks.classList.remove("show"); // 隱藏導航選項
-    // navLinks.classList.add("show"); // 顯示導航選項
+
 };
 
 //
@@ -576,16 +569,7 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
     gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
 });
 
-//  // 添加縮放和位置控制
-//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
-//     input_model.scale.set(value, value, value);
-//     updateHelpers(); // 更新幫助器位置
-// });
 
-// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
-//     input_model.position.y = value;
-//     updateHelpers(); // 更新幫助器位置
-// });
 
  // 更新幫助器位置的函數
  function updateHelpers() {
@@ -838,16 +822,7 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
     gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
 });
 
-//  // 添加縮放和位置控制
-//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
-//     input_model.scale.set(value, value, value);
-//     updateHelpers(); // 更新幫助器位置
-// });
 
-// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
-//     input_model.position.y = value;
-//     updateHelpers(); // 更新幫助器位置
-// });
 
  // 更新幫助器位置的函數
  function updateHelpers() {
@@ -1142,17 +1117,6 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
 });
 
 
-//  // 添加縮放和位置控制
-//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
-//     input_model.scale.set(value, value, value);
-//     updateHelpers(); // 更新幫助器位置
-// });
-
-
-// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
-//     input_model.position.y = value;
-//     updateHelpers(); // 更新幫助器位置
-// });
 
 
  // 更新幫助器位置的函數
@@ -1473,18 +1437,6 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
     gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
 });
 
-
-//  // 添加縮放和位置控制
-//  BoxHelper.add(params, 'scale', 0.1, 5).onChange(value => {
-//     input_model.scale.set(value, value, value);
-//     updateHelpers(); // 更新幫助器位置
-// });
-
-
-// BoxHelper.add(params, 'positionY', -10, 10).onChange(value => {
-//     input_model.position.y = value;
-//     updateHelpers(); // 更新幫助器位置
-// });
 
 
  // 更新幫助器位置的函數
@@ -1999,8 +1951,8 @@ else {
         console.error('Unsupported file format:', fileExtension);
     }
 
-// if 判斷 .glb 和 .gltf 完結   
-    };
+ 
+    }; // loadmodal line 436 開始(即係將呢一行減到1500左右的行數就到開頭)
 
 
 
@@ -2044,16 +1996,6 @@ uploadButton.onclick = function() {
 fileInputModal.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
-        // 顯示進度條並隱藏導航欄
-        // progressBarContainer.style.display = "flex"; // 顯示進度條
-        // 這裡確保漢堡菜單關閉
-        // const hamburger = document.getElementById("hamburger");
-        // hamburger.classList.remove("active"); // 確保漢堡菜單顯示為未打開狀態
-        // hamburger.classList.add("active"); // 漢堡菜單設置為打開狀態
-
-        // const navLinks = document.getElementById("navLinks");
-        // navLinks.classList.remove("show"); // 隱藏導航選項
-        // navLinks.classList.add("show"); // 顯示導航選項
         progressBarContainer.style.display = "flex"; // Assuming you want to show it
         // navbar.classList.add('hidden'); // Hide navbar during upload
 
@@ -2103,9 +2045,6 @@ dropArea.addEventListener('drop', (event) => {
 // Animation loop
 const animate = () => {
     requestAnimationFrame(animate);
-    // step += 0.02;
-    // input_model.position.y = 2*Math.abs(Math.sin(step));
-    // console.log(Math.abs(Math.sin(step)));
     controls.update(); // Update controls to apply autorotation if enabled
     renderer.render(scene, camera);
     stats.update();  // Update stats only if visible

@@ -1,9 +1,9 @@
 *{
     margin: 0;
     padding: 0;
-    /* box-sizing: border-box; */
-    font-family: 'Helvetica', sans-serif; /*設置 Helvetica 為字體*/
-    /* font-family: 'Helvetica', sans-serif; */
+    font-family: 'Helvetica', sans-serif; 
+    /*設置 Helvetica 為字體 */
+ 
     box-sizing: border-box; /* 確保所有元素的邊框及填充計入寬度和高度 */
     
 }
@@ -143,11 +143,7 @@ canvas {
   text-align: center;
   
 }
-/* #progress-bar{
-    width:30%;
-    margin-top: 0.5%;
-    height: 2%;
-} */
+
 
 .progress-bar {
   width: 100%;
@@ -171,8 +167,6 @@ label{
     margin-bottom: 1rem; 
 }
 #loading-label{
-  /* font-size: 72px;
-  font-family: 'Quicksand'; */
   font-size: 4.5vw; /* 使用相對單位 */
     color: white;
     margin-bottom: 20px;
@@ -183,9 +177,6 @@ label{
 /* 設置最小字體大小 */
 @media (max-width: 768px) {
   
-  /* #myButton, #loading-label {
-      font-size: 16px; /* 設置最小字體大小為 16px */
-  /* } */
   #loading-label {
     font-size: 32px; /* 設置最小字體大小為 16px */
   }
@@ -241,10 +232,18 @@ label{
   width: 80vw;
   height: auto;
   max-width: 600px; /* Maximum width for larger screens */
-  /* width: 30%; */
-   /* Could be more or less, depending on screen size */
-  text-align: center;
+  text-align: left;
+  /* text-align: center; */
   border-radius: 15px;
+  
+}
+
+.modal-content p {
+  font-size: 16px; 
+  line-height: 1.5; 
+  /* margin-bottom: 10px;  */
+  /* margin-left: 10px;  */
+  margin: 10px; 
 }
 
 #dropArea p {
@@ -289,12 +288,7 @@ label{
   border-radius: 15px;
 }
 #uploadButton{
-  /* position: absolute; */
-  /* top:10px; */
-  /* left:10px; */
 position: relative;
-/* width: 190px;
-height: 40px; */
 line-height: 40px;
 border: none;
 border-radius: 15px;
@@ -322,11 +316,6 @@ width: 180px; /* 預設按鈕寬度 */
   }
 }
 
-
-
-
-
-/*  */
 /* Navbar Styles */
 .navbar {
   /* background-color: #027efb;  */
@@ -447,7 +436,6 @@ width: 180px; /* 預設按鈕寬度 */
 
 .hamburger {
   cursor: pointer;
-  /* display: none; 在較大螢幕上隱藏漢堡菜單 */
   display: flex; /* 確保漢堡菜單在大屏幕上隱藏 */
   flex-direction: column;
   justify-content: space-around;
@@ -473,7 +461,6 @@ width: 180px; /* 預設按鈕寬度 */
 
 /* 漢堡菜單轉換為 X 樣式 */
 .hamburger.active .line:nth-child(1) {
-  /* top:50%; */
   transform: rotate(45deg) translate(5.5px, 5.5px);
 }
 
@@ -504,31 +491,13 @@ width: 180px; /* 預設按鈕寬度 */
 
 /* 設置 GUI 標題和其他元素的字體大小 */
 .lil-gui {
-  /* font-family: 'Helvetica', sans-serif; 使用 Helvetica 字體 */
-  font-size: 0.7rem; /* 基準字體大小 */
   opacity: 0.9;
-  /* max-width: 300px; 設置最大寬度 */
-    /* max-height: 80%; 設置最大高度 */
-    /* overflow: auto; 如果內容過多，顯示滾動條 */
-    /* padding: 10px; 減少內部填充 */
 }
 
-.lil-gui .title {
-  font-size: 0.7rem; /* 控制標題的字體大小 */
-}
 
-/* 在小屏幕上縮小字體 */
 @media (max-width: 768px) {
   .lil-gui {
-    font-family: 'Helvetica', sans-serif; /*使用 Helvetica 字體*/
-    font-size: 0.7rem; /* 基準字體大小 */
-    
-    max-width: 200px;  /*設置最大寬度 */
-
-  }
-
-
-  .lil-gui .title {
-      font-size: 0.7rem; /* 調整標題的字體大小 */
-  }
-}
+    max-width: 200px; 
+     /* 設置最大寬度 */
+  }}
+  

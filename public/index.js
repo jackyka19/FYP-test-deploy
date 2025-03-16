@@ -14,8 +14,18 @@ let defaultScale;
 let scaleXControl, scaleYControl, scaleZControl;
 let defaultCameraPosition;
 let camerapositionControl;
-let renderer;
+// let renderer;
+const renderer =  new THREE.WebGLRenderer({
+    antialias: true, 
+    alpha: false,
+    powerPreference: "high-performance", // 優先使用高性能模式
+    // canvas: model_container
+});
+window.renderer = renderer;
+window.scene = scene;
+
 let scaleControl; 
+// let camera;
 
 let object;
 let controls;
@@ -24,6 +34,7 @@ let input_model;
 
 // create a new camera with positions and angle
 const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+window.camera = camera;
 const gui = new GUI();
 
 // 加入背顏色 (2D,3D背景有用)
@@ -197,17 +208,30 @@ const camera_position = gui.addFolder("Camera").close();
     // console.log("Scale reset to default:", defaultCameraPosition );
     }}, 'resetPosition').name('Reset Position');
 
-    renderer = new THREE.WebGLRenderer({
-        antialias: true, 
-        alpha: false,
-        // canvas: model_container
-    });
+    // renderer = new THREE.WebGLRenderer({
+    //     antialias: true, 
+    //     alpha: false,
+    //     // powerPreference: "high-performance", // 優先使用高性能模式
+    //     // canvas: model_container
+    // });
     // renderer.setSize(window.innerWidth, window.innerHeight);
 
     controls = new OrbitControls(camera, renderer.domElement);
     
     controls.autoRotate = false; // Initially set to false
     controls.autoRotateSpeed = 5.0; // Set the speed of auto-rotation
+
+    const autoRotate = { rotate: false };
+    const Auto_Rotate = gui.addFolder("Auto Rotate").close();
+    Auto_Rotate.add(autoRotate, "rotate").name("Auto Rotate").onChange((value) => {
+        controls.autoRotate = value; // Enable or disable auto-rotation based on checkbox
+    });
+
+     // Add a control for auto-rotate speed
+     const speedControl = { speed: controls.autoRotateSpeed };
+     Auto_Rotate.add(speedControl, "speed", 0, 20).name("Auto Rotate Speed").onChange((value) => {
+         controls.autoRotateSpeed = value; // Update the auto-rotate speed
+     });
 
 //-------
 camera.position.set(0, 0, 10); // 設置相機位置
@@ -216,10 +240,7 @@ const stats = new Stats();
 document.body.appendChild(stats.domElement);
 stats.domElement.style.display = 'none'; // Hide stats by default
 
-// let object;
-// let controls;
-// let objToRender = "example";
-// let input_model;
+
 
 const loader = new GLTFLoader();
 
@@ -235,11 +256,9 @@ let initialPosition; // 紀錄初始位置
 loader.load(
             './model/scene.glb',
             (gltf) => {
-                
-
                 input_model = gltf.scene.children[0];
-                input_model.position.set(0, -1.9, 0);
-                input_model.scale.set(0.12, 0.12, 0.12); // 將模型縮放到原來的0.13%
+                input_model.position.set(0, -4, 0);
+                input_model.scale.set(0.3, 0.3, 0.3); // 將模型縮放到原來的0.13%
                 input_model.rotation.x = Math.PI / -3;
 
                 // 創建包圍盒
@@ -379,7 +398,7 @@ loader.load(
                         scaleX: defaultScale.x,
                         scaleY: defaultScale.y,
                         scaleZ: defaultScale.z,
-                        uniformScale: 0.12 //新增的屬性
+                        uniformScale: 0.3 //新增的屬性
                     };
     
             const Scale_control = gui.addFolder("Scale Control").close();
@@ -443,8 +462,8 @@ loader.load(
                     scaleControl.scaleY = defaultScale.y; 
                     scaleControl.scaleZ = defaultScale.z; 
             
-                    // 設置 uniformScale 為 0.15
-                    scaleControl.uniformScale = 0.12;
+                    // 設置 uniformScale 為 0.3
+                    scaleControl.uniformScale = 0.3;
             
                     // 更新 GUI 控件
                     scaleXControl.setValue(defaultScale.x); 
@@ -483,8 +502,7 @@ loader.load(
     }
 );
 
-// const renderer = new THREE.WebGLRenderer({ alpha:true });
-// renderer.setSize(window.innerWidth*0.8, window.innerHeight*0.8);
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Add the renderer to the DOM
@@ -613,9 +631,13 @@ Back_Light.add(spotLight2.position, 'z', -5, 5, 1).onChange(() => {
 
 let step = 0;
 
+let needsRender = true; // 標記是否需要渲染
+
 
 
 function animate(){
+
+    
     requestAnimationFrame(animate);
 
     // const elapsedTime = Date.now() - startTime; // 計算經過的時間
@@ -635,9 +657,19 @@ function animate(){
         }
     }
 
-    stats.update();
+    // 更新控制器以支持自動旋轉
+    if (controls.autoRotate) {
+        controls.update();
+    }
+
+        controls.update();
+        renderer.render(scene, camera);
+        stats.update();
+        needsRender = false; // 重置標記
+
+    // stats.update();
     
-    renderer.render(scene, camera);
+    // renderer.render(scene, camera);
     
 
 }
@@ -648,5 +680,10 @@ window.addEventListener("resize", function(){
     renderer.setSize(this.window.innerWidth, this.window.innerHeight);
 });
 
+// 當有模型變化或用戶交互時，設置 needsRender = true
+// window.addEventListener('mousemove', () => {
+//     needsRender = true;
+// });
+
 // Start the 3D rendering
-animate();
+// animate();

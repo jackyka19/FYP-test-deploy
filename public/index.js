@@ -60,14 +60,85 @@ const statsControl = { showStats: false };
         });
     
         //Add a text input to set the background image URL
-        background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
-            if (value) {
-                const textureLoader = new THREE.TextureLoader();
-                textureLoader.load(value, (texture) => {
-                    scene.background = texture; // Update the scene background to the texture
-                });
-            }
-        });
+        // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+        //     if (value) {
+        //         const textureLoader = new THREE.TextureLoader();
+        //         textureLoader.load(value, (texture) => {
+        //             scene.background = texture; // Update the scene background to the texture
+        //         });
+        //     }
+        // });
+
+         background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+                // 找到 "Background Image URL" 控制器的父容器
+                const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+                    div.textContent.includes('Background Image URL')
+                );
+                const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+            
+                if (!inputElement) {
+                    console.error('Input element for "Background Image URL" not found');
+                    return; // 防止進一步錯誤
+                }
+            
+                // 獲取獨立的錯誤提示元素
+                const errorHint = document.getElementById('error-hint');
+                if (!errorHint) {
+                    console.error('Error hint element (#error-hint) not found in DOM');
+                    return;
+                }
+            
+                // 不再需要動態計算位置，因為 CSS 已將其固定在畫面中間
+                // 移除以下代碼：
+                // const inputRect = inputElement.getBoundingClientRect();
+                // errorHint.style.left = `${inputRect.left}px`;
+                // errorHint.style.top = `${inputRect.bottom + 5}px`;
+            
+                // 處理空輸入的情況
+                if (!value || value.trim() === '') {
+                    errorHint.textContent = ''; // 清空提示
+                    errorHint.style.display = 'none'; // 隱藏提示
+                    console.log('Input is empty, hint cleared');
+                    return; // 提前返回，不進行後續檢查
+                }
+            
+                // 使用全局 validator 驗證 URL
+                        if (validator.isURL(value, { protocols: ['https'], require_protocol: true })) {
+                            const textureLoader = new THREE.TextureLoader();
+                            textureLoader.load(value, (texture) => {
+                                scene.background = texture; // 更新背景
+                                errorHint.textContent = ''; // 清空提示
+                                errorHint.style.display = 'none'; // 隱藏提示
+                                console.log('Background updated, hint cleared');
+                            }, undefined, (error) => {
+                                console.error('Error loading texture:', error);
+                                errorHint.textContent = 'Failed to load backgroung image: Please enter a valid HTTPS URL';
+                                errorHint.style.display = 'block'; // 顯示提示
+                                console.log('Error hint set to "Failed to load image"');
+                            });
+                        } else {
+                            console.error('Invalid URL');
+                            errorHint.textContent = 'Background image: Please enter a valid HTTPS URL'; // 設置錯誤提示
+                            errorHint.style.display = 'block'; // 顯示提示
+                            console.log('Error hint set to "此輸入框不對的"');
+                        }
+                    });
+
+    // 處理窗口調整時重新定位錯誤提示
+    window.addEventListener('resize', () => {
+        const errorHint = document.getElementById('error-hint');
+        const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+            div.textContent.includes('Background Image URL')
+        );
+        const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+        if (errorHint && inputElement && errorHint.style.display !== 'none') {
+            // 重新計算位置（這裡僅為示例，實際可能不需要）
+        // errorHint.style.top = '90%';
+        // // errorHint.style.right = '2%';
+        // errorHint.style.left = '50%';
+        }
+    });
 
         // Create an input for uploading 2D or 3D images
 const uploadInput = document.createElement('input');
@@ -328,9 +399,15 @@ loader.load(
      // 更新幫助器位置的函數
      function updateHelpers() {
         const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
+
         boxHelper.box = box; // 更新包圍盒助手的包圍盒
         axesHelper.position.y = box.min.y; // 更新輔助軸位置
         gridHelper.position.y = box.min.y; // 更新網格位置
+
+        // Update the GridHelper position to follow the model in x, y, z
+        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
+        axesHelper.position.set(center.x, box.min.y, center.z);
     }
     
     updateHelpers(); // 初始化幫助器位置

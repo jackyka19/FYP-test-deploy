@@ -166,14 +166,371 @@ const init = () => {
     });
 
     //Add a text input to set the background image URL
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     if (value) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // Update the scene background to the texture
+    //         });
+    //     }
+    // });
+
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 使用 validator 驗證 URL
+    //     const validator = require('validator'); // 需要安裝 validator
+    //     if (value && validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture;
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //     }
+    // });
+
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 使用全局 validator 驗證 URL
+    //     if (value && validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // 更新背景
+    //         }, undefined, (error) => {
+    //             console.error('Error loading texture:', error);
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //     }
+    // });
+
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 找到 "Background Image URL" 控制器的父容器
+    //     const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+    //         div.textContent.includes('Background Image URL')
+    //     );
+    //     const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+    //     if (!inputElement) {
+    //         console.error('Input element for "Background Image URL" not found');
+    //         return; // 防止進一步錯誤
+    //     }
+    
+    //     const parentElement = inputElement.parentElement;
+    
+    //     // 查找是否已存在提示元素，如果不存在則創建一個
+    //     let errorHint = parentElement.querySelector('.error-hint');
+    //     if (!errorHint) {
+    //         errorHint = document.createElement('span');
+    //         errorHint.className = 'error-hint';
+    //         errorHint.style.color = 'red';
+    //         errorHint.style.marginLeft = '10px';
+    //         errorHint.style.fontSize = '12px';
+    //         parentElement.appendChild(errorHint);
+    //     }
+    
+    //     // 使用全局 validator 驗證 URL
+    //     if (value && validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // 更新背景
+    //             errorHint.textContent = ''; // 成功時隱藏提示
+    //         }, undefined, (error) => {
+    //             console.error('Error loading texture:', error);
+    //             errorHint.textContent = 'Failed to load image';
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //         errorHint.textContent = '此輸入框不對的'; // 顯示錯誤提示
+    //     }
+    // });
+
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 找到 "Background Image URL" 控制器的父容器
+    //     const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+    //         div.textContent.includes('Background Image URL')
+    //     );
+    //     const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+    //     if (!inputElement) {
+    //         console.error('Input element for "Background Image URL" not found');
+    //         return; // 防止進一步錯誤
+    //     }
+    
+    //     const parentElement = inputElement.parentElement;
+    
+    //     // 查找是否已存在提示元素，如果不存在則創建一個
+    //     let errorHint = parentElement.querySelector('.error-hint');
+    //     if (!errorHint) {
+    //         errorHint = document.createElement('span');
+    //         errorHint.className = 'error-hint';
+    //         errorHint.style.color = 'red';
+    //         errorHint.style.marginLeft = '10px';
+    //         errorHint.style.fontSize = '12px';
+    //         errorHint.style.zIndex = '1000'; // 添加較高的 z-index
+    //         parentElement.appendChild(errorHint);
+    //         console.log('Error hint created and appended to DOM:', errorHint); // 調試信息
+    //     } else {
+    //         console.log('Error hint already exists in DOM:', errorHint); // 調試信息
+    //     }
+    
+    //     // 使用全局 validator 驗證 URL
+    //     if (value && validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // 更新背景
+    //             errorHint.textContent = ''; // 成功時隱藏提示
+    //             console.log('Background updated, hint cleared:', errorHint); // 調試信息
+    //         }, undefined, (error) => {
+    //             console.error('Error loading texture:', error);
+    //             errorHint.textContent = 'Failed to load image';
+    //             console.log('Error hint set to "Failed to load image":', errorHint); // 調試信息
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //         errorHint.textContent = '此輸入框不對的'; // 顯示錯誤提示
+    //         console.log('Error hint set to "此輸入框不對的":', errorHint); // 調試信息
+    //     }
+    // });
+
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 找到 "Background Image URL" 控制器的父容器
+    //     const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+    //         div.textContent.includes('Background Image URL')
+    //     );
+    //     const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+    //     if (!inputElement) {
+    //         console.error('Input element for "Background Image URL" not found');
+    //         return; // 防止進一步錯誤
+    //     }
+    
+    //     // 改進：將 errorHint 附加到 controllerDiv，而不是 inputElement.parentElement
+    //     const parentElement = controllerDiv; // 直接使用 controllerDiv 作為父元素
+    
+    //     // 查找是否已存在提示元素，如果不存在則創建一個
+    //     let errorHint = parentElement.querySelector('.error-hint');
+    //     if (!errorHint) {
+    //         errorHint = document.createElement('span');
+    //         errorHint.className = 'error-hint';
+    //         errorHint.style.color = 'red';
+    //         errorHint.style.marginLeft = '10px';
+    //         errorHint.style.fontSize = '12px';
+    //         errorHint.style.zIndex = '1000'; // 確保 z-index 足夠高
+    //         errorHint.style.display = 'inline-block'; // 顯式設置 display
+    //         errorHint.style.position = 'relative'; // 確保 z-index 生效
+    //         parentElement.appendChild(errorHint);
+    //         console.log('Error hint created and appended to DOM:', errorHint);
+    //     } else {
+    //         console.log('Error hint already exists in DOM:', errorHint);
+    //     }
+    
+    //     // 使用全局 validator 驗證 URL
+    //     if (value && validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // 更新背景
+    //             errorHint.textContent = ''; // 成功時隱藏提示
+    //             console.log('Background updated, hint cleared:', errorHint);
+    //         }, undefined, (error) => {
+    //             console.error('Error loading texture:', error);
+    //             errorHint.textContent = 'Failed to load image';
+    //             console.log('Error hint set to "Failed to load image":', errorHint);
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //         errorHint.textContent = '此輸入框不對的'; // 顯示錯誤提示
+    //         console.log('Error hint set to "此輸入框不對的":', errorHint);
+    //     }
+    // });
+    
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 找到 "Background Image URL" 控制器的父容器
+    //     const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+    //         div.textContent.includes('Background Image URL')
+    //     );
+    //     const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+    //     if (!inputElement) {
+    //         console.error('Input element for "Background Image URL" not found');
+    //         return; // 防止進一步錯誤
+    //     }
+    
+    //     // 獲取獨立的錯誤提示元素
+    //     const errorHint = document.getElementById('error-hint');
+    //     if (!errorHint) {
+    //         console.error('Error hint element (#error-hint) not found in DOM');
+    //         return;
+    //     }
+    
+    //     // 計算輸入框的位置並定位錯誤提示
+    //     const inputRect = inputElement.getBoundingClientRect();
+    //     errorHint.style.left = `${inputRect.right + 10}px`; // 輸入框右側 10px
+    //     errorHint.style.top = `${inputRect.top}px`; // 與輸入框頂部對齊
+    
+    //     // 使用全局 validator 驗證 URL
+    //     if (value && validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // 更新背景
+    //             errorHint.textContent = ''; // 清空提示
+    //             errorHint.style.display = 'none'; // 隱藏提示
+    //             console.log('Background updated, hint cleared');
+    //         }, undefined, (error) => {
+    //             console.error('Error loading texture:', error);
+    //             errorHint.textContent = 'Failed to load image';
+    //             errorHint.style.display = 'block'; // 顯示提示
+    //             console.log('Error hint set to "Failed to load image"');
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //         errorHint.textContent = '此輸入框不對的'; // 設置錯誤提示
+    //         errorHint.style.display = 'block'; // 顯示提示
+    //         console.log('Error hint set to "此輸入框不對的"');
+    //     }
+    // });
+
+    // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    //     // 找到 "Background Image URL" 控制器的父容器
+    //     const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+    //         div.textContent.includes('Background Image URL')
+    //     );
+    //     const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+    //     if (!inputElement) {
+    //         console.error('Input element for "Background Image URL" not found');
+    //         return; // 防止進一步錯誤
+    //     }
+    
+    //     // 獲取獨立的錯誤提示元素
+    //     const errorHint = document.getElementById('error-hint');
+    //     if (!errorHint) {
+    //         console.error('Error hint element (#error-hint) not found in DOM');
+    //         return;
+    //     }
+    
+    //     // 計算輸入框的位置並定位錯誤提示（顯示在輸入框下方）
+    //     const inputRect = inputElement.getBoundingClientRect();
+    //     errorHint.style.left = `${inputRect.left}px`; // 與輸入框左側對齊
+    //     errorHint.style.top = `${inputRect.bottom + 5}px`; // 顯示在輸入框下方，偏移 5px
+    
+    //     // 處理空輸入的情況
+    //     if (!value || value.trim() === '') {
+    //         errorHint.textContent = ''; // 清空提示
+    //         errorHint.style.display = 'none'; // 隱藏提示
+    //         console.log('Input is empty, hint cleared');
+    //         return; // 提前返回，不進行後續檢查
+    //     }
+    
+    //     // 使用全局 validator 驗證 URL
+    //     if (validator.isURL(value, { protocols: ['http', 'https'], require_protocol: true })) {
+    //         const textureLoader = new THREE.TextureLoader();
+    //         textureLoader.load(value, (texture) => {
+    //             scene.background = texture; // 更新背景
+    //             errorHint.textContent = ''; // 清空提示
+    //             errorHint.style.display = 'none'; // 隱藏提示
+    //             console.log('Background updated, hint cleared');
+    //         }, undefined, (error) => {
+    //             console.error('Error loading texture:', error);
+    //             errorHint.textContent = 'Failed to load image';
+    //             errorHint.style.display = 'block'; // 顯示提示
+    //             console.log('Error hint set to "Failed to load image"');
+    //         });
+    //     } else {
+    //         console.error('Invalid URL');
+    //         errorHint.textContent = '此輸入框不對的'; // 設置錯誤提示
+    //         errorHint.style.display = 'block'; // 顯示提示
+    //         console.log('Error hint set to "此輸入框不對的"');
+    //     }
+    // });
+
+
     background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
-        if (value) {
+        // 找到 "Background Image URL" 控制器的父容器
+        const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+            div.textContent.includes('Background Image URL')
+        );
+        const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+        if (!inputElement) {
+            console.error('Input element for "Background Image URL" not found');
+            return; // 防止進一步錯誤
+        }
+    
+        // 獲取獨立的錯誤提示元素
+        const errorHint = document.getElementById('error-hint');
+        if (!errorHint) {
+            console.error('Error hint element (#error-hint) not found in DOM');
+            return;
+        }
+    
+        // 不再需要動態計算位置，因為 CSS 已將其固定在畫面中間
+        // 移除以下代碼：
+        // const inputRect = inputElement.getBoundingClientRect();
+        // errorHint.style.left = `${inputRect.left}px`;
+        // errorHint.style.top = `${inputRect.bottom + 5}px`;
+    
+        // 處理空輸入的情況
+        if (!value || value.trim() === '') {
+            errorHint.textContent = ''; // 清空提示
+            errorHint.style.display = 'none'; // 隱藏提示
+            console.log('Input is empty, hint cleared');
+            return; // 提前返回，不進行後續檢查
+        }
+    
+        // 使用全局 validator 驗證 URL
+        if (validator.isURL(value, { protocols: ['https'], require_protocol: true })) {
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load(value, (texture) => {
-                scene.background = texture; // Update the scene background to the texture
+                scene.background = texture; // 更新背景
+                errorHint.textContent = ''; // 清空提示
+                errorHint.style.display = 'none'; // 隱藏提示
+                console.log('Background updated, hint cleared');
+            }, undefined, (error) => {
+                console.error('Error loading texture:', error);
+                errorHint.textContent = 'Failed to load backgroung image: Please enter a valid HTTPS URL';
+                errorHint.style.display = 'block'; // 顯示提示
+                console.log('Error hint set to "Failed to load image"');
             });
+        } else {
+            console.error('Invalid URL');
+            errorHint.textContent = 'Background image: Please enter a valid HTTPS URL'; // 設置錯誤提示
+            errorHint.style.display = 'block'; // 顯示提示
+            console.log('Error hint set to "此輸入框不對的"');
         }
     });
+    
+    // 移除窗口調整的重新定位邏輯，因為使用 position: fixed 後不需要
+    // 以下代碼可以刪除：
+    /*
+    window.addEventListener('resize', () => {
+        const errorHint = document.getElementById('error-hint');
+        const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+            div.textContent.includes('Background Image URL')
+        );
+        const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    
+        if (errorHint && inputElement && errorHint.style.display !== 'none') {
+            const inputRect = inputElement.getBoundingClientRect();
+            errorHint.style.left = `${inputRect.left}px`;
+            errorHint.style.top = `${inputRect.bottom + 5}px`;
+        }
+    });
+    */
+
+    // 處理窗口調整時重新定位錯誤提示
+window.addEventListener('resize', () => {
+    const errorHint = document.getElementById('error-hint');
+    const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+        div.textContent.includes('Background Image URL')
+    );
+    const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+
+    if (errorHint && inputElement && errorHint.style.display !== 'none') {
+        // 重新計算位置（這裡僅為示例，實際可能不需要）
+    // errorHint.style.top = '90%';
+    // // errorHint.style.right = '2%';
+    // errorHint.style.left = '50%';
+    }
+});
 
 // Create an input for uploading 2D or 3D images
 const uploadInput = document.createElement('input');
@@ -541,7 +898,9 @@ scene.add(gridHelper);
         showGrid: false,  //網格
 
         scale: 1,
-        positionY: input_model.position.y
+        positionX: input_model.position.x,
+        positionY: input_model.position.y,
+        positionZ: input_model.position.z
     };
 
     // Create a folder for Position Control in the GUI
@@ -571,13 +930,20 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
 
 
 
- // 更新幫助器位置的函數
- function updateHelpers() {
-    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
-    boxHelper.box = box; // 更新包圍盒助手的包圍盒
-    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
-    gridHelper.position.y = box.min.y - offset; // 更新網格位置
-}
+     // 更新幫助器位置的函數
+     function updateHelpers() {
+        const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
+
+        boxHelper.box = box; // 更新包圍盒助手的包圍盒
+        axesHelper.position.y = box.min.y; // 更新輔助軸位置
+        gridHelper.position.y = box.min.y; // 更新網格位置
+
+        // Update the GridHelper position to follow the model in x, y, z
+        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
+        axesHelper.position.set(center.x, box.min.y, center.z);
+    }
+
 
 updateHelpers(); // 初始化幫助器位置
 
@@ -825,12 +1191,19 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
 
 
  // 更新幫助器位置的函數
- function updateHelpers() {
-    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
-    boxHelper.box = box; // 更新包圍盒助手的包圍盒
-    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
-    gridHelper.position.y = box.min.y - offset; // 更新網格位置
-}
+     // 更新幫助器位置的函數
+     function updateHelpers() {
+        const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
+
+        boxHelper.box = box; // 更新包圍盒助手的包圍盒
+        axesHelper.position.y = box.min.y; // 更新輔助軸位置
+        gridHelper.position.y = box.min.y; // 更新網格位置
+
+        // Update the GridHelper position to follow the model in x, y, z
+        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
+        axesHelper.position.set(center.x, box.min.y, center.z);
+    }
 
 updateHelpers(); // 初始化幫助器位置
 
@@ -1119,14 +1492,19 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
 
 
 
- // 更新幫助器位置的函數
- function updateHelpers() {
-    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
-    boxHelper.box = box; // 更新包圍盒助手的包圍盒
-    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
-    gridHelper.position.y = box.min.y - offset; // 更新網格位置
-}
+     // 更新幫助器位置的函數
+     function updateHelpers() {
+        const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
 
+        boxHelper.box = box; // 更新包圍盒助手的包圍盒
+        axesHelper.position.y = box.min.y; // 更新輔助軸位置
+        gridHelper.position.y = box.min.y; // 更新網格位置
+
+        // Update the GridHelper position to follow the model in x, y, z
+        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
+        axesHelper.position.set(center.x, box.min.y, center.z);
+    }
 
 updateHelpers(); // 初始化幫助器位置
 
@@ -1440,12 +1818,19 @@ BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
 
 
  // 更新幫助器位置的函數
- function updateHelpers() {
-    const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
-    boxHelper.box = box; // 更新包圍盒助手的包圍盒
-    axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
-    gridHelper.position.y = box.min.y - offset; // 更新網格位置
-}
+     function updateHelpers() {
+        const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
+
+        boxHelper.box = box; // 更新包圍盒助手的包圍盒
+        axesHelper.position.y = box.min.y; // 更新輔助軸位置
+        gridHelper.position.y = box.min.y; // 更新網格位置
+
+        // Update the GridHelper position to follow the model in x, y, z
+        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
+        axesHelper.position.set(center.x, box.min.y, center.z);
+    }
+    
 
 
 updateHelpers(); // 初始化幫助器位置
@@ -1749,13 +2134,19 @@ input_model.position.y = 0;
         // });
         
         
-         // 更新幫助器位置的函數
-         function updateHelpers() {
-            const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
-            boxHelper.box = box; // 更新包圍盒助手的包圍盒
-            axesHelper.position.y = box.min.y - offset; // 更新輔助軸位置
-            gridHelper.position.y = box.min.y - offset; // 更新網格位置
-        }
+     // 更新幫助器位置的函數
+     function updateHelpers() {
+        const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
+        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
+
+        boxHelper.box = box; // 更新包圍盒助手的包圍盒
+        axesHelper.position.y = box.min.y; // 更新輔助軸位置
+        gridHelper.position.y = box.min.y; // 更新網格位置
+
+        // Update the GridHelper position to follow the model in x, y, z
+        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
+        axesHelper.position.set(center.x, box.min.y, center.z);
+    }
         
         
         updateHelpers(); // 初始化幫助器位置
@@ -1960,20 +2351,69 @@ else {
     const loadModelBtn = document.getElementById('myButton');
     const modelFileInput = document.getElementById('model-file-input');
 
-    // loadModelBtn.addEventListener('click', () => {
-    //     modelFileInput.click(); // Trigger the file input when the button is clicked
-    // });
+
+// 允許的文件類型
+const allowedFileTypes = ['.glb', '.bin', '.obj', '.fbx', '.stl'];
+
+// 最大文件大小（例如 100MB）
+const maxFileSize = 100 * 1024 * 1024; // 100MB in bytes
+
+// 驗證文件的函數
+function validateFile(file) {
+  const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+  const errorHint = document.getElementById('error-hint');
+
+  // 檢查文件類型
+  if (!allowedFileTypes.includes(fileExtension)) {
+    errorHint.textContent = `Not support file format：${fileExtension}。Please import .glb, .bin, .obj, .fbx 或 .stl 文件。`;
+    errorHint.style.display = 'block';
+    return false;
+  }
+
+  // 檢查文件大小
+  if (file.size > maxFileSize) {
+    errorHint.textContent = `The file too large.（${(file.size / 1024 / 1024).toFixed(2)}MB）。The biggest file size is ${(maxFileSize / 1024 / 1024)}MB。`;
+    errorHint.style.display = 'block';
+    return false;
+  }
+
+  // 驗證通過，隱藏錯誤提示
+  errorHint.style.display = 'none';
+  return true;
+}
     
 
-    modelFileInput.addEventListener('change', (event) => {
+    // modelFileInput.addEventListener('change', (event) => {
+    //     const file = event.target.files[0];
+    //     if (file) {
+    //         loadModel(file);
+    //     }
+    //     // for(const file of event.target.files){
+    //     //     loadModel(file);
+    //     // }
+    // });
+
+    // 為文件輸入添加事件監聽器
+modelFileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file && validateFile(file)) {
+      // 繼續處理文件（例如加載 3D 模型）
+      loadModel(file);
+      console.log('文件驗證通過，開始加載：', file.name);
+    } else {
+      event.target.value = ''; // 清空輸入
+    }
+  });
+
+    fileInputModal.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (file) {
-            loadModel(file);
+        if (file && validateFile(file)) {
+          // 繼續處理文件
+          console.log('文件驗證通過，開始加載：', file.name);
+        } else {
+          event.target.value = ''; // 清空輸入
         }
-        // for(const file of event.target.files){
-        //     loadModel(file);
-        // }
-    });
+      });
 
 //------
 // Open modal when button is clicked

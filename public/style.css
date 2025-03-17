@@ -188,10 +188,12 @@ label{
 }
 
 
-.modal-content {
-  width: 80vw; /* 在小屏幕上使用更大的相對寬度 */
-  padding: 15px; /* 調整內邊距 */
-}
+.modal-content,
+  .dmodal-content {
+    transform: translate(-50%, -60%); /* Adjust the upward shift for smaller screens */
+    width: 90vw; /* Use a slightly larger width on smaller screens */
+    padding: 15px; /* Reduce padding for smaller screens */
+  }
 
 
 #dropArea p{
@@ -211,31 +213,53 @@ label{
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 11; /* Ensure it sits above other content */
   left: 0;
   top: 0;
-  width: 100%; 
-  /* Full width */
+  width: 100%; /* Full width */
   height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* 背景顏色 */
-  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-  
-
+  background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
 }
 
-.modal-content {
+.modal-content{
   background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
+  position: absolute;
+  top: 10%; /* Start 20% from the top of the viewport */
+  left: 50%;
+  transform: translateX(-50%);
   padding: 20px;
   border: 1px solid #888;
   width: 80vw;
-  height: auto;
-  max-width: 600px; /* Maximum width for larger screens */
-  text-align: left;
-  /* text-align: center; */
+  min-width: 300px;
+  max-width: 700px;
+  max-height: 80vh; /* Limit the height to 60% of the viewport height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
   border-radius: 15px;
+  text-align: left;
+}
+
+.dmodal-content {
+  background-color: #fefefe;
+  position: absolute;
+  top: 50%; /* Start 20% from the top of the viewport */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80vw;
+  min-width: 300px;
+  max-width: 700px;
+  max-height: 60vh; /* Limit the height to 60% of the viewport height */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  border-radius: 15px;
+  text-align: left;
+
   
+}
+
+/* Specific styles for .dmodal-content */
+.dmodal-content {
+  text-align: center;
 }
 
 .modal-content p {
@@ -254,7 +278,10 @@ label{
 
 .dmodal-content {
   background-color: #fefefe;
-  margin: 15% auto; /* Center the modal */
+  position: absolute; /* Use absolute positioning relative to the .modal container */
+  top: 50%; /* Start at 50% from the top of the .modal container */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -70%); /* Center horizontally and shift upward */
   padding: 20px;
   border: 1px solid #888;
   width: 80vw; /* 80% of the viewport width */
@@ -265,11 +292,24 @@ label{
 }
 
 
-.close {
+/* .close {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold;
+} */
+
+/* Style the close button to stay fixed at the top-right */
+.close {
+  position: sticky; /* Keep the close button at the top while scrolling */
+  top: 0;
+  align-self: flex-end; /* Align to the right in the flex container */
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  float: right;
+  z-index: 12; /* Ensure the close button is above the scrolling content */
 }
 
 .close:hover,
@@ -313,6 +353,15 @@ width: 180px; /* 預設按鈕寬度 */
     height: 5vh; /* 調整高度 */
     min-height: 25px; /* 設定最小高度 */
     font-size: 0.8rem; /* 預設按鈕字體大小 */
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content,
+  .dmodal-content {
+    transform: translate(-50%, -50%); /* Center vertically with less upward shift */
+    width: 95vw; /* Almost full width on very small screens */
+    padding: 10px; /* Further reduce padding */
   }
 }
 
@@ -385,6 +434,10 @@ width: 180px; /* 預設按鈕寬度 */
     top: 55px; /* 菜單距離頂部的距離 */
     left: 10px; /* 菜單距離左側的距離 */
     width: 90px; /* 菜單的寬度 */
+  }
+
+  .modal-content p {
+    font-size: 14px;
   }
 }
 
@@ -501,3 +554,40 @@ width: 180px; /* 預設按鈕寬度 */
      /* 設置最大寬度 */
   }}
   
+
+
+ /* 確保 lil-gui 樣式不會干擾 */
+ .lil-gui .controller {
+  overflow: visible !important;
+  width: auto !important;
+}
+
+/* 錯誤提示元素的樣式 */
+#error-hint {
+  position: fixed; /* 使用 fixed 定位，固定在畫面中間 */
+  /* top: 90%; 垂直居中 */
+  bottom: 1%;
+  /* left: 50%; 水平居中 */
+  right: 1%;
+  /* left: 50%; */
+  /* transform: translateX(-50%); 僅水平偏移自身寬度的 50%，實現精確居中 */
+  /* transform: translateY(-50%); 僅垂直偏移 50%，因為水平已由 right 控制 */
+  /* transform: translate(-50%, -50%); 偏移自身寬高的 50% 以精確居中 */
+  color: white; /* 文字顏色改為白色以對比背景 */
+  background-color: rgba(255, 0, 0, 0.7); /* 紅色背景，略透明 */
+  padding: 5px 10px; /* 內邊距，創建方形背景 */
+  border-radius: 5px; /* 圓角邊框 */
+  font-size: 16px; /* 調整字體大小 */
+  z-index: 10000; /* 確保在最上層 */
+  display: none; /* 初始隱藏 */
+  white-space: nowrap; /* 防止文字換行 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 添加陰影效果 */
+}
+
+@media (max-width: 768px) {
+  #error-hint {
+    font-size: 12px;
+    padding: 4px 8px; /* 在小螢幕上稍微減小內邊距 */
+  }
+}  
+

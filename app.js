@@ -22,7 +22,8 @@ const express = require("express");
 const app = express();
 const path = require('path');
 const crypto = require('crypto');
-const fs = require('fs');
+// const fs = require('fs');
+const helmet = require('helmet');
 
 // 設置 EJS 為模板引擎
 app.set('view engine', 'ejs');
@@ -33,6 +34,18 @@ app.use((req, res, next) => {
     res.locals.nonce = crypto.randomBytes(16).toString('base64');
     next();
 });
+
+// 使用 helmet 設置安全標頭
+app.use(
+    helmet({
+        contentSecurityPolicy: false, // 關閉 helmet 的 CSP，因為 index.ejs 已定義
+        xPoweredBy: false, // 禁用 X-Powered-By 標頭
+        xXssProtection: true, // 啟用 XSS 保護
+        xContentTypeOptions: true, // 防止 MIME 類型嗅探 修正為 true 原本設置 Referrer-Policy
+        referrerPolicy: { policy: "no-referrer" }, // 設置 Referrer-Policy
+        frameguard: { action: "deny" }, // 防止點擊劫持
+    })
+);
 
 // 靜態檔案服務
 app.use(express.static(__dirname + '/public')); 

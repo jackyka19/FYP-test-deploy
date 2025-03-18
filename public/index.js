@@ -36,12 +36,36 @@ let input_model;
 // create a new camera with positions and angle
 const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 window.camera = camera;
+// const gui = new GUI();
+
+// 全局 GUI 實例，初始打開
 const gui = new GUI();
+window.gui = gui; // 暴露給 client.js 使用
+gui.domElement.style.display = 'block'; // 初始顯示 GUI
+gui.open(); // 初始打開 GUI
+
+// 定義全局收起函數
+window.closeGUI = function() {
+    gui.close(); // 收起 GUI
+    gui.domElement.style.display = 'none'; // 隱藏 GUI
+    resetGUI(); // 重置 GUI 狀態
+};
+
 
 // 加入背顏色 (2D,3D背景有用)
 const params = {
     color: '#000000', // Default background color
-    backgroundImage: '' // Default background image URL
+    backgroundImage: '', // Default background image URL
+    showStats: false,
+    autoRotate: false
+};
+
+window.resetGUI = function() {
+    params.showStats = false;
+    params.autoRotate = false;
+    stats.domElement.style.display = 'none';
+    controls.autoRotate = false;
+    controls.update();
 };
 
 gui.domElement.style.display = 'block'; // Hide the GUI by default

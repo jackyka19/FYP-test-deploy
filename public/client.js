@@ -874,6 +874,11 @@ const stlloader = new STLLoader(loadingManager);
     input_model.position.y = 0;
     scene.add(gltf.scene);
 
+    // 上傳完成後收起 GUI
+    if (window.closeGUI) {
+        window.closeGUI(); // 收起並隱藏現有 GUI
+    }
+
     const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
     // scene.add(boxHelper); // 初始時加包圍盒助手
 
@@ -1135,6 +1140,11 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
     // input_model.position.y = box.min.y + offset; // 將模型的底部設置在網格上方
     input_model.position.y = 0;
     scene.add(gltf.scene);
+
+    // 上傳完成後收起 GUI
+    if (window.closeGUI) {
+        window.closeGUI(); // 收起並隱藏現有 GUI
+    }
 
     const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
     // scene.add(boxHelper); // 初始時加包圍盒助手
@@ -1411,6 +1421,11 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
                 // input_model.rotation.x = Math.PI / -3;
 
                 scene.add(obj);
+
+                // 上傳完成後收起 GUI
+    if (window.closeGUI) {
+        window.closeGUI(); // 收起並隱藏現有 GUI
+    }
     // 創建包圍盒
     const box = new THREE.Box3().setFromObject(input_model);
     // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
@@ -1752,6 +1767,11 @@ else if (fileExtension === 'fbx'){
             // input_model.rotation.x = Math.PI / -3;
             scene.add(fbx);
 
+            // 上傳完成後收起 GUI
+    if (window.closeGUI) {
+        window.closeGUI(); // 收起並隱藏現有 GUI
+    }
+
             const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
     // scene.add(boxHelper); // 初始時加包圍盒助手
 
@@ -2056,6 +2076,11 @@ input_model.position.y = 0;
             // input_model.position.set(0, -1.3, 0);
             // input_model.rotation.x = Math.PI / -3;
             scene.add(input_model);
+
+            // 上傳完成後收起 GUI
+    if (window.closeGUI) {
+        window.closeGUI(); // 收起並隱藏現有 GUI
+    }
 
             const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
             // scene.add(boxHelper); // 初始時加包圍盒助手

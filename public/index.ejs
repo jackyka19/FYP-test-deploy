@@ -4,24 +4,36 @@
     <meta charset="UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' data: blob: https:;
+    script-src 'self' https://cdn.jsdelivr.net 'nonce-<%= nonce %>';
+    style-src 'self' 'unsafe-inline';
+    connect-src 'self' blob:;
+    font-src 'self' data:;
+">
+
     <title>3D model load</title>
     <link rel="stylesheet" href="./style.css">
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "./build/three.module.js",
-                "three/examples/jsm/loaders/GLTFLoader.js": "./jsm/loaders/GLTFLoader.js",
-                "three/examples/jsm/controls/OrbitControls.js": "./jsm/controls/OrbitControls.js",
-                "three/examples/jsm/libs/lil-gui.module.min.js": "./jsm/libs/lil-gui.module.min.js",
-                "three/examples/jsm/libs/meshopt_decoder.module.js": "./jsm/libs/meshopt_decoder.module.js",
-                "three/examples/jsm/loaders/OBJLoader.js": "./jsm/loaders/OBJLoader.js",
-                "three/examples/jsm/loaders/MTLLoader.js": "./jsm/loaders/MTLLoader.js",
-                "three/examples/jsm/loaders/FBXLoader.js": "./jsm/loaders/FBXLoader.js",
-                "three/examples/jsm/loaders/RGBELoader.js": "./jsm/loaders/RGBELoader.js",
-                "three/examples/jsm/loaders/STLLoader.js": "./jsm/loaders/STLLoader.js"
-            }
+    <!-- <script type="importmap" src="./importmap.json"></script> -->
+    <script type="importmap" nonce="<%= nonce %>">
+    {
+        "imports": {
+            "three": "./build/three.module.js",
+            "three/examples/jsm/loaders/GLTFLoader.js": "./jsm/loaders/GLTFLoader.js",
+            "three/examples/jsm/controls/OrbitControls.js": "./jsm/controls/OrbitControls.js",
+            "three/examples/jsm/libs/lil-gui.module.min.js": "./jsm/libs/lil-gui.module.min.js",
+            "three/examples/jsm/libs/meshopt_decoder.module.js": "./jsm/libs/meshopt_decoder.module.js",
+            "three/examples/jsm/loaders/OBJLoader.js": "./jsm/loaders/OBJLoader.js",
+            "three/examples/jsm/loaders/MTLLoader.js": "./jsm/loaders/MTLLoader.js",
+            "three/examples/jsm/loaders/FBXLoader.js": "./jsm/loaders/FBXLoader.js",
+            "three/examples/jsm/loaders/RGBELoader.js": "./jsm/loaders/RGBELoader.js",
+            "three/examples/jsm/loaders/STLLoader.js": "./jsm/loaders/STLLoader.js",
+            "three/examples/jsm/libs/stats.module.js": "./jsm/libs/stats.module.js"
         }
-    </script>
+    }
+</script>
 
 </head>
 <body>
@@ -39,11 +51,12 @@
             <li><a href="#" id="aboutLink">About</a></li>
             <li><a href="#" id="controlsLink">Control</a></li>
             <li><a href="#" id="legalsLink">Legals</a></li>
-            <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  <!-- 初始隱藏 -->
+            <li><a href="#" id="refreshPage">Refresh Page</a></li>  <!-- 初始隱藏 -->
+            <!-- <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  初始隱藏 -->
             <li class="qr-code-container">
-                <img src="../qr code/qr-code.png" alt="QR Code" class="qr-code-icon">
+                <img src="./qr-code/qr-code.png" alt="QR Code" class="qr-code-icon">
                 <div class="qr-code" id="qrCode">
-                    <img src="../qr code/fyp qr code .png" alt="QR Code" class="qr-code-image">
+                    <img src="./qr-code/fyp-qr-code.png" alt="QR Code" class="qr-code-image">
                 </div>
             </li>
             <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  <!-- 初始隱藏 -->
@@ -148,94 +161,11 @@
 </div>
 
 <script type="module" src="./client.js"></script>
-    <script type="module" src="./index.js"></script>
+<script type="module" src="./index.js"></script>
     
+<script src="./nav-and-modal.js"></script>
 
-
-<script>
-        // // JavaScript to toggle hamburger menu
-        // document.getElementById("hamburger").addEventListener("click", function() {
-        //     this.classList.toggle("active");
-        //     const navLinks = document.getElementById("navLinks");
-        //     navLinks.classList.toggle("show");
-        // });
-    
-    // JavaScript to toggle hamburger menu
-        document.getElementById("hamburger").addEventListener("click", function() {
-            this.classList.toggle("active");
-            const navLinks = document.getElementById("navLinks");
-            navLinks.classList.toggle("show");
-        });
-        
-        document.addEventListener("DOMContentLoaded", function() {
-    // 獲取模態框元素
-    const aboutModal = document.getElementById("aboutModal");
-    const controlsModal = document.getElementById("controlsModal");
-    const legalsModal = document.getElementById("legalsModal");
-
-    const closeAboutModal = document.getElementById("closeAboutModal");
-    const closeControlsModal = document.getElementById("closeControlsModal");
-    const closeLegalsModal = document.getElementById("closeLegalsModal");
-
-    // 函數用於隱藏所有模態框
-    function hideAllModals() {
-        aboutModal.style.display = "none";
-        controlsModal.style.display = "none";
-        legalsModal.style.display = "none";
-    }
-
-    // 當用戶點擊 "About" 菜單時顯示模態框
-    document.getElementById("aboutLink").addEventListener("click", function(event) {
-        event.preventDefault();
-        hideAllModals(); // 隱藏其他模態框
-        aboutModal.style.display = "block"; // 顯示模態框
-    });
-
-    // 當用戶點擊 "Controls" 菜單時顯示模態框
-    document.getElementById("controlsLink").addEventListener("click", function(event) {
-        event.preventDefault();
-        hideAllModals(); // 隱藏其他模態框
-        controlsModal.style.display = "block"; // 顯示模態框
-    });
-
-    // 當用戶點擊 "Legals" 菜單時顯示模態框
-    document.getElementById("legalsLink").addEventListener("click", function(event) {
-        event.preventDefault();
-        hideAllModals(); // 隱藏其他模態框
-        legalsModal.style.display = "block"; // 顯示模態框
-    });
-
-    // 關閉模態框的事件處理器
-    closeAboutModal.onclick = function() {
-        aboutModal.style.display = "none";
-    };
-
-    closeControlsModal.onclick = function() {
-        controlsModal.style.display = "none";
-    };
-
-    closeLegalsModal.onclick = function() {
-        legalsModal.style.display = "none";
-    };
-
-    // 當用戶點擊模態框外部時隱藏模態框
-    window.onclick = function(event) {
-        if (event.target == aboutModal) {
-            aboutModal.style.display = "none";
-        }
-        if (event.target == controlsModal) {
-            controlsModal.style.display = "none";
-        }
-        if (event.target == legalsModal) {
-            legalsModal.style.display = "none";
-        }
-    };
-
-    
-    
-});
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/validator@13.11.0/validator.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/validator@13.11.0/validator.min.js"></script>
 
 
 

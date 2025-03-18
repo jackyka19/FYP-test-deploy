@@ -1,14 +1,15 @@
-import * as THREE from '/build/three.module.js';
-import {GLTFLoader} from './jsm/loaders/GLTFLoader.js';
-import {OrbitControls} from './jsm/controls/OrbitControls.js';
-import {GUI} from './jsm/libs/lil-gui.module.min.js';
-import Stats from './jsm/libs/stats.module.js';
-import { MeshoptDecoder } from './jsm/libs/meshopt_decoder.module.js'; 
-import {OBJLoader} from './jsm/loaders/OBJLoader.js';
-import {MTLLoader} from './jsm/loaders/MTLLoader.js';
-import {FBXLoader} from './jsm/loaders/FBXLoader.js';
-import {RGBELoader} from "./jsm/loaders/RGBELoader.js";
-import {STLLoader} from "./jsm/loaders/STLLoader.js";
+// import * as THREE from '/build/three.module.js';
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+// import { MeshoptDecoder } from './jsm/libs/meshopt_decoder.module.js'; 
+import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
+import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader.js";
+import {STLLoader} from "three/examples/jsm/loaders/STLLoader.js";
 
 
 // let scene;
@@ -486,13 +487,13 @@ const init = () => {
                 console.log('Background updated, hint cleared');
             }, undefined, (error) => {
                 console.error('Error loading texture:', error);
-                errorHint.textContent = 'Failed to load backgroung image: Please enter a valid HTTPS URL';
+                errorHint.textContent = 'An error occurred. Please enter a valid URL'; // Failed to load backgroung image: Please enter a valid HTTPS URL
                 errorHint.style.display = 'block'; // 顯示提示
-                console.log('Error hint set to "Failed to load image"');
+                console.log('An error occurred. Please try again or contact support. "');
             });
         } else {
             console.error('Invalid URL');
-            errorHint.textContent = 'Background image: Please enter a valid HTTPS URL'; // 設置錯誤提示
+            errorHint.textContent = 'An error occurred. Please enter a valid URL'; // 設置錯誤提示 // Background image: Please enter a valid HTTPS URL
             errorHint.style.display = 'block'; // 顯示提示
             console.log('Error hint set to "此輸入框不對的"');
         }

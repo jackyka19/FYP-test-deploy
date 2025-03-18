@@ -1,0 +1,15 @@
+{
+    "imports": {
+        "three": "./build/three.module.js",
+        "three/examples/jsm/loaders/GLTFLoader.js": "./jsm/loaders/GLTFLoader.js",
+        "three/examples/jsm/controls/OrbitControls.js": "./jsm/controls/OrbitControls.js",
+        "three/examples/jsm/libs/lil-gui.module.min.js": "./jsm/libs/lil-gui.module.min.js",
+        "three/examples/jsm/libs/meshopt_decoder.module.js": "./jsm/libs/meshopt_decoder.module.js",
+        "three/examples/jsm/loaders/OBJLoader.js": "./jsm/loaders/OBJLoader.js",
+        "three/examples/jsm/loaders/MTLLoader.js": "./jsm/loaders/MTLLoader.js",
+        "three/examples/jsm/loaders/FBXLoader.js": "./jsm/loaders/FBXLoader.js",
+        "three/examples/jsm/loaders/RGBELoader.js": "./jsm/loaders/RGBELoader.js",
+        "three/examples/jsm/loaders/STLLoader.js": "./jsm/loaders/STLLoader.js",
+        "three/examples/jsm/libs/stats.module.js": "./jsm/libs/stats.module.js"
+    }
+}

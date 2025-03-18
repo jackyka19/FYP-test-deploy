@@ -1,9 +1,10 @@
-import * as THREE from '/build/three.module.js';
-import {GLTFLoader} from './jsm/loaders/GLTFLoader.js';
-import {OrbitControls} from './jsm/controls/OrbitControls.js';
-import {GUI} from './jsm/libs/lil-gui.module.min.js';
-import Stats from './jsm/libs/stats.module.js';
-import {RGBELoader} from "./jsm/loaders/RGBELoader.js";
+// import * as THREE from '/build/three.module.js';
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader.js";
 
 // create a THREE.JS Scene
 const scene = new THREE.Scene();
@@ -112,13 +113,13 @@ const statsControl = { showStats: false };
                                 console.log('Background updated, hint cleared');
                             }, undefined, (error) => {
                                 console.error('Error loading texture:', error);
-                                errorHint.textContent = 'Failed to load backgroung image: Please enter a valid HTTPS URL';
+                                errorHint.textContent = 'An error occurred. Please enter a valid URL'; //Failed to load backgroung image: Please enter a valid HTTPS URL
                                 errorHint.style.display = 'block'; // 顯示提示
                                 console.log('Error hint set to "Failed to load image"');
                             });
                         } else {
                             console.error('Invalid URL');
-                            errorHint.textContent = 'Background image: Please enter a valid HTTPS URL'; // 設置錯誤提示
+                            errorHint.textContent = 'An error occurred. Please enter a valid URL'; // 設置錯誤提示 //Background image: Please enter a valid HTTPS URL
                             errorHint.style.display = 'block'; // 顯示提示
                             console.log('Error hint set to "此輸入框不對的"');
                         }
@@ -157,7 +158,13 @@ background_change.add({ upload: () => uploadInput.click() }, 'upload').name('Upl
 // Handle the file upload
 uploadInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
-    if (file) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/octet-stream']; // HDR 可能為二進位流
+    if (file && !allowedTypes.includes(file.type)) {
+        alert('Unsupported file type. Please upload .jpg, .jpeg, .png, or .hdr files.');
+        event.target.value = ''; // 清空輸入
+        return;
+    }
+    else if (file) {
         const reader = new FileReader();
         // const rgbeLoader = new RGBELoader();
         reader.onload = (e) => {

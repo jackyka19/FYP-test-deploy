@@ -8,6 +8,11 @@
     
 }
 
+/* style.css */
+#refreshPage {
+  display: none;
+}
+
 #container3D {
   width: 100vw; /* 確保寬度佔滿視窗 */
     height: 100vh; /* 確保高度佔滿視窗 */

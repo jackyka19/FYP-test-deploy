@@ -77,93 +77,71 @@ const statsControl = { showStats: false };
 
     const background_change = gui.addFolder("Background").close();
 
-     // background color
-        background_change.addColor(params, 'color').name('Background Color').onChange((value) => {
-            if (!params.backgroundImage) {
-                scene.background = new THREE.Color(value); // Update the scene background color
-            }
-        });
-    
-        //Add a text input to set the background image URL
-        // background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
-        //     if (value) {
-        //         const textureLoader = new THREE.TextureLoader();
-        //         textureLoader.load(value, (texture) => {
-        //             scene.background = texture; // Update the scene background to the texture
-        //         });
-        //     }
-        // });
-
-         background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
-                // 找到 "Background Image URL" 控制器的父容器
-                const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
-                    div.textContent.includes('Background Image URL')
-                );
-                const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
-            
-                if (!inputElement) {
-                    console.error('Input element for "Background Image URL" not found');
-                    return; // 防止進一步錯誤
-                }
-            
-                // 獲取獨立的錯誤提示元素
-                const errorHint = document.getElementById('error-hint');
-                if (!errorHint) {
-                    console.error('Error hint element (#error-hint) not found in DOM');
-                    return;
-                }
-            
-                // 不再需要動態計算位置，因為 CSS 已將其固定在畫面中間
-                // 移除以下代碼：
-                // const inputRect = inputElement.getBoundingClientRect();
-                // errorHint.style.left = `${inputRect.left}px`;
-                // errorHint.style.top = `${inputRect.bottom + 5}px`;
-            
-                // 處理空輸入的情況
-                if (!value || value.trim() === '') {
-                    errorHint.textContent = ''; // 清空提示
-                    errorHint.style.display = 'none'; // 隱藏提示
-                    console.log('Input is empty, hint cleared');
-                    return; // 提前返回，不進行後續檢查
-                }
-            
-                // 使用全局 validator 驗證 URL
-                        if (validator.isURL(value, { protocols: ['https'], require_protocol: true })) {
-                            const textureLoader = new THREE.TextureLoader();
-                            textureLoader.load(value, (texture) => {
-                                scene.background = texture; // 更新背景
-                                errorHint.textContent = ''; // 清空提示
-                                errorHint.style.display = 'none'; // 隱藏提示
-                                console.log('Background updated, hint cleared');
-                            }, undefined, (error) => {
-                                console.error('Error loading texture:', error);
-                                errorHint.textContent = 'An error occurred. Please enter a valid URL'; //Failed to load backgroung image: Please enter a valid HTTPS URL
-                                errorHint.style.display = 'block'; // 顯示提示
-                                console.log('Error hint set to "Failed to load image"');
-                            });
-                        } else {
-                            console.error('Invalid URL');
-                            errorHint.textContent = 'An error occurred. Please enter a valid URL'; // 設置錯誤提示 //Background image: Please enter a valid HTTPS URL
-                            errorHint.style.display = 'block'; // 顯示提示
-                            console.log('Error hint set to "此輸入框不對的"');
-                        }
-                    });
-
-    // 處理窗口調整時重新定位錯誤提示
-    window.addEventListener('resize', () => {
-        const errorHint = document.getElementById('error-hint');
-        const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
-            div.textContent.includes('Background Image URL')
-        );
-        const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
-    
-        if (errorHint && inputElement && errorHint.style.display !== 'none') {
-            // 重新計算位置（這裡僅為示例，實際可能不需要）
-        // errorHint.style.top = '90%';
-        // // errorHint.style.right = '2%';
-        // errorHint.style.left = '50%';
+    // background color
+    background_change.addColor(params, 'color').name('Background Color').onChange((value) => {
+        if (!params.backgroundImage) {
+            scene.background = new THREE.Color(value); // Update the scene background color
         }
     });
+    background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
+    // 找到 "Background Image URL" 控制器的父容器
+    const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+        div.textContent.includes('Background Image URL')
+    );
+    const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+
+    if (!inputElement) {
+        console.error('Input element for "Background Image URL" not found');
+        return; // 防止進一步錯誤
+    }
+
+    // 獲取獨立的錯誤提示元素
+    const errorHint = document.getElementById('error-hint');
+    if (!errorHint) {
+        console.error('Error hint element (#error-hint) not found in DOM');
+        return;
+    }
+
+    // Handle the case of empty input
+    if (!value || value.trim() === '') {
+        errorHint.textContent = ''; // Clear the hint
+        errorHint.style.display = 'none'; // Hide the hint
+        console.log('Input is empty, hint cleared');
+        return; // Return early, skip further checks
+    }
+
+    // Use global validator to validate the URL
+    if (validator.isURL(value, { protocols: ['https'], require_protocol: true })) {
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(value, (texture) => {
+            scene.background = texture; // Update the background
+            errorHint.textContent = ''; // Clear the hint
+            errorHint.style.display = 'none'; // Hide the hint
+            console.log('Background updated, hint cleared');
+        }, undefined, (error) => {
+            console.error('Error loading texture:', error);
+            errorHint.textContent = 'An error occurred. Please enter a valid URL'; //Failed to load backgroung image: Please enter a valid HTTPS URL
+            errorHint.style.display = 'block'; // Show the hint
+            console.log('Error hint set to "Failed to load image"');
+        });
+    } else {
+        console.error('Invalid URL');
+        errorHint.textContent = 'An error occurred. Please enter a valid URL'; // 設置錯誤提示 //Background image: Please enter a valid HTTPS URL
+        errorHint.style.display = 'block'; // Show the hint
+        console.log('Error hint set to "Invalid input in this field"');
+    }
+});
+
+// 處理窗口調整時重新定位錯誤提示
+window.addEventListener('resize', () => {
+    const errorHint = document.getElementById('error-hint');
+    const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
+        div.textContent.includes('Background Image URL')
+    );
+    const inputElement = controllerDiv ? controllerDiv.querySelector('input') : null;
+    if (errorHint && inputElement && errorHint.style.display !== 'none') {
+    }
+});
 
         // Create an input for uploading 2D or 3D images
 const uploadInput = document.createElement('input');
@@ -373,6 +351,188 @@ loader.load(
 
                 // 紀錄初始位置
         initialPosition = input_model.position.clone();
+
+        // 保存每個 mesh 的原始材質
+        const originalMaterials = new Map();
+        input_model.traverse((child) => {
+            if (child.isMesh) {
+                originalMaterials.set(child, child.material); // 保存原始材質
+            }
+        });
+//-
+// 自定義著色器：Phong 光照模型
+const vertexShader = `
+varying vec3 vNormal; // 傳遞法線給片段著色器
+varying vec3 vPosition; // 傳遞頂點位置給片段著色器
+
+void main() {
+    vNormal = normalize(normalMatrix * normal); // 將法線轉換到視圖空間
+    vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // 計算頂點在視圖空間中的位置
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // 計算頂點的最終位置
+}
+`;
+
+const phongFragmentShader = `
+            varying vec3 vNormal; // Receive the normal from the vertex shader
+            varying vec3 vPosition; // Receive the position from the vertex shader
+
+            uniform vec3 lightPosition; // Light position
+            uniform vec3 lightColor; // Light color
+            uniform vec3 ambientColor; // Ambient light color
+            uniform vec3 diffuseColor; // Diffuse color
+            uniform vec3 specularColor; // Specular color
+            uniform float shininess; // Shininess factor
+
+            void main() {
+                // Compute the light direction
+                vec3 lightDir = normalize(lightPosition - vPosition);
+                vec3 normal = normalize(vNormal);
+                vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+                vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+
+                // Ambient light
+                vec3 ambient = ambientColor;
+
+                // Diffuse light
+                float diff = max(dot(normal, lightDir), 0.0);
+                vec3 diffuse = diff * diffuseColor * lightColor;
+
+                // Specular light
+                float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                vec3 specular = spec * specularColor * lightColor;
+
+                // Final color
+                vec3 finalColor = ambient + diffuse + specular;
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        // 創建 Phong ShaderMaterial
+        const phongShaderMaterial = new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: phongFragmentShader,
+            uniforms: {
+                lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+                lightColor: { value: spotLight1.color }, // Use spotLight1's color
+                ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+                diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+                specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+                shininess: { value: 32.0 }, // Shininess factor
+                textureMap: { value: null } // Initially null
+            }
+        });
+
+//---Cartoon
+// 自定義著色器：卡通渲染（Toon Shading）
+const toonFragmentShader = `
+varying vec3 vNormal; // Receive the normal from the vertex shader
+varying vec3 vPosition; // Receive the position from the vertex shader
+
+uniform vec3 lightPosition; // Light position
+uniform vec3 lightColor; // Light color
+uniform vec3 ambientColor; // Ambient light color
+uniform vec3 diffuseColor; // Diffuse color
+uniform vec3 specularColor; // Specular color
+uniform float shininess; // Shininess factor
+
+void main() {
+    // Compute the light direction
+    vec3 lightDir = normalize(lightPosition - vPosition);
+    vec3 normal = normalize(vNormal);
+    vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+    vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+
+    // Ambient light
+    vec3 ambient = ambientColor;
+
+    // Diffuse light (Toon Shading: discretize the diffuse component)
+    float diff = max(dot(normal, lightDir), 0.0);
+    diff = floor(diff * 3.0) / 3.0; // Discretize diffuse into 3 levels
+    vec3 diffuse = diff * diffuseColor * lightColor;
+
+    // Specular light (Toon Shading: discretize the specular component)
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    spec = step(0.5, spec); // Binary specular (on or off)
+    vec3 specular = spec * specularColor * lightColor;
+
+    // Final color
+    vec3 finalColor = ambient + diffuse + specular;
+    gl_FragColor = vec4(finalColor, 1.0);
+}
+`;
+
+// 創建 Toon ShaderMaterial
+const toonShaderMaterial = new THREE.ShaderMaterial({
+vertexShader: vertexShader,
+fragmentShader: toonFragmentShader,
+uniforms: {
+    lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+    lightColor: { value: spotLight1.color }, // Use spotLight1's color
+    ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+    diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+    specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+    shininess: { value: 32.0 }, // Shininess factor
+    textureMap: { value: null } // Initially null
+}
+});
+
+//cartoon finish
+
+// // 將 ShaderMaterial 應用到模型的所有 mesh
+// input_model.traverse((child) => {
+//     if (child.isMesh) {
+//         child.material = shaderMaterial; // 替換原始材質
+//         child.material.needsUpdate = true; // 通知 Three.js 更新材質
+//     }
+// });
+
+const shadingParams = {
+    enableShading: false, // 初始不啟用著色器
+    shininess: 32.0,
+    diffuseColor: '#aaaaaa',
+    specularColor: '#ffffff'
+};
+
+// 創建 Shading 文件夾
+const shadingFolder = gui.addFolder('Shading').close();
+
+// 添加下拉選單選擇著色模式
+const shadingModes = ['None', 'Phong', 'Toon'];
+shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
+    input_model.traverse((child) => {
+        if (child.isMesh) {
+            if (value === 'Phong') {
+                // 啟用 Phong 著色器
+                child.material = phongShaderMaterial;
+            } else if (value === 'Toon') {
+                // 啟用卡通渲染
+                child.material = toonShaderMaterial;
+            } else {
+                // 恢復原始材質
+                child.material = originalMaterials.get(child);
+            }
+            child.material.needsUpdate = true; // 通知 Three.js 更新材質
+        }
+    });
+});
+
+// 添加其他 Shading 控制
+shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
+    phongShaderMaterial.uniforms.shininess.value = value;
+    toonShaderMaterial.uniforms.shininess.value = value;
+});
+shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
+    phongShaderMaterial.uniforms.diffuseColor.value.set(value);
+    toonShaderMaterial.uniforms.diffuseColor.value.set(value);
+});
+shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
+    phongShaderMaterial.uniforms.specularColor.value.set(value);
+    toonShaderMaterial.uniforms.specularColor.value.set(value);
+});
+
+
+
+//-
 
         const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
             // scene.add(boxHelper); // 初始時加包圍盒助手

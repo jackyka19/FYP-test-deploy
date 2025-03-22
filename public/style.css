@@ -183,7 +183,7 @@ label{
 @media (max-width: 768px) {
   
   #loading-label {
-    font-size: 32px; /* 設置最小字體大小為 16px */
+    font-size: 28px; /* 設置最小字體大小為 16px */
   }
 
   #myButton {

@@ -28,7 +28,7 @@ let defaultCameraPosition;
 let camerapositionControl;
 
 let scaleControl; 
-
+let initialPosition; // 紀錄初始位置
 
 const loadingManager = new THREE.LoadingManager();
 // loadingManager.onProgress = function(url, item, total){
@@ -874,6 +874,187 @@ const stlloader = new STLLoader(loadingManager);
     input_model.position.y = 0;
     scene.add(gltf.scene);
 
+    // 紀錄初始位置
+    initialPosition = input_model.position.clone();
+
+    // 保存每個 mesh 的原始材質
+    const originalMaterials = new Map();
+    input_model.traverse((child) => {
+        if (child.isMesh) {
+            originalMaterials.set(child, child.material); // 保存原始材質
+        }
+    });
+    //-
+    // 自定義著色器：Phong 光照模型
+    const vertexShader = `
+    varying vec3 vNormal; // 傳遞法線給片段著色器
+    varying vec3 vPosition; // 傳遞頂點位置給片段著色器
+    
+    void main() {
+        vNormal = normalize(normalMatrix * normal); // 將法線轉換到視圖空間
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // 計算頂點在視圖空間中的位置
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // 計算頂點的最終位置
+    }
+    `;
+    
+    const phongFragmentShader = `
+                varying vec3 vNormal; // Receive the normal from the vertex shader
+                varying vec3 vPosition; // Receive the position from the vertex shader
+    
+                uniform vec3 lightPosition; // Light position
+                uniform vec3 lightColor; // Light color
+                uniform vec3 ambientColor; // Ambient light color
+                uniform vec3 diffuseColor; // Diffuse color
+                uniform vec3 specularColor; // Specular color
+                uniform float shininess; // Shininess factor
+    
+                void main() {
+                    // Compute the light direction
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+                    vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+                    // Ambient light
+                    vec3 ambient = ambientColor;
+    
+                    // Diffuse light
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+    
+                    // Specular light
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    vec3 specular = spec * specularColor * lightColor;
+    
+                    // Final color
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+    
+            // 創建 Phong ShaderMaterial
+            const phongShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: phongFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+                    lightColor: { value: spotLight1.color }, // Use spotLight1's color
+                    ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+                    specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+                    shininess: { value: 32.0 }, // Shininess factor
+                    textureMap: { value: null } // Initially null
+                }
+            });
+    
+    //---Cartoon
+    // 自定義著色器：卡通渲染（Toon Shading）
+    const toonFragmentShader = `
+    varying vec3 vNormal; // Receive the normal from the vertex shader
+    varying vec3 vPosition; // Receive the position from the vertex shader
+    
+    uniform vec3 lightPosition; // Light position
+    uniform vec3 lightColor; // Light color
+    uniform vec3 ambientColor; // Ambient light color
+    uniform vec3 diffuseColor; // Diffuse color
+    uniform vec3 specularColor; // Specular color
+    uniform float shininess; // Shininess factor
+    
+    void main() {
+        // Compute the light direction
+        vec3 lightDir = normalize(lightPosition - vPosition);
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+        vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+        // Ambient light
+        vec3 ambient = ambientColor;
+    
+        // Diffuse light (Toon Shading: discretize the diffuse component)
+        float diff = max(dot(normal, lightDir), 0.0);
+        diff = floor(diff * 3.0) / 3.0; // Discretize diffuse into 3 levels
+        vec3 diffuse = diff * diffuseColor * lightColor;
+    
+        // Specular light (Toon Shading: discretize the specular component)
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        spec = step(0.5, spec); // Binary specular (on or off)
+        vec3 specular = spec * specularColor * lightColor;
+    
+        // Final color
+        vec3 finalColor = ambient + diffuse + specular;
+        gl_FragColor = vec4(finalColor, 1.0);
+    }
+    `;
+    
+    // 創建 Toon ShaderMaterial
+    const toonShaderMaterial = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: toonFragmentShader,
+    uniforms: {
+        lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+        lightColor: { value: spotLight1.color }, // Use spotLight1's color
+        ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+        diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+        specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+        shininess: { value: 32.0 }, // Shininess factor
+        textureMap: { value: null } // Initially null
+    }
+    });
+    
+    //cartoon finish
+    
+    // // 將 ShaderMaterial 應用到模型的所有 mesh
+    // input_model.traverse((child) => {
+    //     if (child.isMesh) {
+    //         child.material = shaderMaterial; // 替換原始材質
+    //         child.material.needsUpdate = true; // 通知 Three.js 更新材質
+    //     }
+    // });
+    
+    const shadingParams = {
+        enableShading: false, // 初始不啟用著色器
+        shininess: 32.0,
+        diffuseColor: '#aaaaaa',
+        specularColor: '#ffffff'
+    };
+    
+    // 創建 Shading 文件夾
+    const shadingFolder = gui.addFolder('Shading').close();
+    
+    // 添加下拉選單選擇著色模式
+    const shadingModes = ['None', 'Phong', 'Toon'];
+    shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
+        input_model.traverse((child) => {
+            if (child.isMesh) {
+                if (value === 'Phong') {
+                    // 啟用 Phong 著色器
+                    child.material = phongShaderMaterial;
+                } else if (value === 'Toon') {
+                    // 啟用卡通渲染
+                    child.material = toonShaderMaterial;
+                } else {
+                    // 恢復原始材質
+                    child.material = originalMaterials.get(child);
+                }
+                child.material.needsUpdate = true; // 通知 Three.js 更新材質
+            }
+        });
+    });
+    
+    // 添加其他 Shading 控制
+    shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
+        phongShaderMaterial.uniforms.shininess.value = value;
+        toonShaderMaterial.uniforms.shininess.value = value;
+    });
+    shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
+        phongShaderMaterial.uniforms.diffuseColor.value.set(value);
+        toonShaderMaterial.uniforms.diffuseColor.value.set(value);
+    });
+    shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
+        phongShaderMaterial.uniforms.specularColor.value.set(value);
+        toonShaderMaterial.uniforms.specularColor.value.set(value);
+    });
+
     // 上傳完成後收起 GUI
     if (window.closeGUI) {
         window.closeGUI(); // 收起並隱藏現有 GUI
@@ -1422,6 +1603,187 @@ const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.00
 
                 scene.add(obj);
 
+                // 紀錄初始位置
+    initialPosition = input_model.position.clone();
+
+    // 保存每個 mesh 的原始材質
+    const originalMaterials = new Map();
+    input_model.traverse((child) => {
+        if (child.isMesh) {
+            originalMaterials.set(child, child.material); // 保存原始材質
+        }
+    });
+    //-
+    // 自定義著色器：Phong 光照模型
+    const vertexShader = `
+    varying vec3 vNormal; // 傳遞法線給片段著色器
+    varying vec3 vPosition; // 傳遞頂點位置給片段著色器
+    
+    void main() {
+        vNormal = normalize(normalMatrix * normal); // 將法線轉換到視圖空間
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // 計算頂點在視圖空間中的位置
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // 計算頂點的最終位置
+    }
+    `;
+    
+    const phongFragmentShader = `
+                varying vec3 vNormal; // Receive the normal from the vertex shader
+                varying vec3 vPosition; // Receive the position from the vertex shader
+    
+                uniform vec3 lightPosition; // Light position
+                uniform vec3 lightColor; // Light color
+                uniform vec3 ambientColor; // Ambient light color
+                uniform vec3 diffuseColor; // Diffuse color
+                uniform vec3 specularColor; // Specular color
+                uniform float shininess; // Shininess factor
+    
+                void main() {
+                    // Compute the light direction
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+                    vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+                    // Ambient light
+                    vec3 ambient = ambientColor;
+    
+                    // Diffuse light
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+    
+                    // Specular light
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    vec3 specular = spec * specularColor * lightColor;
+    
+                    // Final color
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+    
+            // 創建 Phong ShaderMaterial
+            const phongShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: phongFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+                    lightColor: { value: spotLight1.color }, // Use spotLight1's color
+                    ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+                    specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+                    shininess: { value: 32.0 }, // Shininess factor
+                    textureMap: { value: null } // Initially null
+                }
+            });
+    
+    //---Cartoon
+    // 自定義著色器：卡通渲染（Toon Shading）
+    const toonFragmentShader = `
+    varying vec3 vNormal; // Receive the normal from the vertex shader
+    varying vec3 vPosition; // Receive the position from the vertex shader
+    
+    uniform vec3 lightPosition; // Light position
+    uniform vec3 lightColor; // Light color
+    uniform vec3 ambientColor; // Ambient light color
+    uniform vec3 diffuseColor; // Diffuse color
+    uniform vec3 specularColor; // Specular color
+    uniform float shininess; // Shininess factor
+    
+    void main() {
+        // Compute the light direction
+        vec3 lightDir = normalize(lightPosition - vPosition);
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+        vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+        // Ambient light
+        vec3 ambient = ambientColor;
+    
+        // Diffuse light (Toon Shading: discretize the diffuse component)
+        float diff = max(dot(normal, lightDir), 0.0);
+        diff = floor(diff * 3.0) / 3.0; // Discretize diffuse into 3 levels
+        vec3 diffuse = diff * diffuseColor * lightColor;
+    
+        // Specular light (Toon Shading: discretize the specular component)
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        spec = step(0.5, spec); // Binary specular (on or off)
+        vec3 specular = spec * specularColor * lightColor;
+    
+        // Final color
+        vec3 finalColor = ambient + diffuse + specular;
+        gl_FragColor = vec4(finalColor, 1.0);
+    }
+    `;
+    
+    // 創建 Toon ShaderMaterial
+    const toonShaderMaterial = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: toonFragmentShader,
+    uniforms: {
+        lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+        lightColor: { value: spotLight1.color }, // Use spotLight1's color
+        ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+        diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+        specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+        shininess: { value: 32.0 }, // Shininess factor
+        textureMap: { value: null } // Initially null
+    }
+    });
+    
+    //cartoon finish
+    
+    // // 將 ShaderMaterial 應用到模型的所有 mesh
+    // input_model.traverse((child) => {
+    //     if (child.isMesh) {
+    //         child.material = shaderMaterial; // 替換原始材質
+    //         child.material.needsUpdate = true; // 通知 Three.js 更新材質
+    //     }
+    // });
+    
+    const shadingParams = {
+        enableShading: false, // 初始不啟用著色器
+        shininess: 32.0,
+        diffuseColor: '#aaaaaa',
+        specularColor: '#ffffff'
+    };
+    
+    // 創建 Shading 文件夾
+    const shadingFolder = gui.addFolder('Shading').close();
+    
+    // 添加下拉選單選擇著色模式
+    const shadingModes = ['None', 'Phong', 'Toon'];
+    shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
+        input_model.traverse((child) => {
+            if (child.isMesh) {
+                if (value === 'Phong') {
+                    // 啟用 Phong 著色器
+                    child.material = phongShaderMaterial;
+                } else if (value === 'Toon') {
+                    // 啟用卡通渲染
+                    child.material = toonShaderMaterial;
+                } else {
+                    // 恢復原始材質
+                    child.material = originalMaterials.get(child);
+                }
+                child.material.needsUpdate = true; // 通知 Three.js 更新材質
+            }
+        });
+    });
+    
+    // 添加其他 Shading 控制
+    shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
+        phongShaderMaterial.uniforms.shininess.value = value;
+        toonShaderMaterial.uniforms.shininess.value = value;
+    });
+    shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
+        phongShaderMaterial.uniforms.diffuseColor.value.set(value);
+        toonShaderMaterial.uniforms.diffuseColor.value.set(value);
+    });
+    shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
+        phongShaderMaterial.uniforms.specularColor.value.set(value);
+        toonShaderMaterial.uniforms.specularColor.value.set(value);
+    });
+
                 // 上傳完成後收起 GUI
     if (window.closeGUI) {
         window.closeGUI(); // 收起並隱藏現有 GUI
@@ -1767,6 +2129,187 @@ else if (fileExtension === 'fbx'){
             // input_model.rotation.x = Math.PI / -3;
             scene.add(fbx);
 
+            // 紀錄初始位置
+    initialPosition = input_model.position.clone();
+
+    // 保存每個 mesh 的原始材質
+    const originalMaterials = new Map();
+    input_model.traverse((child) => {
+        if (child.isMesh) {
+            originalMaterials.set(child, child.material); // 保存原始材質
+        }
+    });
+    //-
+    // 自定義著色器：Phong 光照模型
+    const vertexShader = `
+    varying vec3 vNormal; // 傳遞法線給片段著色器
+    varying vec3 vPosition; // 傳遞頂點位置給片段著色器
+    
+    void main() {
+        vNormal = normalize(normalMatrix * normal); // 將法線轉換到視圖空間
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // 計算頂點在視圖空間中的位置
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // 計算頂點的最終位置
+    }
+    `;
+    
+    const phongFragmentShader = `
+                varying vec3 vNormal; // Receive the normal from the vertex shader
+                varying vec3 vPosition; // Receive the position from the vertex shader
+    
+                uniform vec3 lightPosition; // Light position
+                uniform vec3 lightColor; // Light color
+                uniform vec3 ambientColor; // Ambient light color
+                uniform vec3 diffuseColor; // Diffuse color
+                uniform vec3 specularColor; // Specular color
+                uniform float shininess; // Shininess factor
+    
+                void main() {
+                    // Compute the light direction
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+                    vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+                    // Ambient light
+                    vec3 ambient = ambientColor;
+    
+                    // Diffuse light
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+    
+                    // Specular light
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    vec3 specular = spec * specularColor * lightColor;
+    
+                    // Final color
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+    
+            // 創建 Phong ShaderMaterial
+            const phongShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: phongFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+                    lightColor: { value: spotLight1.color }, // Use spotLight1's color
+                    ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+                    specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+                    shininess: { value: 32.0 }, // Shininess factor
+                    textureMap: { value: null } // Initially null
+                }
+            });
+    
+    //---Cartoon
+    // 自定義著色器：卡通渲染（Toon Shading）
+    const toonFragmentShader = `
+    varying vec3 vNormal; // Receive the normal from the vertex shader
+    varying vec3 vPosition; // Receive the position from the vertex shader
+    
+    uniform vec3 lightPosition; // Light position
+    uniform vec3 lightColor; // Light color
+    uniform vec3 ambientColor; // Ambient light color
+    uniform vec3 diffuseColor; // Diffuse color
+    uniform vec3 specularColor; // Specular color
+    uniform float shininess; // Shininess factor
+    
+    void main() {
+        // Compute the light direction
+        vec3 lightDir = normalize(lightPosition - vPosition);
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+        vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+        // Ambient light
+        vec3 ambient = ambientColor;
+    
+        // Diffuse light (Toon Shading: discretize the diffuse component)
+        float diff = max(dot(normal, lightDir), 0.0);
+        diff = floor(diff * 3.0) / 3.0; // Discretize diffuse into 3 levels
+        vec3 diffuse = diff * diffuseColor * lightColor;
+    
+        // Specular light (Toon Shading: discretize the specular component)
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        spec = step(0.5, spec); // Binary specular (on or off)
+        vec3 specular = spec * specularColor * lightColor;
+    
+        // Final color
+        vec3 finalColor = ambient + diffuse + specular;
+        gl_FragColor = vec4(finalColor, 1.0);
+    }
+    `;
+    
+    // 創建 Toon ShaderMaterial
+    const toonShaderMaterial = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: toonFragmentShader,
+    uniforms: {
+        lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+        lightColor: { value: spotLight1.color }, // Use spotLight1's color
+        ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+        diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+        specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+        shininess: { value: 32.0 }, // Shininess factor
+        textureMap: { value: null } // Initially null
+    }
+    });
+    
+    //cartoon finish
+    
+    // // 將 ShaderMaterial 應用到模型的所有 mesh
+    // input_model.traverse((child) => {
+    //     if (child.isMesh) {
+    //         child.material = shaderMaterial; // 替換原始材質
+    //         child.material.needsUpdate = true; // 通知 Three.js 更新材質
+    //     }
+    // });
+    
+    const shadingParams = {
+        enableShading: false, // 初始不啟用著色器
+        shininess: 32.0,
+        diffuseColor: '#aaaaaa',
+        specularColor: '#ffffff'
+    };
+    
+    // 創建 Shading 文件夾
+    const shadingFolder = gui.addFolder('Shading').close();
+    
+    // 添加下拉選單選擇著色模式
+    const shadingModes = ['None', 'Phong', 'Toon'];
+    shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
+        input_model.traverse((child) => {
+            if (child.isMesh) {
+                if (value === 'Phong') {
+                    // 啟用 Phong 著色器
+                    child.material = phongShaderMaterial;
+                } else if (value === 'Toon') {
+                    // 啟用卡通渲染
+                    child.material = toonShaderMaterial;
+                } else {
+                    // 恢復原始材質
+                    child.material = originalMaterials.get(child);
+                }
+                child.material.needsUpdate = true; // 通知 Three.js 更新材質
+            }
+        });
+    });
+    
+    // 添加其他 Shading 控制
+    shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
+        phongShaderMaterial.uniforms.shininess.value = value;
+        toonShaderMaterial.uniforms.shininess.value = value;
+    });
+    shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
+        phongShaderMaterial.uniforms.diffuseColor.value.set(value);
+        toonShaderMaterial.uniforms.diffuseColor.value.set(value);
+    });
+    shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
+        phongShaderMaterial.uniforms.specularColor.value.set(value);
+        toonShaderMaterial.uniforms.specularColor.value.set(value);
+    });
+
             // 上傳完成後收起 GUI
     if (window.closeGUI) {
         window.closeGUI(); // 收起並隱藏現有 GUI
@@ -2076,6 +2619,187 @@ input_model.position.y = 0;
             // input_model.position.set(0, -1.3, 0);
             // input_model.rotation.x = Math.PI / -3;
             scene.add(input_model);
+
+            // 紀錄初始位置
+    initialPosition = input_model.position.clone();
+
+    // 保存每個 mesh 的原始材質
+    const originalMaterials = new Map();
+    input_model.traverse((child) => {
+        if (child.isMesh) {
+            originalMaterials.set(child, child.material); // 保存原始材質
+        }
+    });
+    //-
+    // 自定義著色器：Phong 光照模型
+    const vertexShader = `
+    varying vec3 vNormal; // 傳遞法線給片段著色器
+    varying vec3 vPosition; // 傳遞頂點位置給片段著色器
+    
+    void main() {
+        vNormal = normalize(normalMatrix * normal); // 將法線轉換到視圖空間
+        vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // 計算頂點在視圖空間中的位置
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // 計算頂點的最終位置
+    }
+    `;
+    
+    const phongFragmentShader = `
+                varying vec3 vNormal; // Receive the normal from the vertex shader
+                varying vec3 vPosition; // Receive the position from the vertex shader
+    
+                uniform vec3 lightPosition; // Light position
+                uniform vec3 lightColor; // Light color
+                uniform vec3 ambientColor; // Ambient light color
+                uniform vec3 diffuseColor; // Diffuse color
+                uniform vec3 specularColor; // Specular color
+                uniform float shininess; // Shininess factor
+    
+                void main() {
+                    // Compute the light direction
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+                    vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+                    // Ambient light
+                    vec3 ambient = ambientColor;
+    
+                    // Diffuse light
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+    
+                    // Specular light
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    vec3 specular = spec * specularColor * lightColor;
+    
+                    // Final color
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+    
+            // 創建 Phong ShaderMaterial
+            const phongShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: phongFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+                    lightColor: { value: spotLight1.color }, // Use spotLight1's color
+                    ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+                    specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+                    shininess: { value: 32.0 }, // Shininess factor
+                    textureMap: { value: null } // Initially null
+                }
+            });
+    
+    //---Cartoon
+    // 自定義著色器：卡通渲染（Toon Shading）
+    const toonFragmentShader = `
+    varying vec3 vNormal; // Receive the normal from the vertex shader
+    varying vec3 vPosition; // Receive the position from the vertex shader
+    
+    uniform vec3 lightPosition; // Light position
+    uniform vec3 lightColor; // Light color
+    uniform vec3 ambientColor; // Ambient light color
+    uniform vec3 diffuseColor; // Diffuse color
+    uniform vec3 specularColor; // Specular color
+    uniform float shininess; // Shininess factor
+    
+    void main() {
+        // Compute the light direction
+        vec3 lightDir = normalize(lightPosition - vPosition);
+        vec3 normal = normalize(vNormal);
+        vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
+        vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
+    
+        // Ambient light
+        vec3 ambient = ambientColor;
+    
+        // Diffuse light (Toon Shading: discretize the diffuse component)
+        float diff = max(dot(normal, lightDir), 0.0);
+        diff = floor(diff * 3.0) / 3.0; // Discretize diffuse into 3 levels
+        vec3 diffuse = diff * diffuseColor * lightColor;
+    
+        // Specular light (Toon Shading: discretize the specular component)
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        spec = step(0.5, spec); // Binary specular (on or off)
+        vec3 specular = spec * specularColor * lightColor;
+    
+        // Final color
+        vec3 finalColor = ambient + diffuse + specular;
+        gl_FragColor = vec4(finalColor, 1.0);
+    }
+    `;
+    
+    // 創建 Toon ShaderMaterial
+    const toonShaderMaterial = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: toonFragmentShader,
+    uniforms: {
+        lightPosition: { value: spotLight1.position }, // Use spotLight1's position
+        lightColor: { value: spotLight1.color }, // Use spotLight1's color
+        ambientColor: { value: new THREE.Color(0x333333) }, // Ambient light color
+        diffuseColor: { value: new THREE.Color(0xaaaaaa) }, // Diffuse color
+        specularColor: { value: new THREE.Color(0xffffff) }, // Specular color
+        shininess: { value: 32.0 }, // Shininess factor
+        textureMap: { value: null } // Initially null
+    }
+    });
+    
+    //cartoon finish
+    
+    // // 將 ShaderMaterial 應用到模型的所有 mesh
+    // input_model.traverse((child) => {
+    //     if (child.isMesh) {
+    //         child.material = shaderMaterial; // 替換原始材質
+    //         child.material.needsUpdate = true; // 通知 Three.js 更新材質
+    //     }
+    // });
+    
+    const shadingParams = {
+        enableShading: false, // 初始不啟用著色器
+        shininess: 32.0,
+        diffuseColor: '#aaaaaa',
+        specularColor: '#ffffff'
+    };
+    
+    // 創建 Shading 文件夾
+    const shadingFolder = gui.addFolder('Shading').close();
+    
+    // 添加下拉選單選擇著色模式
+    const shadingModes = ['None', 'Phong', 'Toon'];
+    shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
+        input_model.traverse((child) => {
+            if (child.isMesh) {
+                if (value === 'Phong') {
+                    // 啟用 Phong 著色器
+                    child.material = phongShaderMaterial;
+                } else if (value === 'Toon') {
+                    // 啟用卡通渲染
+                    child.material = toonShaderMaterial;
+                } else {
+                    // 恢復原始材質
+                    child.material = originalMaterials.get(child);
+                }
+                child.material.needsUpdate = true; // 通知 Three.js 更新材質
+            }
+        });
+    });
+    
+    // 添加其他 Shading 控制
+    shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
+        phongShaderMaterial.uniforms.shininess.value = value;
+        toonShaderMaterial.uniforms.shininess.value = value;
+    });
+    shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
+        phongShaderMaterial.uniforms.diffuseColor.value.set(value);
+        toonShaderMaterial.uniforms.diffuseColor.value.set(value);
+    });
+    shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
+        phongShaderMaterial.uniforms.specularColor.value.set(value);
+        toonShaderMaterial.uniforms.specularColor.value.set(value);
+    });
 
             // 上傳完成後收起 GUI
     if (window.closeGUI) {

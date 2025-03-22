@@ -12,7 +12,7 @@
     style-src 'self' 'unsafe-inline';
     connect-src 'self' blob:;
     font-src 'self' data:;
-">
+    ">
 
     <title>3D model load</title>
     <link rel="stylesheet" href="./style.css">
@@ -51,7 +51,7 @@
             <li><a href="#" id="aboutLink">About</a></li>
             <li><a href="#" id="controlsLink">Control</a></li>
             <li><a href="#" id="legalsLink">Legals</a></li>
-            <li><a href="#" id="refreshPage">Refresh Page</a></li>  <!-- 初始隱藏 -->
+            <li><a href="#" id="refreshPage">Exit</a></li>  <!-- 初始隱藏 -->
             <!-- <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  初始隱藏 -->
             <li class="qr-code-container">
                 <img src="./qr-code/qr-code.png" alt="QR Code" class="qr-code-icon">
@@ -69,7 +69,7 @@
             <div id="container3D"></div>
 
         <label for="progress-bar" id="loading-label">
-            <p>Import your 3D file here</p>
+            <p>Welcome! Import your 3D file here</p>
             <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button> 
             <input type="file" id="model-file-input" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;"> 
         </label>
@@ -85,8 +85,8 @@
             <span class="close" id="closeModal">&times;</span>
             <h2>Import your 3D file here</h2>
             <div id="dropArea">
-                <p>Drag and drop a 3D model file here</p>
-                <button id="uploadButton" class="btn-animate__underline-from-center">Upload a file</button>
+                <p>Drag and drop a 3D file here to import</p>
+                <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file</button>
                 <input type="file" id="model-file-input-modal" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;">
                 <!-- <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;"> -->
             

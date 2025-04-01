@@ -47,8 +47,7 @@
             <div class="line"></div>
         </div>
         <ul class="nav-links" id="navLinks">
-            <li><a href="#">P2104352</a></li>
-            <li><a href="#" id="aboutLink">About</a></li>
+            <li><a href="#" id="aboutLink">About</li>
             <li><a href="#" id="controlsLink">Control</a></li>
             <li><a href="#" id="legalsLink">Legals</a></li>
             <li><a href="#" id="refreshPage">Exit</a></li>  <!-- 初始隱藏 -->
@@ -57,6 +56,7 @@
                 <img src="./qr-code/qr-code.png" alt="QR Code" class="qr-code-icon">
                 <div class="qr-code" id="qrCode">
                     <img src="./qr-code/fyp-qr-code.png" alt="QR Code" class="qr-code-image">
+                    <p>Scan this QR code to access the website on other devices</p>
                 </div>
             </li>
             <li><a href="#" id="refreshPage" style="display: none;">Refresh Page</a></li>  <!-- 初始隱藏 -->
@@ -105,13 +105,14 @@
         <span class="close" id="closeAboutModal">&times;</span>
         <h2>Interactive 3D Models Rendering Web App</h2>
     
-        <p>     This project developed an interactive website which can use in PC, mobile phone, and different operating system, 
-            provides the user a can control the 3D models with interface. User also can use the mouse or touch control in mobile such as move 3d model, zoom in and out, etc.</p>
-            <hr>
-            <p>     The project infrastructure in a 3D model rendering uses the WebGL and Three.js. 
-                WebGL is a cross-platform JavaScript API that works with all the major browsers and allows 3D visuals to be rendered in the browser without the need for plugins. 
-                Moreover, Three.js is the most popular library/API for WebGL-based 3D graphics, making it easy for developers to create complex 3D scenes and visualizations.
+        <p>This project delivers an interactive website compatible with PCs, mobile phones, and various operating systems, 
+            enabling users to control 3D models through an intuitive interface. Users can manipulate models using mouse or touch 
+            inputs—such as moving, rotating, or zooming in and out—enhancing accessibility across devices.</p>
+            
+            <p>The project’s 3D rendering infrastructure leverages WebGL and Three.js. WebGL, a cross-platform JavaScript API, supports plugin-free 3D visuals in all major browsers. 
+                Three.js, a leading WebGL library, simplifies the creation of complex 3D scenes and visualizations, streamlining development and ensuring robust performance.
             </p>
+            
     </div>
 </div>
 
@@ -120,8 +121,32 @@
     <div class="modal-content">
         <span class="close" id="closeControlsModal">&times;</span>
         <h2>Controls</h2>
-        <p>Here you can find information about how to use the controls for the 3D model viewer.</p>
-        <p>Use the mouse to rotate, zoom, and pan the model.</p>
+        <p>This section provides guidance on using the control panel to interact with the 3D model viewer. Users can manipulate the model and customize the scene using the following features, accessible via the right-hand control panel and mouse/touch inputs.</p>
+        <hr>
+        <br>
+        <h3>Importing a 3D Model</h3>
+        <p>To begin, click the blue "Choose a file" button at the bottom of the screen. Select a 3D model file (.glb, .obj, .stl, or .fbx) from your device to upload and display it in the viewer, replacing the default model.</p>
+        <hr>
+        <br>
+        <h3>Mouse and Touch Interactions</h3>
+        <p>Rotate: Click and drag the left mouse button (or swipe on mobile) to rotate the model in any direction.</p>
+        <p>Zoom: Scroll the mouse wheel up to zoom in or down to zoom out (or pinch with two fingers on mobile).</p>
+        <p>Pan: Right-click and drag (or use two-finger drag on mobile) to move the model across the screen. (Can't use in Welcome Page)</p>
+        <hr>
+        <br>
+        <h3>Control Panel Features</h3>
+        <p><b>Show Stats</b>: Toggle this option to display real-time performance statistics (e.g., frame rate, memory usage) in the top-right corner, helping users monitor rendering efficiency.</p>
+        <p><b>Background</b>: Adjust the scene’s background color or upload a 2D/3D image by selecting a file or entering a URL to create a custom backdrop.</p>
+        <p><b>Texture</b>: Modify the model’s texture by uploading a new texture file, allowing for visual customization of the model’s surface.</p>
+        <p><b>Camera</b>: Reset the camera to its default position or adjust its field of view for a different perspective on the model.</p>
+        <p><b>Auto Rotate</b>: Enable this to make the model rotate automatically around its vertical axis, ideal for hands-free viewing.</p>
+        <p><b>Ambient Light</b>: Adjust the intensity and color of ambient lighting to change the overall illumination of the scene.</p>
+        <p><b>Spotlight 1 & Spotlight 2</b>: Control the position, intensity, and color of two spotlights to highlight specific areas of the model.</p>
+        <p><b>Shading</b>: Toggle between different shading modes (e.g., flat, smooth) to alter the model’s rendering style for varied visual effects.</p>
+        <p><b>Axes, Box, Grid Helper</b>: Enable these helpers to display axes, a bounding box, or a grid in the scene, aiding in precise positioning and orientation.</p>
+        <p><b>Position Control</b>: Adjust the model’s X, Y, Z coordinates to reposition it within the scene.</p>
+        <p><b>Scale Control</b>: Modify the model’s size by adjusting its scale along the X, Y, Z axes for proportional or non-uniform scaling.</p>
+        
     </div>
 </div>
 
@@ -130,33 +155,32 @@
     <div class="modal-content">
         <span class="close" id="closeLegalsModal">&times;</span>
         <h2>Disclaimer</h2>
-        <p>     This project does not guarantee that the service or its content and functions are error-free or uninterrupted, nor that all defects will be corrected, or that your use will yield specific results.
-            The service and its content are provided "as is." Information provided through the service may change at any time without notice. 
-            This project does not guarantee that downloaded files or other data are free from viruses or harmful components. 
-            No express or implied warranties are provided, including accuracy of content, non-infringement, or merchantability for specific purposes. 
-            The project is not liable for any third-party actions related to your use of the service. You assume all responsibility for using the service and linked websites. 
-            If you are dissatisfied with the service or its content, your sole remedy is to stop using it. This limitation is part of the agreement between the parties.
-            This project does not guarantee that the service or its content and functions are error-free or uninterrupted, nor that all defects will be corrected, or that your use will yield specific results.
-            The service and its content are provided "as is." Information provided through the service may change at any time without notice. 
-            This project does not guarantee that downloaded files or other data are free from viruses or harmful components. 
-            No express or implied warranties are provided, including accuracy of content, non-infringement, or merchantability for specific purposes. 
-            The project is not liable for any third-party actions related to your use of the service. You assume all responsibility for using the service and linked websites. 
-            If you are dissatisfied with the service or its content, your sole remedy is to stop using it. This limitation is part of the agreement between the parties
-            This project does not guarantee that the service or its content and functions are error-free or uninterrupted, nor that all defects will be corrected, or that your use will yield specific results.
-            The service and its content are provided "as is." Information provided through the service may change at any time without notice. 
-            This project does not guarantee that downloaded files or other data are free from viruses or harmful components. 
-            No express or implied warranties are provided, including accuracy of content, non-infringement, or merchantability for specific purposes. 
-            The project is not liable for any third-party actions related to your use of the service. You assume all responsibility for using the service and linked websites. 
-            If you are dissatisfied with the service or its content, your sole remedy is to stop using it. This limitation is part of the agreement between the parties
-            This project does not guarantee that the service or its content and functions are error-free or uninterrupted, nor that all defects will be corrected, or that your use will yield specific results.
-            The service and its content are provided "as is." Information provided through the service may change at any time without notice. 
-            This project does not guarantee that downloaded files or other data are free from viruses or harmful components. 
-            No express or implied warranties are provided, including accuracy of content, non-infringement, or merchantability for specific purposes. 
-            The project is not liable for any third-party actions related to your use of the service. You assume all responsibility for using the service and linked websites. 
-            If you are dissatisfied with the service or its content, your sole remedy is to stop using it. This limitation is part of the agreement between the parties</p>
-            <hr>
-        <p>     This disclaimer applies to damages or liabilities arising from any breach, error, omission, interruption, deletion, defect, delay in operation or transmission, 
-            computer viruses, communication line failures, theft, destruction, or unauthorized access, alteration, and use, regardless of the legal basis.</p>
+        <p>This disclaimer outlines the terms of use for the Interactive 3D Models Rendering Web App (This Web App), a browser-based platform for uploading and interacting with 3D models. The service is provided with certain limitations and risks, which users accept by using the app.</p>
+        <hr>
+        <br>
+        <h3>Service Limitations</h3>
+        <p>he project does not guarantee that the service, its content, or its functions will be error-free, uninterrupted, or that all defects will be corrected. The app is provided "as is," and your use may not yield specific results. 
+            Information provided may change without notice. If you are dissatisfied with the service or its content, your sole remedy is to discontinue use.</p>
+        <hr>
+        <br>
+        <h3>No Warranties</h3>
+        <p>No express or implied warranties are provided, including for accuracy of content, non-infringement, or merchantability for specific purposes. The project does not guarantee that 3D models, textures, or other data uploaded or downloaded are free from viruses, harmful components, 
+            or intellectual property violations. Users are responsible for ensuring the safety and legality of their uploaded content.</p>
+        <hr>
+        <br>
+        <h3>User Responsibility</h3>
+        <p>Users assume full responsibility for their use of the service, including interactions with linked websites (e.g., background image URLs) and third-party resources (e.g., Three.js, Validator.js). The project is not liable for third-party actions, such as misuse of uploaded models or external links, 
+            nor for damages arising from client-side rendering on user devices.</p>
+        <hr>
+        <br>
+        <h3>Liability Limitations</h3>
+        <p>This project is not liable for damages or liabilities arising from breaches, errors, omissions, interruptions, deletions, defects, delays, viruses, communication failures, theft, destruction, unauthorized access, or alterations, regardless of the legal basis. This includes issues related to model rendering, 
+            file uploads, or device performance due to client-side processing.</p>
+        <hr>
+        <br>
+        <h3>Intellectual Property and Usage</h3>
+        <p>Users must ensure that uploaded 3D models and textures do not infringe on third-party intellectual property rights. The project does not claim ownership of user-uploaded content but is not responsible for disputes arising from such content. Use of the service implies agreement to these terms.</p>
+
     </div>
 </div>
 

@@ -596,3 +596,7 @@ width: 180px; /* 預設按鈕寬度 */
   }
 }  
 
+.qr-code {
+  font-size:12px;
+  text-align: center;
+}

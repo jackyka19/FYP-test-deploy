@@ -600,3 +600,47 @@ width: 180px; /* 預設按鈕寬度 */
   font-size:12px;
   text-align: center;
 }
+
+/* 按鈕容器，定位在左上角 */
+.default-model-buttons {
+  position: absolute;
+  top: 15px;
+  left: 120px;
+  display: flex;
+  gap: 25px; /* 按鈕之間的間距 */
+  z-index: 10; /* 確保按鈕在畫布之上 */
+}
+
+/* 預設模型按鈕樣式 */
+.default-model-btn {
+  width: 90px;
+  height: 35px;
+  border: none;
+  border-radius: 5px;
+  background: #027efb; /* 與 #myButton 相同的藍色背景 */
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+/* 按鈕懸停效果 */
+.default-model-btn:hover {
+  background: #005bb5; /* 懸停時變暗 */
+}
+
+/* 響應式設計：小屏幕調整按鈕大小 */
+@media (max-width: 768px) {
+  .default-model-buttons {
+      top: 20px;
+      left: 100px;
+      gap: 10px;
+  }
+
+  .default-model-btn {
+      width: 55px;
+      height: 25px;
+      font-size: 12px;
+  }
+}

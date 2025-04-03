@@ -88,6 +88,18 @@ const closeBtn = document.getElementById("closeModal");
 const uploadButton = document.getElementById("uploadButton");
 const fileInputModal = document.getElementById("model-file-input-modal");
 
+const closeModal = document.getElementById('closeModal');
+closeModal.addEventListener('click', () => {
+    modal.style.display = "none";
+    const defaultModelButtons = document.querySelector('.default-model-buttons');
+    if (defaultModelButtons) {
+        defaultModelButtons.style.display = 'flex';
+    }
+    const progressBarContainer = document.querySelector('.progress-bar-container');
+    if (progressBarContainer) {
+        progressBarContainer.style.display = 'flex';
+    }
+});
 //------
 
 
@@ -3462,14 +3474,14 @@ function validateFile(file) {
 
   // 檢查文件類型
   if (!allowedFileTypes.includes(fileExtension)) {
-    errorHint.textContent = `Not support file format：${fileExtension}。Please import .glb, .bin, .obj, .fbx 或 .stl 文件。`;
+    errorHint.textContent = `Not support file format: ${fileExtension}. Please import .glb, .bin, .obj, .fbx or .stl file.`;
     errorHint.style.display = 'block';
     return false;
   }
 
   // 檢查文件大小
   if (file.size > maxFileSize) {
-    errorHint.textContent = `The file too large.（${(file.size / 1024 / 1024).toFixed(2)}MB）。The biggest file size is ${(maxFileSize / 1024 / 1024)}MB。`;
+    errorHint.textContent = `The file too large.（${(file.size / 1024 / 1024).toFixed(2)}MB）. The biggest file size is ${(maxFileSize / 1024 / 1024)}MB.`;
     errorHint.style.display = 'block';
     return false;
   }
@@ -3517,6 +3529,11 @@ modelFileInput.addEventListener('change', (event) => {
 loadModelBtn.addEventListener('click', (event) => {
     event.preventDefault(); // Prevents default action, in case it's triggering file input
     modal.style.display = "block"; // Show the modal
+
+    const defaultModelButtons = document.querySelector('.default-model-buttons');
+    if (defaultModelButtons) {
+        defaultModelButtons.style.display = 'none';
+    }
 });
 
 // Close modal when the close button is clicked
@@ -3545,15 +3562,40 @@ fileInputModal.addEventListener('change', (event) => {
 const dropArea = document.getElementById("dropArea");
 dropArea.addEventListener('dragover', (event) => {
     event.preventDefault(); // Prevent default behavior (Prevent file from being opened)
+    dropArea.style.backgroundColor = 'rgba(0, 140, 186, 0.2)';
+
+});
+
+dropArea.addEventListener('dragleave', (event) => {
+    event.preventDefault();
+    dropArea.style.backgroundColor = 'transparent';
 });
 
 dropArea.addEventListener('drop', (event) => {
     event.preventDefault();
+    dropArea.style.backgroundColor = 'transparent';
     const file = event.dataTransfer.files[0];
-    if (file) {
+    if (file && validateFile(file)) {
+        // 隱藏按鈕容器
+        const defaultModelButtons = document.querySelector('.default-model-buttons');
+        if (defaultModelButtons) {
+            defaultModelButtons.style.display = 'none';
+        }
+
+        // 隱藏進度條容器
+        const progressBarContainer = document.querySelector('.progress-bar-container');
+        if (progressBarContainer) {
+            progressBarContainer.style.display = 'none';
+        }
+
+        progressBarContainer.style.display = "flex";
         loadModel(file);
-        modal.style.display = "none"; // Close the modal after dropping a file
+        modal.style.display = "none";
     }
+    // if (file) {
+    //     loadModel(file);
+    //     modal.style.display = "none"; // Close the modal after dropping a file
+    // }
 });
 
 

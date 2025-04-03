@@ -1,66 +1,68 @@
 // import * as THREE from '/build/three.module.js';
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
-// create a THREE.JS Scene
+// Create a THREE.JS Scene
 const scene = new THREE.Scene();
 
-let spotLightHelper1; 
-let spotLightHelper2; 
-let defaultScale; 
+let spotLightHelper1;
+let spotLightHelper2;
+let defaultScale;
 let scaleXControl, scaleYControl, scaleZControl;
 let defaultCameraPosition;
 let camerapositionControl;
-// let renderer;
-const renderer =  new THREE.WebGLRenderer({
-    antialias: true, 
+
+const renderer = new THREE.WebGLRenderer({
+    antialias: true,
     alpha: false,
-    powerPreference: "high-performance", // 優先使用高性能模式
-    // canvas: model_container
+    powerPreference: "high-performance",
 });
 window.renderer = renderer;
 window.scene = scene;
 
-let scaleControl; 
-// let camera;
-
+let scaleControl;
 let object;
 let controls;
 let objToRender = "example";
 let input_model;
 
-// create a new camera with positions and angle
+// Create a new camera with positions and angle
 const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 window.camera = camera;
-// const gui = new GUI();
 
 // 全局 GUI 實例，初始打開
 const gui = new GUI();
-window.gui = gui; // 暴露給 client.js 使用
-gui.domElement.style.display = 'block'; // 初始顯示 GUI
-gui.open(); // 初始打開 GUI
+window.gui = gui;
+gui.domElement.style.display = 'block';
+gui.open();
 
 // 定義全局收起函數
-window.closeGUI = function() {
-    gui.close(); // 收起 GUI
-    gui.domElement.style.display = 'none'; // 隱藏 GUI
-    resetGUI(); // 重置 GUI 狀態
+window.closeGUI = function () {
+    gui.close();
+    gui.domElement.style.display = 'none';
+    resetGUI();
 };
 
-
-// 加入背顏色 (2D,3D背景有用)
+// 加入背景顏色 (2D, 3D 背景有用)
 const params = {
-    color: '#000000', // Default background color
-    backgroundImage: '', // Default background image URL
+    color: '#000000',
+
+
+    backgroundImage: '',
     showStats: false,
-    autoRotate: false
+    autoRotate: false,
+    showBoxHelper: false,
+    showAxes: false,
+    showGrid: false,
+    scale: 1,
+    positionY: 0
 };
 
-window.resetGUI = function() {
+window.resetGUI = function () {
     params.showStats = false;
     params.autoRotate = false;
     stats.domElement.style.display = 'none';
@@ -68,23 +70,20 @@ window.resetGUI = function() {
     controls.update();
 };
 
-gui.domElement.style.display = 'block'; // Hide the GUI by default
-gui.close(); // Close the GUI by default
+// 頂層 GUI 控件：Show Stats
 const statsControl = { showStats: false };
-    gui.add(statsControl, "showStats").name("Show Stats").onChange((value) => {
-        stats.domElement.style.display = value ? 'block' : 'none'; // Show or hide stats
-    });
+gui.add(statsControl, "showStats").name("Show Stats").onChange((value) => {
+    stats.domElement.style.display = value ? 'block' : 'none';
+});
 
-    const background_change = gui.addFolder("Background").close();
-
-    // background color
-    background_change.addColor(params, 'color').name('Background Color').onChange((value) => {
-        if (!params.backgroundImage) {
-            scene.background = new THREE.Color(value); // Update the scene background color
-        }
-    });
-    background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
-    // 找到 "Background Image URL" 控制器的父容器
+// 頂層 GUI 控件：Background
+const background_change = gui.addFolder("Background").close();
+background_change.addColor(params, 'color').name('Background Color').onChange((value) => {
+    if (!params.backgroundImage) {
+        scene.background = new THREE.Color(value);
+    }
+});
+background_change.add(params, 'backgroundImage').name('Background Image URL').onChange((value) => {
     const controllerDiv = Array.from(document.querySelectorAll('.lil-gui')).find(div =>
         div.textContent.includes('Background Image URL')
     );
@@ -92,42 +91,39 @@ const statsControl = { showStats: false };
 
     if (!inputElement) {
         console.error('Input element for "Background Image URL" not found');
-        return; // 防止進一步錯誤
+        return;
     }
 
-    // 獲取獨立的錯誤提示元素
     const errorHint = document.getElementById('error-hint');
     if (!errorHint) {
         console.error('Error hint element (#error-hint) not found in DOM');
         return;
     }
 
-    // Handle the case of empty input
     if (!value || value.trim() === '') {
-        errorHint.textContent = ''; // Clear the hint
-        errorHint.style.display = 'none'; // Hide the hint
+        errorHint.textContent = '';
+        errorHint.style.display = 'none';
         console.log('Input is empty, hint cleared');
-        return; // Return early, skip further checks
+        return;
     }
 
-    // Use global validator to validate the URL
     if (validator.isURL(value, { protocols: ['https'], require_protocol: true })) {
         const textureLoader = new THREE.TextureLoader();
         textureLoader.load(value, (texture) => {
-            scene.background = texture; // Update the background
-            errorHint.textContent = ''; // Clear the hint
-            errorHint.style.display = 'none'; // Hide the hint
+            scene.background = texture;
+            errorHint.textContent = '';
+            errorHint.style.display = 'none';
             console.log('Background updated, hint cleared');
         }, undefined, (error) => {
             console.error('Error loading texture:', error);
-            errorHint.textContent = 'An error occurred. Please enter a valid URL'; //Failed to load backgroung image: Please enter a valid HTTPS URL
-            errorHint.style.display = 'block'; // Show the hint
+            errorHint.textContent = 'An error occurred. Please enter a valid URL';
+            errorHint.style.display = 'block';
             console.log('Error hint set to "Failed to load image"');
         });
     } else {
         console.error('Invalid URL');
-        errorHint.textContent = 'An error occurred. Please enter a valid URL'; // 設置錯誤提示 //Background image: Please enter a valid HTTPS URL
-        errorHint.style.display = 'block'; // Show the hint
+        errorHint.textContent = 'An error occurred. Please enter a valid URL';
+        errorHint.style.display = 'block';
         console.log('Error hint set to "Invalid input in this field"');
     }
 });
@@ -143,82 +139,64 @@ window.addEventListener('resize', () => {
     }
 });
 
-        // Create an input for uploading 2D or 3D images
+// Create an input for uploading 2D or 3D images
 const uploadInput = document.createElement('input');
 uploadInput.type = 'file';
-// uploadInput.accept = '.hdr'; // Allow only HDR files
-uploadInput.accept = '.hdr,.jpg,.jpeg,.png'; // Allow HDR and 2D image files
-uploadInput.style.display = 'none'; // Hide the input
+uploadInput.accept = '.hdr,.jpg,.jpeg,.png';
+uploadInput.style.display = 'none';
 document.body.appendChild(uploadInput);
 
-// Add button to trigger file upload
-// gui.add({ upload: () => uploadInput.click() }, 'upload').name('Upload HDR Image');
-
-// Add button to trigger file upload
 background_change.add({ upload: () => uploadInput.click() }, 'upload').name('Upload Image');
 
-// Handle the file upload
 uploadInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/octet-stream']; // HDR 可能為二進位流
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/octet-stream'];
     if (file && !allowedTypes.includes(file.type)) {
         alert('Unsupported file type. Please upload .jpg, .jpeg, .png, or .hdr files.');
-        event.target.value = ''; // 清空輸入
+        event.target.value = '';
         return;
-    }
-    else if (file) {
+    } else if (file) {
         const reader = new FileReader();
-        // const rgbeLoader = new RGBELoader();
         reader.onload = (e) => {
-            // const blob = new Blob([e.target.result], { type: 'image/hdr' });
             const blob = new Blob([e.target.result], { type: file.type });
-            const url = URL.createObjectURL(blob); // Create a Blob URL
-            // const rgbeLoader = new THREE.RGBELoader();
+            const url = URL.createObjectURL(blob);
 
-              // Clear the previous background
-              scene.background = null; // Reset the background
+            scene.background = null;
 
-               // Determine file type by extension
             const fileExtension = file.name.split('.').pop().toLowerCase();
-
-// Determine file type and load accordingly
-        if (fileExtension === 'hdr'){
-            const rgbeLoader = new RGBELoader();
-            rgbeLoader.load(url, (texture) => {
-                texture.mapping = THREE.EquirectangularReflectionMapping; // Set mapping for HDR
-                scene.background = texture; // Set the uploaded HDR image as background
-                params.color = '#ffffff'; // Reset color to white or any default
-                URL.revokeObjectURL(url); // Clean up the Blob URL
-            });
-        } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png') {
-            const textureLoader = new THREE.TextureLoader();
-            textureLoader.load(url, (texture) => {
-                scene.background = texture; // Set the new 2D image as background
-                params.color = '#ffffff'; // Reset color to white or any default
-                URL.revokeObjectURL(url); // Clean up the Blob URL
-            });
-        } else {
-            console.error('Unsupported file type');
-        }
-    };
-        reader.readAsArrayBuffer(file); // Read the file as an ArrayBuffer
+            if (fileExtension === 'hdr') {
+                const rgbeLoader = new RGBELoader();
+                rgbeLoader.load(url, (texture) => {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    scene.background = texture;
+                    params.color = '#ffffff';
+                    URL.revokeObjectURL(url);
+                });
+            } else if (fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png') {
+                const textureLoader = new THREE.TextureLoader();
+                textureLoader.load(url, (texture) => {
+                    scene.background = texture;
+                    params.color = '#ffffff';
+                    URL.revokeObjectURL(url);
+                });
+            } else {
+                console.error('Unsupported file type');
+            }
+        };
+        reader.readAsArrayBuffer(file);
     }
 });
-//___
-// texture
+
+// 頂層 GUI 控件：Texture
 const texture_change = gui.addFolder("Texture").close();
-// 現在是texture input (這是公用的 即係glb gltf fbx 等等都可以用這個texture)
-// Add an input for uploading textures (JPG, PNG)
 const textureInput = document.createElement('input');
 textureInput.type = 'file';
-textureInput.accept = '.jpg,.jpeg,.png'; // Allow only image files
-textureInput.style.display = 'none'; // Hide the input
+textureInput.accept = '.jpg,.jpeg,.png';
+textureInput.style.display = 'none';
 document.body.appendChild(textureInput);
 
-// Add button to trigger texture upload
 texture_change.add({ uploadTexture: () => textureInput.click() }, 'uploadTexture').name('Upload Texture');
 
-// Handle texture upload
 textureInput.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -227,748 +205,383 @@ textureInput.addEventListener('change', (event) => {
             const textureLoader = new THREE.TextureLoader();
             const texture = textureLoader.load(URL.createObjectURL(file), (texture) => {
                 if (input_model) {
-                    // Apply the texture to the model's material
                     input_model.traverse((child) => {
                         if (child.isMesh) {
-                            child.material.map = texture; // Apply the texture
-                            child.material.needsUpdate = true; // Notify Three.js to update the material
+                            child.material.map = texture;
+                            child.material.needsUpdate = true;
                         }
                     });
                 }
             });
         };
-        reader.readAsDataURL(file); // Read the file as a Data URL
+        reader.readAsDataURL(file);
     }
 });
-//___
 
+// 頂層 GUI 控件：Camera
 const camera_position = gui.addFolder("Camera").close();
-    // Get the default camera position of the model
-    defaultCameraPosition = camera.position.clone();
+defaultCameraPosition = camera.position.clone();
+camerapositionControl = {
+    x: defaultCameraPosition.x,
+    y: defaultCameraPosition.y,
+    z: 10
+};
+const camerapositionXControl = camera_position.add(camerapositionControl, 'x', -30, 30, 0.1).name(`x`);
+const camerapositionYControl = camera_position.add(camerapositionControl, 'y', -30, 30, 0.1).name(`y`);
+const camerapositionZControl = camera_position.add(camerapositionControl, 'z', -30, 30, 0.1).name(`z`);
 
-    camerapositionControl = {
-        x: defaultCameraPosition.x,
-        y: defaultCameraPosition.y,
-        // z: defaultCameraPosition.z // 10
-        z: 10 // 10
-    };
-
-
-    const camerapositionXControl = camera_position.add(camerapositionControl, 'x', -10, 10, 0.1).name(`x`);
-    const camerapositionYControl = camera_position.add(camerapositionControl, 'y', -8, 8, 0.1).name(`y`);
-    const camerapositionZControl = camera_position.add(camerapositionControl, 'z', 1, 20, 0.1).name(`z`);
-
-
-    camerapositionXControl.onChange((value) => {
+camerapositionXControl.onChange((value) => {
     camera.position.set(value, camera.position.y, camera.position.z);
-    camerapositionXControl.updateDisplay(); // Update the GUI display
-    });
-
-    camerapositionYControl.onChange((value) => {
+    camerapositionXControl.updateDisplay();
+});
+camerapositionYControl.onChange((value) => {
     camera.position.set(camera.position.x, value, camera.position.z);
-    camerapositionXControl.updateDisplay(); // Update the GUI display
-    });
-
-    camerapositionZControl.onChange((value) => {
+    camerapositionXControl.updateDisplay();
+});
+camerapositionZControl.onChange((value) => {
     camera.position.set(camera.position.x, camera.position.y, value);
-    camerapositionZControl.updateDisplay(); // Update the GUI display
-    });
+    camerapositionZControl.updateDisplay();
+});
+camera_position.add({
+    resetPosition: () => {
+        camera.position.copy(defaultCameraPosition);
+        camerapositionXControl.setValue(0);
+        camerapositionXControl.updateDisplay();
+        camerapositionYControl.setValue(0);
+        camerapositionYControl.updateDisplay();
+        camerapositionZControl.setValue(10);
+        camerapositionZControl.updateDisplay();
+    }
+}, 'resetPosition').name('Reset Position');
 
-    camera_position.add({ resetPosition: () => {
-    camera.position.copy(defaultCameraPosition); // Reset the model scale to default
-    // camerapositionXControl.setValue(defaultCameraPosition.x); // Update GUI control
-    camerapositionXControl.setValue(0);
-    camerapositionXControl.updateDisplay(); // Update the GUI display
-    // camerapositionYControl.setValue(defaultCameraPosition.y); // Update GUI control
-    camerapositionYControl.setValue(0);
-    camerapositionYControl.updateDisplay(); // Update the GUI display
-    // camerapositionZControl.setValue(defaultCameraPosition.z); // Update GUI control
-    camerapositionZControl.setValue(10);
-    camerapositionZControl.updateDisplay(); // Update the GUI display
-    // console.log("Scale reset to default:", defaultCameraPosition );
-    }}, 'resetPosition').name('Reset Position');
+// 設置相機初始位置
+camera.position.set(0, 0, 10);
 
-    // renderer = new THREE.WebGLRenderer({
-    //     antialias: true, 
-    //     alpha: false,
-    //     // powerPreference: "high-performance", // 優先使用高性能模式
-    //     // canvas: model_container
-    // });
-    // renderer.setSize(window.innerWidth, window.innerHeight);
+// 創建 OrbitControls
+controls = new OrbitControls(camera, renderer.domElement);
+controls.autoRotate = false;
+controls.autoRotateSpeed = 5.0;
 
-    controls = new OrbitControls(camera, renderer.domElement);
-    
-    controls.autoRotate = false; // Initially set to false
-    controls.autoRotateSpeed = 5.0; // Set the speed of auto-rotation
+// 頂層 GUI 控件：Auto Rotate
+const autoRotate = { rotate: false };
+const Auto_Rotate = gui.addFolder("Auto Rotate").close();
+Auto_Rotate.add(autoRotate, "rotate").name("Auto Rotate").onChange((value) => {
+    controls.autoRotate = value;
+});
+const speedControl = { speed: controls.autoRotateSpeed };
+Auto_Rotate.add(speedControl, "speed", 0, 20).name("Auto Rotate Speed").onChange((value) => {
+    controls.autoRotateSpeed = value;
+});
 
-    const autoRotate = { rotate: false };
-    const Auto_Rotate = gui.addFolder("Auto Rotate").close();
-    Auto_Rotate.add(autoRotate, "rotate").name("Auto Rotate").onChange((value) => {
-        controls.autoRotate = value; // Enable or disable auto-rotation based on checkbox
-    });
-
-     // Add a control for auto-rotate speed
-     const speedControl = { speed: controls.autoRotateSpeed };
-     Auto_Rotate.add(speedControl, "speed", 0, 20).name("Auto Rotate Speed").onChange((value) => {
-         controls.autoRotateSpeed = value; // Update the auto-rotate speed
-     });
-
-//-------
-camera.position.set(0, 0, 10); // 設置相機位置
-
+// 創建 Stats
 const stats = new Stats();
 document.body.appendChild(stats.domElement);
-stats.domElement.style.display = 'none'; // Hide stats by default
+stats.domElement.style.display = 'none';
 
-
-
+// 創建 GLTFLoader
 const loader = new GLTFLoader();
 
-let isAnimating = false; // 用於控制動畫狀態
-const duration = 5000; // 動畫持續時間，單位為毫秒
-let startTime = null; // 紀錄動畫開始時間
-let initialPosition; // 紀錄初始位置
+let isAnimating = false;
+const duration = 5000;
+let startTime = null;
+let initialPosition;
 
+// 定義三個預設模型的路徑
+const defaultModels = {
+    model1: './model/scene.glb',
+    model2: './model_two/dancing_stormtrooper.glb', //model2: './model_two/residential_garage_pack_-_1mb.glb',
+    model3: './model_three/oiiaioooooiai_cat.glb'
+};
 
+// 定義每個模型的預設參數
+let modelSettings = {
+    model1: {
+        position: { x: 0, y: -5, z: -10 }, // 模型 1 的預設位置
+        scale: { x: 0.3, y: 0.3, z: 0.3 }, // 模型 1 的預設縮放
+        camera: { x: 0, y: 0, z: 15 }, // 模型 1 的預設相機位置
+        // rotation: { x: Math.PI / -3, y: 0, z: 0 } // 模型 1 的預設旋轉
+        // rotation: { x: -1, y: 1, z: 0 } 
+    },
+    model2: {
+        position: { x: 2, y: -25, z: 2 }, // 模型 2 的預設位置
+        scale: { x: 1.5, y: 1.5, z: 1.5 }, // 模型 2 的預設縮放
+        camera: { x: 2, y: -16.5, z: 17.5 }, // 模型 2 的預設相機位置
+        // rotation: { x: Math.PI / -4, y: Math.PI / 4, z: 0 } // 模型 2 的預設旋轉
+    },
+    model3: {
+        position: { x: 2, y: -5, z: -2 }, // 模型 3 的預設位置
+        scale: { x: 8.5, y: 8.5, z: 8.5 }, // 模型 3 的預設縮放
+        camera: { x: -3, y: -4, z: 9 }, // 模型 3 的預設相機位置
+        // rotation: { x: Math.PI / -2, y: -Math.PI / 3, z: 0 } // 模型 3 的預設旋轉
+    }
+};
 
+// 全局變量
+let currentGltfScene = null;
+let currentDefaultModel = 'model1';
+let boxHelper, axesHelper, gridHelper;
+let spotLight1, phongShaderMaterial, toonShaderMaterial, flatShaderMaterial, gouraudShaderMaterial;
+let originalMaterials = new Map();
 
-//Load the file 
-loader.load(
-            './model/scene.glb',
-            (gltf) => {
-                input_model = gltf.scene.children[0];
-                input_model.position.set(0, -4, 0);
-                input_model.scale.set(0.3, 0.3, 0.3); // 將模型縮放到原來的0.13%
-                input_model.rotation.x = Math.PI / -3;
-
-                // 創建包圍盒
-                    const box = new THREE.Box3().setFromObject(input_model);
-                    // const modelHeight = box.max.y - box.min.y; // 計算模型的高度
-                    // 計算模型的底部位置，使其位於網格上方
-                    const offset = 1.00; // 調整這個值以減少高度
-                
-                scene.add(gltf.scene);
-
-                // 紀錄初始位置
-        initialPosition = input_model.position.clone();
-
-        // 保存每個 mesh 的原始材質
-        const originalMaterials = new Map();
+// 頂層 GUI 控件：Shading
+const shadingParams = {
+    shadingMode: 'None',
+    shininess: 32.0,
+    diffuseColor: '#aaaaaa',
+    specularColor: '#ffffff'
+};
+const shadingModes = ['None', 'Flat', 'Gouraud', 'Phong', 'Toon'];
+const shadingFolder = gui.addFolder('Shading').close();
+shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
+    if (input_model) {
         input_model.traverse((child) => {
             if (child.isMesh) {
-                originalMaterials.set(child, child.material); // 保存原始材質
-            }
-        });
-
-
-// 通用的頂點著色器（所有模式共用）
-        const vertexShader = `
-            varying vec3 vNormal; // For Phong and Toon (interpolated normal)
-            flat varying vec3 vFlatNormal; // For Flat (non-interpolated normal)
-            varying vec3 vPosition; // For Phong, Toon, Flat
-            varying vec3 vColor; // For Gouraud (computed color)
-
-            uniform vec3 lightPosition; // Light position
-            uniform vec3 lightColor; // Light color
-            uniform vec3 ambientColor; // Ambient light color
-            uniform vec3 diffuseColor; // Diffuse color
-            uniform vec3 specularColor; // Specular color
-            uniform float shininess; // Shininess factor
-            uniform int shadingMode; // 0: None, 1: Phong, 2: Toon, 3: Flat, 4: Gouraud
-
-            void main() {
-                // Transform the normal to view space
-                vec3 normal = normalize(normalMatrix * normal);
-                vNormal = normal; // Interpolated normal for Phong and Toon
-                vFlatNormal = normal; // Non-interpolated normal for Flat
-                vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; // Compute the vertex position in view space
-
-                // Gouraud Shading: Compute lighting at the vertex
-                if (shadingMode == 4) { // Only compute for Gouraud mode
-                    vec3 lightDir = normalize(lightPosition - vPosition);
-                    vec3 viewDir = normalize(-vPosition);
-                    vec3 reflectDir = reflect(-lightDir, normal);
-
-                    // Ambient light
-                    vec3 ambient = ambientColor;
-
-                    // Diffuse light
-                    float diff = max(dot(normal, lightDir), 0.0);
-                    vec3 diffuse = diff * diffuseColor * lightColor;
-
-                    // Specular light
-                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-                    vec3 specular = spec * specularColor * lightColor;
-
-                    // Compute the final color at the vertex
-                    vColor = ambient + diffuse + specular;
+                if (value === 'Phong') {
+                    child.material = phongShaderMaterial;
+                } else if (value === 'Toon') {
+                    child.material = toonShaderMaterial;
+                } else if (value === 'Flat') {
+                    child.material = flatShaderMaterial;
+                } else if (value === 'Gouraud') {
+                    child.material = gouraudShaderMaterial;
                 } else {
-                    vColor = vec3(0.0); // Default value for non-Gouraud modes
+                    child.material = originalMaterials.get(child);
                 }
-
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // Compute the final vertex position
-            }
-        `;
-
-        // Phong 片段著色器
-        const phongFragmentShader = `
-            varying vec3 vNormal; // Receive the normal from the vertex shader
-            varying vec3 vPosition; // Receive the position from the vertex shader
-
-            uniform vec3 lightPosition; // Light position
-            uniform vec3 lightColor; // Light color
-            uniform vec3 ambientColor; // Ambient light color
-            uniform vec3 diffuseColor; // Diffuse color
-            uniform vec3 specularColor; // Specular color
-            uniform float shininess; // Shininess factor
-
-            void main() {
-                // Compute the light direction
-                vec3 lightDir = normalize(lightPosition - vPosition);
-                vec3 normal = normalize(vNormal);
-                vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
-                vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
-
-                // Ambient light
-                vec3 ambient = ambientColor;
-
-                // Diffuse light
-                float diff = max(dot(normal, lightDir), 0.0);
-                vec3 diffuse = diff * diffuseColor * lightColor;
-
-                // Specular light
-                float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-                vec3 specular = spec * specularColor * lightColor;
-
-                // Final color
-                vec3 finalColor = ambient + diffuse + specular;
-                gl_FragColor = vec4(finalColor, 1.0);
-            }
-        `;
-
-        // 創建 Phong ShaderMaterial
-        const phongShaderMaterial = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: phongFragmentShader,
-            uniforms: {
-                lightPosition: { value: spotLight1.position },
-                lightColor: { value: spotLight1.color },
-                ambientColor: { value: new THREE.Color(0x333333) },
-                diffuseColor: { value: new THREE.Color(0xaaaaaa) },
-                specularColor: { value: new THREE.Color(0xffffff) },
-                shininess: { value: 32.0 },
-                textureMap: { value: null },
-                shadingMode: { value: 1 } // Phong mode
+                child.material.needsUpdate = true;
             }
         });
-
-        // 卡通渲染（Toon Shading）片段著色器
-        const toonFragmentShader = `
-            varying vec3 vNormal; // Receive the normal from the vertex shader
-            varying vec3 vPosition; // Receive the position from the vertex shader
-
-            uniform vec3 lightPosition; // Light position
-            uniform vec3 lightColor; // Light color
-            uniform vec3 ambientColor; // Ambient light color
-            uniform vec3 diffuseColor; // Diffuse color
-            uniform vec3 specularColor; // Specular color
-            uniform float shininess; // Shininess factor
-
-            void main() {
-                // Compute the light direction
-                vec3 lightDir = normalize(lightPosition - vPosition);
-                vec3 normal = normalize(vNormal);
-                vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
-                vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
-
-                // Ambient light
-                vec3 ambient = ambientColor;
-
-                // Diffuse light (Toon Shading: discretize the diffuse component)
-                float diff = max(dot(normal, lightDir), 0.0);
-                diff = floor(diff * 3.0) / 3.0; // Discretize diffuse into 3 levels
-                vec3 diffuse = diff * diffuseColor * lightColor;
-
-                // Specular light (Toon Shading: discretize the specular component)
-                float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-                spec = step(0.5, spec); // Binary specular (on or off)
-                vec3 specular = spec * specularColor * lightColor;
-
-                // Final color
-                vec3 finalColor = ambient + diffuse + specular;
-                gl_FragColor = vec4(finalColor, 1.0);
-            }
-        `;
-
-        // 創建 Toon ShaderMaterial
-        const toonShaderMaterial = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: toonFragmentShader,
-            uniforms: {
-                lightPosition: { value: spotLight1.position },
-                lightColor: { value: spotLight1.color },
-                ambientColor: { value: new THREE.Color(0x333333) },
-                diffuseColor: { value: new THREE.Color(0xaaaaaa) },
-                specularColor: { value: new THREE.Color(0xffffff) },
-                shininess: { value: 32.0 },
-                textureMap: { value: null },
-                shadingMode: { value: 2 } // Toon mode
-            }
-        });
-
-        // Flat Shading 片段著色器（使用 vFlatNormal）
-        const flatFragmentShader = `
-            flat varying vec3 vFlatNormal; // Receive the non-interpolated normal
-            varying vec3 vPosition; // Receive the position from the vertex shader
-
-            uniform vec3 lightPosition; // Light position
-            uniform vec3 lightColor; // Light color
-            uniform vec3 ambientColor; // Ambient light color
-            uniform vec3 diffuseColor; // Diffuse color
-            uniform vec3 specularColor; // Specular color
-            uniform float shininess; // Shininess factor
-
-            void main() {
-                // Compute the light direction
-                vec3 lightDir = normalize(lightPosition - vPosition);
-                vec3 normal = normalize(vFlatNormal);
-                vec3 viewDir = normalize(-vPosition); // View direction (camera at origin)
-                vec3 reflectDir = reflect(-lightDir, normal); // Reflected light direction
-
-                // Ambient light
-                vec3 ambient = ambientColor;
-
-                // Diffuse light
-                float diff = max(dot(normal, lightDir), 0.0);
-                vec3 diffuse = diff * diffuseColor * lightColor;
-
-                // Specular light
-                float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-                vec3 specular = spec * specularColor * lightColor;
-
-                // Final color
-                vec3 finalColor = ambient + diffuse + specular;
-                gl_FragColor = vec4(finalColor, 1.0);
-            }
-        `;
-
-        // 創建 Flat ShaderMaterial
-        const flatShaderMaterial = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: flatFragmentShader,
-            uniforms: {
-                lightPosition: { value: spotLight1.position },
-                lightColor: { value: spotLight1.color },
-                ambientColor: { value: new THREE.Color(0x333333) },
-                diffuseColor: { value: new THREE.Color(0xaaaaaa) },
-                specularColor: { value: new THREE.Color(0xffffff) },
-                shininess: { value: 32.0 },
-                textureMap: { value: null },
-                shadingMode: { value: 3 } // Flat mode
-            },
-            flatShading: true
-        });
-
-        // Gouraud Shading 片段著色器（直接使用 vColor）
-        const gouraudFragmentShader = `
-            varying vec3 vColor; // Receive the interpolated color from the vertex shader
-
-            void main() {
-                gl_FragColor = vec4(vColor, 1.0); // Use the interpolated color
-            }
-        `;
-
-        // 創建 Gouraud ShaderMaterial
-        const gouraudShaderMaterial = new THREE.ShaderMaterial({
-            vertexShader: vertexShader,
-            fragmentShader: gouraudFragmentShader,
-            uniforms: {
-                lightPosition: { value: spotLight1.position },
-                lightColor: { value: spotLight1.color },
-                ambientColor: { value: new THREE.Color(0x333333) },
-                diffuseColor: { value: new THREE.Color(0xaaaaaa) },
-                specularColor: { value: new THREE.Color(0xffffff) },
-                shininess: { value: 32.0 },
-                textureMap: { value: null },
-                shadingMode: { value: 4 } // Gouraud mode
-            }
-        });
-
-        // Shading 控制參數
-        const shadingParams = {
-            shadingMode: 'None', // 初始不啟用任何著色器
-            shininess: 32.0,
-            diffuseColor: '#aaaaaa',
-            specularColor: '#ffffff'
-        };
-
-        // 創建 Shading 文件夾
-        const shadingFolder = gui.addFolder('Shading').close();
-
-        // 添加下拉選單選擇著色模式
-        const shadingModes = ['None', 'Flat', 'Gouraud', 'Phong', 'Toon' ];
-        shadingFolder.add(shadingParams, 'shadingMode', shadingModes).name('Shading Mode').onChange((value) => {
-            input_model.traverse((child) => {
-                if (child.isMesh) {
-                    if (value === 'Phong') {
-                        child.material = phongShaderMaterial;
-                    } else if (value === 'Toon') {
-                        child.material = toonShaderMaterial;
-                    } else if (value === 'Flat') {
-                        child.material = flatShaderMaterial;
-                    } else if (value === 'Gouraud') {
-                        child.material = gouraudShaderMaterial;
-                    } else {
-                        child.material = originalMaterials.get(child);
-                    }
-                    child.material.needsUpdate = true; // 通知 Three.js 更新材質
-                }
-            });
-        });
-
-        // 添加其他 Shading 控制
-        shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
-            phongShaderMaterial.uniforms.shininess.value = value;
-            toonShaderMaterial.uniforms.shininess.value = value;
-            flatShaderMaterial.uniforms.shininess.value = value;
-            gouraudShaderMaterial.uniforms.shininess.value = value;
-        });
-        shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
-            phongShaderMaterial.uniforms.diffuseColor.value.set(value);
-            toonShaderMaterial.uniforms.diffuseColor.value.set(value);
-            flatShaderMaterial.uniforms.diffuseColor.value.set(value);
-            gouraudShaderMaterial.uniforms.diffuseColor.value.set(value);
-        });
-        shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
-            phongShaderMaterial.uniforms.specularColor.value.set(value);
-            toonShaderMaterial.uniforms.specularColor.value.set(value);
-            flatShaderMaterial.uniforms.specularColor.value.set(value);
-            gouraudShaderMaterial.uniforms.specularColor.value.set(value);
-        });
-
-
-
-//-
-
-        const boxHelper = new THREE.Box3Helper(box, 0xffff00); // 0xffff00 是黃色
-            // scene.add(boxHelper); // 初始時加包圍盒助手
-        
-            // 將包圍盒助手添加到場景中
-            // scene.add(boxHelper);
-            const axesHelper = new THREE.AxesHelper( 200 );
-            axesHelper.position.y = box.min.y ; // 確保輔助軸與網格對齊
-            axesHelper.visible = false; // 初始設置為隱藏
-            scene.add( axesHelper );
-        
-            // 創建 GridHelper
-        const gridHelper = new THREE.GridHelper(100, 50); // 100 為大小，50 為細分數量
-        gridHelper.position.y = box.min.y; // 將網格放置在模型下方
-        gridHelper.visible = false; // 初始設置為隱藏
-        scene.add(gridHelper);
-
-        //-
-        const params = {
-            showBoxHelper: false, // 預設為不顯示包圍盒
-    
-            showAxes: false, // x,y,z軸
-            showGrid: false,  //網格
-    
-            scale: 1,
-            positionY: input_model.position.y
-        };
-    
-        // Create a folder for Position Control in the GUI
-    const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
-    
-    BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
-        axesHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
-    });
-    
-    // 添加複選框到 GUI
-    BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange(function(value) {
-        if (value) {
-            // 如果選中，將包圍盒助手添加到場景中
-            scene.add(boxHelper);
-        } else {
-            // 如果未選中，從場景中移除包圍盒助手
-            if (boxHelper) {
-                scene.remove(boxHelper);
-            }
-        }
-    });
-    
-    
-    BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
-        gridHelper.visible = value; // 根據 checkbox 的值顯示或隱藏
-    });
-
-
-     // 更新幫助器位置的函數
-     function updateHelpers() {
-        const box = new THREE.Box3().setFromObject(input_model); // 更新包圍盒
-        const center = box.getCenter(new THREE.Vector3()); // Get the center of the bounding box
-
-        boxHelper.box = box; // 更新包圍盒助手的包圍盒
-        axesHelper.position.y = box.min.y; // 更新輔助軸位置
-        gridHelper.position.y = box.min.y; // 更新網格位置
-
-        // Update the GridHelper position to follow the model in x, y, z
-        gridHelper.position.set(center.x, box.min.y, center.z); // Center in x and z, bottom in y
-        axesHelper.position.set(center.x, box.min.y, center.z);
     }
-    
-    updateHelpers(); // 初始化幫助器位置
-    
-            // 更新包圍盒和包圍盒助手的大小
-            const updateBoxHelper = () => {
-                box.setFromObject(input_model); // 更新包圍盒
-                boxHelper.box = box; // 更新包圍盒助手的包圍盒
-                // boxHelper.update(); // 更新顯示
-            };
-    
-                    // Create a folder for Position Control in the GUI
-    const positionControl = gui.addFolder("Position Control").close();
-    
-    // Create an object to hold the position values
-    const positionControlValues = {
-        posX: input_model.position.x,
-        posY: input_model.position.y,
-        posZ: input_model.position.z
-    };
-    
-    // Add controls for x, y, and z positions
-    const posXControl = positionControl.add(positionControlValues, 'posX', -10, 10, 0.1).name('Position X');
-    const posYControl = positionControl.add(positionControlValues, 'posY', -10, 10, 0.1).name('Position Y');
-    const posZControl = positionControl.add(positionControlValues, 'posZ', -10, 10, 0.1).name('Position Z');
-    
-    // Update the model's position when the GUI controls change
-    // 在添加 Position Control 的位置更新
-    posXControl.onChange((value) => {
+});
+shadingFolder.add(shadingParams, 'shininess', 1, 100).name('Shininess').onChange((value) => {
+    if (phongShaderMaterial) phongShaderMaterial.uniforms.shininess.value = value;
+    if (toonShaderMaterial) toonShaderMaterial.uniforms.shininess.value = value;
+    if (flatShaderMaterial) flatShaderMaterial.uniforms.shininess.value = value;
+    if (gouraudShaderMaterial) gouraudShaderMaterial.uniforms.shininess.value = value;
+});
+shadingFolder.addColor(shadingParams, 'diffuseColor').name('Diffuse Color').onChange((value) => {
+    if (phongShaderMaterial) phongShaderMaterial.uniforms.diffuseColor.value.set(value);
+    if (toonShaderMaterial) toonShaderMaterial.uniforms.diffuseColor.value.set(value);
+    if (flatShaderMaterial) flatShaderMaterial.uniforms.diffuseColor.value.set(value);
+    if (gouraudShaderMaterial) gouraudShaderMaterial.uniforms.diffuseColor.value.set(value);
+});
+shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').onChange((value) => {
+    if (phongShaderMaterial) phongShaderMaterial.uniforms.specularColor.value.set(value);
+    if (toonShaderMaterial) toonShaderMaterial.uniforms.specularColor.value.set(value);
+    if (flatShaderMaterial) flatShaderMaterial.uniforms.specularColor.value.set(value);
+    if (gouraudShaderMaterial) gouraudShaderMaterial.uniforms.specularColor.value.set(value);
+});
+
+// 頂層 GUI 控件：Axes, Box, Grid Helper
+const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
+BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+    if (axesHelper) axesHelper.visible = value;
+});
+BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange((value) => {
+    if (value && boxHelper) {
+        scene.add(boxHelper);
+    } else if (boxHelper) {
+        scene.remove(boxHelper);
+    }
+});
+BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+    if (gridHelper) gridHelper.visible = value;
+});
+
+// 頂層 GUI 控件：Position Control
+const positionControlValues = {
+    posX: 0,
+    posY: 0,
+    posZ: 0
+};
+const positionControl = gui.addFolder("Position Control").close();
+const posXControl = positionControl.add(positionControlValues, 'posX', -30, 30, 0.1).name('Position X');
+const posYControl = positionControl.add(positionControlValues, 'posY', -30, 30, 0.1).name('Position Y');
+const posZControl = positionControl.add(positionControlValues, 'posZ', -30, 30, 0.1).name('Position Z');
+posXControl.onChange((value) => {
+    if (input_model) {
         input_model.position.x = value;
-        updateHelpers(); // 更新網格位置
-    });
-    
-    posYControl.onChange((value) => {
-        input_model.position.y = value;
-        updateHelpers(); // 更新網格位置
-    });
-    
-    posZControl.onChange((value) => {
-        input_model.position.z = value;
-        updateHelpers(); // 更新網格位置
-    });
-    
-    // Optionally, you can add a reset position button
-    positionControl.add({
-        resetPosition: () => {
-            input_model.position.set(0, -1.9, 0); // Reset to initial position
-            positionControlValues.posX = input_model.position.x; // Update GUI control
-            positionControlValues.posY = input_model.position.y; // Update GUI control
-            positionControlValues.posZ = input_model.position.z; // Update GUI control
-            posXControl.updateDisplay(); // Update the GUI display
-            posYControl.updateDisplay(); // Update the GUI display
-            posZControl.updateDisplay(); // Update the GUI display
-            updateBoxHelper();
-            updateHelpers(); // 更新網格位置
-            console.log("Position reset to default:", input_model.position);
-        }
-    }, 'resetPosition').name('Reset Position');
-    
-                    // Get the default scale of the model
-                    defaultScale = input_model.scale.clone();
-    
-                    // Scale control parameters
-                    scaleControl = {
-                        scaleX: defaultScale.x,
-                        scaleY: defaultScale.y,
-                        scaleZ: defaultScale.z,
-                        uniformScale: 0.3 //新增的屬性
-                    };
-    
-            const Scale_control = gui.addFolder("Scale Control").close();
-    
-            // Add GUI controls for scaling
-            const scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.001, 3).name(`Scale X`);
-            const scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.001, 3).name('Scale Y');
-            const scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.001, 3).name('Scale Z');
-    
-    // 在 Scale_control 中添加 uniformScale 控件
-    const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.001, 3).name('Uniform Scale').onChange(value => {
-        input_model.scale.set(value, value, value); // 同時設置 x, y, z 的縮放
-        scaleControl.scaleX = value; // 更新 scaleControl 的值
-        scaleControl.scaleY = value; // 更新 scaleControl 的值
-        scaleControl.scaleZ = value; // 更新 scaleControl 的值
-    
-        scaleXControl.setValue(value); // 更新 GUI 控件
-        scaleYControl.setValue(value); // 更新 GUI 控件
-        scaleZControl.setValue(value); // 更新 GUI 控件
-    
-        scaleXControl.updateDisplay(); // 更新 GUI 顯示
-        scaleYControl.updateDisplay(); // 更新 GUI 顯示
-        scaleZControl.updateDisplay(); // 更新 GUI 顯示
-    
-        updateBoxHelper(); // 更新包圍盒助手
-        updateHelpers(); // 更新網格位置
-    });
-    
-            scaleXControl.onChange((value) => {
-                input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
-                scaleControl.scaleX = value; // 更新 scaleControl 的值
-                updateBoxHelper(); // 更新包圍盒助手
-                scaleXControl.updateDisplay(); // Update the GUI display
-                updateHelpers(); // 更新網格位置
-            });
-    
-            scaleYControl.onChange((value) => {
-                input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
-                scaleControl.scaleY = value; // 更新 scaleControl 的值
-                updateBoxHelper(); // 更新包圍盒助手
-                scaleYControl.updateDisplay(); // Update the GUI display
-                updateHelpers(); // 更新網格位置
-            });
-        
-            scaleZControl.onChange((value) => {
-                input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
-                scaleControl.scaleZ = value; // 更新 scaleControl 的值
-                updateBoxHelper(); // 更新包圍盒助手
-                scaleZControl.updateDisplay(); // Update the GUI display
-                updateHelpers(); // 更新網格位置
-            });
-    
-    
-    
-            Scale_control.add({ 
-                resetScale: () => {
-                    input_model.scale.copy(defaultScale); // Reset the model scale to default
-            
-                    // 更新所有縮放控制的值
-                    scaleControl.scaleX = defaultScale.x; 
-                    scaleControl.scaleY = defaultScale.y; 
-                    scaleControl.scaleZ = defaultScale.z; 
-            
-                    // 設置 uniformScale 為 0.3
-                    scaleControl.uniformScale = 0.3;
-            
-                    // 更新 GUI 控件
-                    scaleXControl.setValue(defaultScale.x); 
-                    scaleYControl.setValue(defaultScale.y); 
-                    scaleZControl.setValue(defaultScale.z); 
-                    scaleXControl.updateDisplay(); 
-                    scaleYControl.updateDisplay(); 
-                    scaleZControl.updateDisplay(); 
-            
-                    // 直接使用 uniformScaleControl
-            uniformScaleControl.setValue(0.12); // 設置為 0.13
-            uniformScaleControl.updateDisplay(); // 更新顯示
-            
-                    updateBoxHelper(); // 更新包圍盒助手
-                    updateHelpers(); // 更新網格位置
-                    console.log("Scale reset to default:", defaultScale);
-                }
-            }, 'resetScale').name('Reset Scale');
-    
-            // Show the GUI
-            gui.domElement.style.display = 'block';
-
-        //-
-
-        // 開始動畫
-        isAnimating = true;
-        startTime = Date.now();
-        animate(); // 開始動畫循環
-
-    },
-    (xhr) => {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-    },
-    (error) => {
-        console.error(error);
+        updateHelpers();
     }
-);
+});
+posYControl.onChange((value) => {
+    if (input_model) {
+        input_model.position.y = value;
+        updateHelpers();
+    }
+});
+posZControl.onChange((value) => {
+    if (input_model) {
+        input_model.position.z = value;
+        updateHelpers();
+    }
+});
+positionControl.add({
+    resetPosition: () => {
+        if (input_model) {
+            let settings = modelSettings[currentDefaultModel]; // 使用當前模型的預設位置
+            input_model.position.set(
+                settings.position.x,
+                settings.position.y,
+                settings.position.z
+            );
+            positionControlValues.posX = input_model.position.x;
+            positionControlValues.posY = input_model.position.y;
+            positionControlValues.posZ = input_model.position.z;
+            posXControl.updateDisplay();
+            posYControl.updateDisplay();
+            posZControl.updateDisplay();
+            updateBoxHelper();
+            updateHelpers();
+        }
+    }
+}, 'resetPosition').name('Reset Position');
 
+// 頂層 GUI 控件：Scale Control
+scaleControl = {
+    scaleX: 0.3,
+    scaleY: 0.3,
+    scaleZ: 0.3,
+    uniformScale: 0.3
+};
+const Scale_control = gui.addFolder("Scale Control").close();
+scaleXControl = Scale_control.add(scaleControl, 'scaleX', 0.1, 10).name('Scale X');
+scaleYControl = Scale_control.add(scaleControl, 'scaleY', 0.1, 10).name('Scale Y');
+scaleZControl = Scale_control.add(scaleControl, 'scaleZ', 0.1, 10).name('Scale Z');
+const uniformScaleControl = Scale_control.add(scaleControl, 'uniformScale', 0.1, 10).name('Uniform Scale').onChange(value => {
+    if (input_model) {
+        input_model.scale.set(value, value, value);
+        scaleControl.scaleX = value;
+        scaleControl.scaleY = value;
+        scaleControl.scaleZ = value;
+        scaleXControl.setValue(value);
+        scaleYControl.setValue(value);
+        scaleZControl.setValue(value);
+        scaleXControl.updateDisplay();
+        scaleYControl.updateDisplay();
+        scaleZControl.updateDisplay();
+        updateBoxHelper();
+        updateHelpers();
+    }
+});
+scaleXControl.onChange((value) => {
+    if (input_model) {
+        input_model.scale.set(value, input_model.scale.y, input_model.scale.z);
+        scaleControl.scaleX = value;
+        updateBoxHelper();
+        scaleXControl.updateDisplay();
+        updateHelpers();
+    }
+});
+scaleYControl.onChange((value) => {
+    if (input_model) {
+        input_model.scale.set(input_model.scale.x, value, input_model.scale.z);
+        scaleControl.scaleY = value;
+        updateBoxHelper();
+        scaleYControl.updateDisplay();
+        updateHelpers();
+    }
+});
+scaleZControl.onChange((value) => {
+    if (input_model) {
+        input_model.scale.set(input_model.scale.x, input_model.scale.y, value);
+        scaleControl.scaleZ = value;
+        updateBoxHelper();
+        scaleZControl.updateDisplay();
+        updateHelpers();
+    }
+});
+Scale_control.add({
+    resetScale: () => {
+        if (input_model) {
+            const settings = modelSettings[currentDefaultModel]; // 使用當前模型的預設縮放
+            input_model.scale.set(
+                settings.scale.x,
+                settings.scale.y,
+                settings.scale.z
+            );
+            scaleControl.scaleX = settings.scale.x;
+            scaleControl.scaleY = settings.scale.y;
+            scaleControl.scaleZ = settings.scale.z;
+            scaleControl.uniformScale = settings.scale.x;
+            scaleXControl.setValue(settings.scale.x);
+            scaleYControl.setValue(settings.scale.y);
+            scaleZControl.setValue(settings.scale.z);
+            uniformScaleControl.setValue(settings.scale.x);
+            scaleXControl.updateDisplay();
+            scaleYControl.updateDisplay();
+            scaleZControl.updateDisplay();
+            uniformScaleControl.updateDisplay();
+            updateBoxHelper();
+            updateHelpers();
+        }
+    }
+}, 'resetScale').name('Reset Scale');
 
+// 設置渲染器大小
 renderer.setSize(window.innerWidth, window.innerHeight);
-
-// Add the renderer to the DOM
 document.getElementById("container3D").appendChild(renderer.domElement);
 
-// controls = new OrbitControls(camera, renderer.domElement);
-
-// camera.position.z = example === "example" ? 25 : 500;
-
-const topLight = new THREE.DirectionalLight(0xffffff, 1); // (color,intensity)
-topLight.position.set(200,200,200); // top-left-ish
-// topLight.castShadow = true;
+// 創建燈光
+const topLight = new THREE.DirectionalLight(0xffffff, 1);
+topLight.position.set(200, 200, 200);
 scene.add(topLight);
 
-// const ambientLight = new THREE.AmbientLight(0xffffff, 10); // 將強度設置為 10
-const ambientLight = new THREE.AmbientLight(0xffffff, 5); 
+const ambientLight = new THREE.AmbientLight(0xffffff, 5);
 scene.add(ambientLight);
 
-
-// Create a folder for ambient light controls
+// 頂層 GUI 控件：Ambient Light
 const ambientLightFolder = gui.addFolder("Ambient Light").close();
-
 const DEFAULT_INTENSITY = 5;
 const DEFAULT_COLOR = '#ffffff';
-
-// Create control object
 const ambientLightControls = {
     intensity: DEFAULT_INTENSITY,
     color: DEFAULT_COLOR,
-    isEnabled: true, // 初始狀態為開啟
-    reset: function() {
+    isEnabled: true,
+    reset: function () {
         ambientLight.intensity = DEFAULT_INTENSITY;
         intensityController.setValue(DEFAULT_INTENSITY);
         intensityController.updateDisplay();
     },
-    resetColor: function() {
+    resetColor: function () {
         ambientLight.color.set(DEFAULT_COLOR);
         colorController.setValue(DEFAULT_COLOR);
         colorController.updateDisplay();
     }
 };
-
-// Store controller references
 const intensityController = ambientLightFolder.add(ambientLightControls, 'intensity', 0, 30, 0.1)
     .name('Intensity')
     .onChange((value) => {
         ambientLight.intensity = value;
     });
-
 const colorController = ambientLightFolder.addColor(ambientLightControls, 'color')
     .name('Color')
     .onChange((value) => {
         ambientLight.color.set(value);
     });
-
-    // Add checkbox to control Ambient Light
 ambientLightFolder.add(ambientLightControls, 'isEnabled').name('Ambient Light').onChange((value) => {
-ambientLight.visible = value; // 控制燈光的可見性
+    ambientLight.visible = value;
 });
-
-// Add reset button
 ambientLightFolder.add(ambientLightControls, 'reset').name('Reset Intensity');
 ambientLightFolder.add(ambientLightControls, 'resetColor').name('Reset Color');
 
-// Create SpotLight1 and control its visibility and properties
-const spotLight1 = new THREE.SpotLight(0xffffff, 0); // 初始強度為 0
+// 創建 Spotlight 1
+spotLight1 = new THREE.SpotLight(0xffffff, 0);
 spotLight1.position.set(5, 5, 5);
 scene.add(spotLight1);
 spotLightHelper1 = new THREE.SpotLightHelper(spotLight1, 1, 0xffffff);
 
-// Create a folder for Spotlight 1 controls
-const lightHelperControl1 = { showHelpers: false, isEnabled: false }; 
+// 頂層 GUI 控件：Spotlight 1
+const lightHelperControl1 = { showHelpers: false, isEnabled: false };
 const Front_Light = gui.addFolder("Spotlight 1").close();
 Front_Light.add(lightHelperControl1, 'isEnabled').name('Spotlight 1').onChange((value) => {
-    spotLight1.visible = value; // 控制燈光的可見性
-    spotLight1.intensity = value ? 500 : 0; // 當開啟時設置強度，否則為 0
+    spotLight1.visible = value;
+    spotLight1.intensity = value ? 500 : 0;
 });
 Front_Light.add(lightHelperControl1, "showHelpers").name("Show Spotlight 1 Helpers").onChange((value) => {
     if (value) {
-        scene.add(spotLightHelper1); // 添加燈光幫助器
+        scene.add(spotLightHelper1);
     } else {
-        scene.remove(spotLightHelper1); // 移除燈光幫助器
+        scene.remove(spotLightHelper1);
     }
 });
 Front_Light.add(spotLight1.position, 'x', -5, 5, 1).onChange(() => {
@@ -981,24 +594,24 @@ Front_Light.add(spotLight1.position, 'z', -5, 5, 1).onChange(() => {
     spotLightHelper1.update();
 });
 
-// Create SpotLight2 and control its visibility and properties
-const spotLight2 = new THREE.SpotLight(0xffffff, 0); // 初始強度為 0
+// 創建 Spotlight 2
+const spotLight2 = new THREE.SpotLight(0xffffff, 0);
 spotLight2.position.set(-5, -5, -5);
 scene.add(spotLight2);
 spotLightHelper2 = new THREE.SpotLightHelper(spotLight2, 1, 0xffffff);
 
-// Create a folder for Spotlight 2 controls
-const lightHelperControl2 = { showHelpers: false, isEnabled: false }; 
+// 頂層 GUI 控件：Spotlight 2
+const lightHelperControl2 = { showHelpers: false, isEnabled: false };
 const Back_Light = gui.addFolder("Spotlight 2").close();
 Back_Light.add(lightHelperControl2, 'isEnabled').name('Spotlight 2').onChange((value) => {
-    spotLight2.visible = value; // 控制燈光的可見性
-    spotLight2.intensity = value ? 500 : 0; // 當開啟時設置強度，否則為 0
+    spotLight2.visible = value;
+    spotLight2.intensity = value ? 500 : 0;
 });
 Back_Light.add(lightHelperControl2, "showHelpers").name("Show Spotlight 2 Helpers").onChange((value) => {
     if (value) {
-        scene.add(spotLightHelper2); // 添加燈光幫助器
+        scene.add(spotLightHelper2);
     } else {
-        scene.remove(spotLightHelper2); // 移除燈光幫助器
+        scene.remove(spotLightHelper2);
     }
 });
 Back_Light.add(spotLight2.position, 'x', -5, 5, 1).onChange(() => {
@@ -1010,64 +623,428 @@ Back_Light.add(spotLight2.position, 'y', -5, 5, 1).onChange(() => {
 Back_Light.add(spotLight2.position, 'z', -5, 5, 1).onChange(() => {
     spotLightHelper2.update();
 });
-//
 
+// 加載預設模型的函數
+function loadDefaultModel(modelKey) {
+    // 移除當前模型（如果存在）
+    if (currentGltfScene) {
+        scene.remove(currentGltfScene);
+        currentGltfScene = null;
+    }
+    if (input_model) {
+        input_model = null;
+    }
+
+    // 更新當前模型標識
+    currentDefaultModel = modelKey;
+
+    // 獲取當前模型的預設參數
+    const settings = modelSettings[modelKey];
+
+    loader.load(
+        defaultModels[modelKey],
+        (gltf) => {
+            currentGltfScene = gltf.scene;
+            input_model = gltf.scene.children[0];
+
+            // 應用預設位置
+            input_model.position.set(
+                settings.position.x,
+                settings.position.y,
+                settings.position.z
+            );
+
+            // 應用預設縮放
+            input_model.scale.set(
+                settings.scale.x,
+                settings.scale.y,
+                settings.scale.z
+            );
+
+            // 應用預設旋轉
+            // input_model.rotation.set(
+            //     settings.rotation.x,
+            //     settings.rotation.y,
+            //     settings.rotation.z
+            // );
+
+            // 應用預設相機位置
+            camera.position.set(
+                settings.camera.x,
+                settings.camera.y,
+                settings.camera.z
+            );
+
+            const box = new THREE.Box3().setFromObject(input_model);
+            const offset = 1.00;
+
+            scene.add(gltf.scene);
+
+            initialPosition = input_model.position.clone();
+
+            originalMaterials = new Map();
+            input_model.traverse((child) => {
+                if (child.isMesh) {
+                    originalMaterials.set(child, child.material);
+                }
+            });
+
+            // 通用的頂點著色器
+            const vertexShader = `
+                varying vec3 vNormal;
+                flat varying vec3 vFlatNormal;
+                varying vec3 vPosition;
+                varying vec3 vColor;
+
+                uniform vec3 lightPosition;
+                uniform vec3 lightColor;
+                uniform vec3 ambientColor;
+                uniform vec3 diffuseColor;
+                uniform vec3 specularColor;
+                uniform float shininess;
+                uniform int shadingMode;
+
+                void main() {
+                    vec3 normal = normalize(normalMatrix * normal);
+                    vNormal = normal;
+                    vFlatNormal = normal;
+                    vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+
+                    if (shadingMode == 4) {
+                        vec3 lightDir = normalize(lightPosition - vPosition);
+                        vec3 viewDir = normalize(-vPosition);
+                        vec3 reflectDir = reflect(-lightDir, normal);
+
+                        vec3 ambient = ambientColor;
+                        float diff = max(dot(normal, lightDir), 0.0);
+                        vec3 diffuse = diff * diffuseColor * lightColor;
+                        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                        vec3 specular = spec * specularColor * lightColor;
+
+                        vColor = ambient + diffuse + specular;
+                    } else {
+                        vColor = vec3(0.0);
+                    }
+
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `;
+
+            // Phong 片段著色器
+            const phongFragmentShader = `
+                varying vec3 vNormal;
+                varying vec3 vPosition;
+
+                uniform vec3 lightPosition;
+                uniform vec3 lightColor;
+                uniform vec3 ambientColor;
+                uniform vec3 diffuseColor;
+                uniform vec3 specularColor;
+                uniform float shininess;
+
+                void main() {
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(-vPosition);
+                    vec3 reflectDir = reflect(-lightDir, normal);
+
+                    vec3 ambient = ambientColor;
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    vec3 specular = spec * specularColor * lightColor;
+
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            // 創建 Phong ShaderMaterial
+            phongShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: phongFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position },
+                    lightColor: { value: spotLight1.color },
+                    ambientColor: { value: new THREE.Color(0x333333) },
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) },
+                    specularColor: { value: new THREE.Color(0xffffff) },
+                    shininess: { value: 32.0 },
+                    textureMap: { value: null },
+                    shadingMode: { value: 1 }
+                }
+            });
+
+            // 卡通渲染（Toon Shading）片段著色器
+            const toonFragmentShader = `
+                varying vec3 vNormal;
+                varying vec3 vPosition;
+
+                uniform vec3 lightPosition;
+                uniform vec3 lightColor;
+                uniform vec3 ambientColor;
+                uniform vec3 diffuseColor;
+                uniform vec3 specularColor;
+                uniform float shininess;
+
+                void main() {
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vNormal);
+                    vec3 viewDir = normalize(-vPosition);
+                    vec3 reflectDir = reflect(-lightDir, normal);
+
+                    vec3 ambient = ambientColor;
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    diff = floor(diff * 3.0) / 3.0;
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    spec = step(0.5, spec);
+                    vec3 specular = spec * specularColor * lightColor;
+
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            // 創建 Toon ShaderMaterial
+            toonShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: toonFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position },
+                    lightColor: { value: spotLight1.color },
+                    ambientColor: { value: new THREE.Color(0x333333) },
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) },
+                    specularColor: { value: new THREE.Color(0xffffff) },
+                    shininess: { value: 32.0 },
+                    textureMap: { value: null },
+                    shadingMode: { value: 2 }
+                }
+            });
+
+            // Flat Shading 片段著色器
+            const flatFragmentShader = `
+                flat varying vec3 vFlatNormal;
+                varying vec3 vPosition;
+
+                uniform vec3 lightPosition;
+                uniform vec3 lightColor;
+                uniform vec3 ambientColor;
+                uniform vec3 diffuseColor;
+                uniform vec3 specularColor;
+                uniform float shininess;
+
+                void main() {
+                    vec3 lightDir = normalize(lightPosition - vPosition);
+                    vec3 normal = normalize(vFlatNormal);
+                    vec3 viewDir = normalize(-vPosition);
+                    vec3 reflectDir = reflect(-lightDir, normal);
+
+                    vec3 ambient = ambientColor;
+                    float diff = max(dot(normal, lightDir), 0.0);
+                    vec3 diffuse = diff * diffuseColor * lightColor;
+                    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+                    vec3 specular = spec * specularColor * lightColor;
+
+                    vec3 finalColor = ambient + diffuse + specular;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            // 創建 Flat ShaderMaterial
+            flatShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: flatFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position },
+                    lightColor: { value: spotLight1.color },
+                    ambientColor: { value: new THREE.Color(0x333333) },
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) },
+                    specularColor: { value: new THREE.Color(0xffffff) },
+                    shininess: { value: 32.0 },
+                    textureMap: { value: null },
+                    shadingMode: { value: 3 }
+                },
+                flatShading: true
+            });
+
+            // Gouraud Shading 片段著色器
+            const gouraudFragmentShader = `
+                varying vec3 vColor;
+
+                void main() {
+                    gl_FragColor = vec4(vColor, 1.0);
+                }
+            `;
+
+            // 創建 Gouraud ShaderMaterial
+            gouraudShaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: gouraudFragmentShader,
+                uniforms: {
+                    lightPosition: { value: spotLight1.position },
+                    lightColor: { value: spotLight1.color },
+                    ambientColor: { value: new THREE.Color(0x333333) },
+                    diffuseColor: { value: new THREE.Color(0xaaaaaa) },
+                    specularColor: { value: new THREE.Color(0xffffff) },
+                    shininess: { value: 32.0 },
+                    textureMap: { value: null },
+                    shadingMode: { value: 4 }
+                }
+            });
+
+            // 創建包圍盒和輔助器
+            boxHelper = new THREE.Box3Helper(box, 0xffff00);
+            axesHelper = new THREE.AxesHelper(200);
+            axesHelper.position.y = box.min.y;
+            axesHelper.visible = false;
+            scene.add(axesHelper);
+
+            gridHelper = new THREE.GridHelper(100, 50);
+            gridHelper.position.y = box.min.y;
+            gridHelper.visible = false;
+            scene.add(gridHelper);
+
+            // 更新包圍盒和輔助器
+            boxHelper.box = box;
+            axesHelper.position.y = box.min.y;
+            gridHelper.position.y = box.min.y;
+            updateHelpers();
+
+            // 更新 Position Control 的值
+            positionControlValues.posX = input_model.position.x;
+            positionControlValues.posY = input_model.position.y;
+            positionControlValues.posZ = input_model.position.z;
+            posXControl.setValue(input_model.position.x);
+            posYControl.setValue(input_model.position.y);
+            posZControl.setValue(input_model.position.z);
+            posXControl.updateDisplay();
+            posYControl.updateDisplay();
+            posZControl.updateDisplay();
+
+            // 更新 Scale Control 的值
+            scaleControl.scaleX = input_model.scale.x;
+            scaleControl.scaleY = input_model.scale.y;
+            scaleControl.scaleZ = input_model.scale.z;
+            scaleControl.uniformScale = input_model.scale.x; // 假設 x, y, z 相等
+            scaleXControl.setValue(input_model.scale.x);
+            scaleYControl.setValue(input_model.scale.y);
+            scaleZControl.setValue(input_model.scale.z);
+            uniformScaleControl.setValue(input_model.scale.x);
+            scaleXControl.updateDisplay();
+            scaleYControl.updateDisplay();
+            scaleZControl.updateDisplay();
+            uniformScaleControl.updateDisplay();
+
+            // 更新 Camera Control 的值
+            camerapositionControl.x = camera.position.x;
+            camerapositionControl.y = camera.position.y;
+            camerapositionControl.z = camera.position.z;
+            camerapositionXControl.setValue(camera.position.x);
+            camerapositionYControl.setValue(camera.position.y);
+            camerapositionZControl.setValue(camera.position.z);
+            camerapositionXControl.updateDisplay();
+            camerapositionYControl.updateDisplay();
+            camerapositionZControl.updateDisplay();
+
+            // 更新 OrbitControls 的目標
+            controls.target.set(
+                input_model.position.x,
+                input_model.position.y,
+                input_model.position.z
+            );
+            controls.update();
+
+            // 開始動畫
+            isAnimating = true;
+            startTime = Date.now();
+            animate();
+        },
+        (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        (error) => {
+            console.error(error);
+        }
+    );
+}
+
+// 更新幫助器位置的函數
+function updateHelpers() {
+    if (input_model) {
+        const box = new THREE.Box3().setFromObject(input_model);
+        const center = box.getCenter(new THREE.Vector3());
+
+        boxHelper.box = box;
+        axesHelper.position.y = box.min.y;
+        gridHelper.position.y = box.min.y;
+
+        gridHelper.position.set(center.x, box.min.y, center.z);
+        axesHelper.position.set(center.x, box.min.y, center.z);
+    }
+}
+
+// 更新包圍盒助手的函數
+const updateBoxHelper = () => {
+    if (input_model) {
+        const box = new THREE.Box3().setFromObject(input_model);
+        boxHelper.box = box;
+    }
+};
+
+// 初始加載第一個預設模型
+loadDefaultModel('model1');
+
+// 為按鈕添加事件監聽器
+document.getElementById('defaultModel1').addEventListener('click', () => {
+    if (currentDefaultModel !== 'model1') {
+        loadDefaultModel('model1');
+    }
+});
+
+document.getElementById('defaultModel2').addEventListener('click', () => {
+    if (currentDefaultModel !== 'model2') {
+        loadDefaultModel('model2');
+    }
+});
+
+document.getElementById('defaultModel3').addEventListener('click', () => {
+    if (currentDefaultModel !== 'model3') {
+        loadDefaultModel('model3');
+    }
+});
 
 let step = 0;
+let needsRender = true;
 
-let needsRender = true; // 標記是否需要渲染
-
-
-
-function animate(){
-
-    
+function animate() {
     requestAnimationFrame(animate);
 
-    // const elapsedTime = Date.now() - startTime; // 計算經過的時間
-
     if (isAnimating) {
-        const elapsedTime = Date.now() - startTime; // 計算經過的時間
-        const progress = Math.min(elapsedTime / duration, 1); // 計算運動比例
-        
-        // 更新模型位置和旋轉
-        input_model.position.y = initialPosition.y + Math.abs(Math.sin(progress * Math.PI * 2)) / 2; // 使模型上下移動
-        input_model.rotation.y = Math.sin(progress * Math.PI * 2) * Math.abs(Math.cos(progress * Math.PI * 2 / 3) / 4); // 使模型旋轉
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
 
-        // 當經過時間達到持續時間時，停止動畫
+        input_model.position.y = initialPosition.y + Math.abs(Math.sin(progress * Math.PI * 2)) / 2;
+        input_model.rotation.y = Math.sin(progress * Math.PI * 2) * Math.abs(Math.cos(progress * Math.PI * 2 / 3) / 4);
+
         if (progress === 1) {
-            isAnimating = false; // 停止動畫
-            input_model.position.copy(initialPosition); // 回到初始位置
+            isAnimating = false;
+            input_model.position.copy(initialPosition);
         }
     }
 
-    // 更新控制器以支持自動旋轉
     if (controls.autoRotate) {
         controls.update();
     }
 
-        controls.update();
-        renderer.render(scene, camera);
-        stats.update();
-        needsRender = false; // 重置標記
-
-    // stats.update();
-    
-    // renderer.render(scene, camera);
-    
-
+    controls.update();
+    renderer.render(scene, camera);
+    stats.update();
+    needsRender = false;
 }
 
-window.addEventListener("resize", function(){
+window.addEventListener("resize", function () {
     camera.aspect = this.window.innerWidth / this.window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(this.window.innerWidth, this.window.innerHeight);
 });
-
-// 當有模型變化或用戶交互時，設置 needsRender = true
-// window.addEventListener('mousemove', () => {
-//     needsRender = true;
-// });
-
-// Start the 3D rendering
-// animate();

@@ -302,7 +302,7 @@ let modelSettings = {
         // position: { x: 0, y: -5, z: -10 }, // 模型 1 的預設位置
         position: { x: 0, y: 1.5, z: 0 }, // 模型 1 的預設位置
         scale: { x: 0.2, y: 0.2, z: 0.3 }, // 模型 1 的預設縮放
-        camera: { x: 0, y: 0, z: 15 }, // 模型 1 的預設相機位置
+        // camera: { x: 0, y: 0, z: 15 }, // 模型 1 的預設相機位置
         // rotation: { x: Math.PI / -3, y: 0, z: 0 } // 模型 1 的預設旋轉
         // rotation: { x: -1, y: 1, z: 0 } 
     },
@@ -310,14 +310,14 @@ let modelSettings = {
         // position: { x: 2, y: -25, z: 2 }, // 模型 2 的預設位置
         position: { x: 0, y: 0, z: 0 }, // 模型 2 的預設位置
         scale: { x: 1.5, y: 1.5, z: 1.5 }, // 模型 2 的預設縮放
-        camera: { x: 2, y: -16.5, z: 17.5 }, // 模型 2 的預設相機位置
+        // camera: { x: 2, y: -16.5, z: 17.5 }, // 模型 2 的預設相機位置
         // rotation: { x: Math.PI / -4, y: Math.PI / 4, z: 0 } // 模型 2 的預設旋轉
     },
     model3: {
         // position: { x: 2, y: -5, z: -2 }, // 模型 3 的預設位置
         position: { x: 0, y: 0, z: 0 }, // 模型 3 的預設位置
-        scale: { x: 8.5, y: 8.5, z: 8.5 }, // 模型 3 的預設縮放
-        camera: { x: -3, y: -4, z: 9 }, // 模型 3 的預設相機位置
+        scale: { x: 15, y: 15, z: 8.5 }, // 模型 3 的預設縮放
+        // camera: { x: -3, y: -4, z: 9 }, // 模型 3 的預設相機位置
         // rotation: { x: Math.PI / -2, y: -Math.PI / 3, z: 0 } // 模型 3 的預設旋轉
     }
 };
@@ -421,26 +421,133 @@ posZControl.onChange((value) => {
         updateHelpers();
     }
 });
+// positionControl.add({
+//     resetPosition: () => {
+//         if (input_model) {
+//             let settings = modelSettings[currentDefaultModel]; // 使用當前模型的預設位置
+//             input_model.position.set(
+//                 settings.position.x,
+//                 settings.position.y,
+//                 settings.position.z
+//             );
+//             positionControlValues.posX = input_model.position.x;
+//             positionControlValues.posY = input_model.position.y;
+//             positionControlValues.posZ = input_model.position.z;
+//             posXControl.updateDisplay();
+//             posYControl.updateDisplay();
+//             posZControl.updateDisplay();
+//             updateBoxHelper();
+//             updateHelpers();
+//         }
+//     }
+// }, 'resetPosition').name('Reset Position');
+// 修改 Position Control 的 resetPosition 函數
 positionControl.add({
     resetPosition: () => {
         if (input_model) {
-            let settings = modelSettings[currentDefaultModel]; // 使用當前模型的預設位置
+            let settings = modelSettings[currentDefaultModel];
             input_model.position.set(
                 settings.position.x,
                 settings.position.y,
                 settings.position.z
             );
+
+            // 重新計算模型的幾何中心
+            const box = new THREE.Box3().setFromObject(input_model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            // 計算相機的 Z 軸位置，確保模型居中
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
+
+            // 設置相機位置
+            camera.position.set(center.x, center.y, center.z + cameraZ);
+
+            // 設置 OrbitControls 的目標為模型中心
+            controls.target.copy(center);
+            controls.update();
+
+            // 更新 GUI 的 Position Control 值
             positionControlValues.posX = input_model.position.x;
             positionControlValues.posY = input_model.position.y;
             positionControlValues.posZ = input_model.position.z;
+            posXControl.setValue(input_model.position.x);
+            posYControl.setValue(input_model.position.y);
+            posZControl.setValue(input_model.position.z);
             posXControl.updateDisplay();
             posYControl.updateDisplay();
             posZControl.updateDisplay();
+
+            // 更新 GUI 的 Camera Control 值
+            camerapositionControl.x = camera.position.x;
+            camerapositionControl.y = camera.position.y;
+            camerapositionControl.z = camera.position.z;
+            camerapositionXControl.setValue(camera.position.x);
+            camerapositionYControl.setValue(camera.position.y);
+            camerapositionZControl.setValue(camera.position.z);
+            camerapositionXControl.updateDisplay();
+            camerapositionYControl.updateDisplay();
+            camerapositionZControl.updateDisplay();
+
             updateBoxHelper();
             updateHelpers();
         }
     }
 }, 'resetPosition').name('Reset Position');
+
+// 添加一個新的按鈕，用於恢復到初始調整後的位置（居中位置）
+positionControl.add({
+    resetToCentered: () => {
+        if (input_model) {
+            // 恢復到初始調整後的位置（居中位置）
+            input_model.position.copy(initialAdjustedPosition);
+
+            // 重新計算模型的幾何中心
+            const box = new THREE.Box3().setFromObject(input_model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            // 計算相機的 Z 軸位置，確保模型居中
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
+
+            // 設置相機位置
+            camera.position.set(center.x, center.y, center.z + cameraZ);
+
+            // 設置 OrbitControls 的目標為模型中心
+            controls.target.copy(center);
+            controls.update();
+
+            // 更新 GUI 的 Position Control 值
+            positionControlValues.posX = input_model.position.x;
+            positionControlValues.posY = input_model.position.y;
+            positionControlValues.posZ = input_model.position.z;
+            posXControl.setValue(input_model.position.x);
+            posYControl.setValue(input_model.position.y);
+            posZControl.setValue(input_model.position.z);
+            posXControl.updateDisplay();
+            posYControl.updateDisplay();
+            posZControl.updateDisplay();
+
+            // 更新 GUI 的 Camera Control 值
+            camerapositionControl.x = camera.position.x;
+            camerapositionControl.y = camera.position.y;
+            camerapositionControl.z = camera.position.z;
+            camerapositionXControl.setValue(camera.position.x);
+            camerapositionYControl.setValue(camera.position.y);
+            camerapositionZControl.setValue(camera.position.z);
+            camerapositionXControl.updateDisplay();
+            camerapositionYControl.updateDisplay();
+            camerapositionZControl.updateDisplay();
+
+            updateBoxHelper();
+            updateHelpers();
+        }
+    }
+}, 'resetToCentered').name('Reset to Centered');
 
 // 頂層 GUI 控件：Scale Control
 scaleControl = {
@@ -630,6 +737,9 @@ Back_Light.add(spotLight2.position, 'z', -5, 5, 1).onChange(() => {
     spotLightHelper2.update();
 });
 
+// 在全局變量中添加一個變量來保存初始調整後的位置
+let initialAdjustedPosition;
+
 // 加載預設模型的函數
 function loadDefaultModel(modelKey) {
     // 移除當前模型（如果存在）
@@ -655,13 +765,13 @@ function loadDefaultModel(modelKey) {
             // input_model = gltf.scene.children[0];
 
             // 應用預設位置
-            input_model.position.set(
-                settings.position.x,
-                settings.position.y,
-                settings.position.z
-            );
-            console.log(camera.position);
-            console.log(input_model.position);
+            // input_model.position.set(
+            //     settings.position.x,
+            //     settings.position.y,
+            //     settings.position.z
+            // );
+            // console.log(camera.position);
+            // console.log(input_model.position);
 
             // 應用預設縮放
             input_model.scale.set(
@@ -678,18 +788,18 @@ function loadDefaultModel(modelKey) {
             // );
 
             // 應用預設相機位置
-            camera.position.set(
-                settings.camera.x,
-                settings.camera.y,
-                settings.camera.z
-            );
+            // camera.position.set(
+            //     settings.camera.x,
+            //     settings.camera.y,
+            //     settings.camera.z
+            // );
 
             // const box = new THREE.Box3().setFromObject(input_model);
             // const offset = 1.00;
 
             scene.add(gltf.scene);
 
-            initialPosition = input_model.position.clone();
+           
 
             // 計算模型的幾何中心
             const box = new THREE.Box3().setFromObject(input_model);
@@ -704,6 +814,11 @@ function loadDefaultModel(modelKey) {
                 -center.z
             );
 
+            // 保存初始調整後的位置（居中位置）
+            initialAdjustedPosition = input_model.position.clone();
+            // initialAdjustedPosition.y -= 1.5;
+            initialPosition = input_model.position.clone();
+
             // 重新計算模型的中心（因為位置已改變）
             const adjustedBox = new THREE.Box3().setFromObject(input_model);
             const adjustedCenter = adjustedBox.getCenter(new THREE.Vector3());
@@ -713,14 +828,13 @@ function loadDefaultModel(modelKey) {
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
 
             // 設置相機位置
-            camera.position.set(adjustedCenter.x, adjustedCenter.y, adjustedCenter.z + cameraZ);
+            camera.position.set(adjustedCenter.x, adjustedCenter.y+5, adjustedCenter.z + cameraZ);
 
             // 設置 OrbitControls 的目標為模型中心
             controls.target.copy(adjustedCenter);
             controls.update();
 
-            // 更新初始位置
-            initialPosition = input_model.position.clone();
+            
 
             console.log(camera.position);
 
@@ -955,10 +1069,10 @@ function loadDefaultModel(modelKey) {
 
             // 更新 Position Control 的值
             positionControlValues.posX = input_model.position.x;
-            positionControlValues.posY = input_model.position.y;
+            positionControlValues.posY = input_model.position.y-1.5;
             positionControlValues.posZ = input_model.position.z;
             posXControl.setValue(input_model.position.x);
-            posYControl.setValue(input_model.position.y);
+            posYControl.setValue(input_model.position.y-1.5);
             posZControl.setValue(input_model.position.z);
             posXControl.updateDisplay();
             posYControl.updateDisplay();
@@ -989,13 +1103,13 @@ function loadDefaultModel(modelKey) {
             camerapositionYControl.updateDisplay();
             camerapositionZControl.updateDisplay();
 
-            // 更新 OrbitControls 的目標
-            controls.target.set(
-                input_model.position.x,
-                input_model.position.y,
-                input_model.position.z
-            );
-            controls.update();
+            // // 更新 OrbitControls 的目標
+            // controls.target.set(
+            //     input_model.position.x,
+            //     input_model.position.y,
+            //     input_model.position.z
+            // );
+            // controls.update();
 
             // 開始動畫
             isAnimating = true;

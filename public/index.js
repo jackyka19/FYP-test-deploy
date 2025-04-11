@@ -763,6 +763,15 @@ let initialAdjustedPosition;
 
 // 加載預設模型的函數
 function loadDefaultModel(modelKey) {
+
+    // 顯示「Loading...」提示
+    const loadingText = document.getElementById('loading-text');
+    const progressBar = document.getElementById('progress-bar');
+    const loadingLabel = document.getElementById('loading-label'); // 獲取 Welcome 標籤
+    loadingText.style.display = 'block'; // 顯示「Loading...」
+    // progressBar.style.display = 'block'; // 顯示進度條（可選）
+    loadingLabel.style.display = 'block'; // 確保 Welcome 標籤初始顯示
+
     // 移除當前模型（如果存在）
     if (currentGltfScene) {
         scene.remove(currentGltfScene);
@@ -811,6 +820,12 @@ function loadDefaultModel(modelKey) {
     loader.load(
         defaultModels[modelKey],
         (gltf) => {
+
+            // 模型加載完成，隱藏「Loading...」提示和進度條
+            loadingText.style.display = 'none';
+            // progressBar.style.display = 'none';
+            // loadingLabel.style.display = 'none'; // 隱藏「Welcome! Import your 3D file here」
+
             currentGltfScene = gltf.scene;
             input_model = gltf.scene;
             // input_model = gltf.scene.children[0];

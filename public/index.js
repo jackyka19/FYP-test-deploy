@@ -48,6 +48,9 @@ window.closeGUI = function () {
     resetGUI();
 };
 
+// 全局變量，用於保存控制器引用
+let showAxesController, showBoxHelperController, showGridController;
+
 // 加入背景顏色 (2D, 3D 背景有用)
 const params = {
     color: '#000000',
@@ -69,6 +72,11 @@ window.resetGUI = function () {
     stats.domElement.style.display = 'none';
     controls.autoRotate = false;
     controls.update();
+
+    // 收起所有 GUI 文件夾
+    // Object.values(gui.__folders).forEach(folder => {
+    //     folder.close();
+    // });
 };
 
 // 頂層 GUI 控件：Show Stats
@@ -379,19 +387,32 @@ shadingFolder.addColor(shadingParams, 'specularColor').name('Specular Color').on
 
 // 頂層 GUI 控件：Axes, Box, Grid Helper
 const BoxHelper = gui.addFolder("Axes, Box, Grid Helper").close();
-BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+showAxesController = BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
     if (axesHelper) axesHelper.visible = value;
 });
-BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange((value) => {
+showBoxHelperController = BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange((value) => {
     if (value && boxHelper) {
         scene.add(boxHelper);
     } else if (boxHelper) {
         scene.remove(boxHelper);
     }
 });
-BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+showGridController = BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
     if (gridHelper) gridHelper.visible = value;
 });
+// BoxHelper.add(params, 'showAxes').name('Show Axes').onChange((value) => {
+//     if (axesHelper) axesHelper.visible = value;
+// });
+// BoxHelper.add(params, 'showBoxHelper').name('Show Box Helper').onChange((value) => {
+//     if (value && boxHelper) {
+//         scene.add(boxHelper);
+//     } else if (boxHelper) {
+//         scene.remove(boxHelper);
+//     }
+// });
+// BoxHelper.add(params, 'showGrid').name('Show Grid').onChange((value) => {
+//     if (gridHelper) gridHelper.visible = value;
+// });
 
 // 頂層 GUI 控件：Position Control
 const positionControlValues = {
@@ -750,6 +771,36 @@ function loadDefaultModel(modelKey) {
     if (input_model) {
         input_model = null;
     }
+
+    // 移除舊的輔助器（如果存在）
+    if (axesHelper) {
+        scene.remove(axesHelper);
+        axesHelper = null;
+    }
+    if (boxHelper) {
+        scene.remove(boxHelper);
+        boxHelper = null;
+    }
+    if (gridHelper) {
+        scene.remove(gridHelper);
+        gridHelper = null;
+    }
+
+    
+    // 重置 GUI 選項
+    params.showAxes = false;
+    params.showBoxHelper = false;
+    params.showGrid = false;
+
+    // 立即更新 GUI 顯示
+    showAxesController.setValue(false);
+    showAxesController.updateDisplay();
+    showBoxHelperController.setValue(false);
+    showBoxHelperController.updateDisplay();
+    showGridController.setValue(false);
+    showGridController.updateDisplay();
+
+
 
     // 更新當前模型標識
     currentDefaultModel = modelKey;

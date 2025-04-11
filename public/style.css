@@ -192,6 +192,19 @@ label{
     height: 8vh; /* 調整高度 */
 }
 
+/* 設置最小字體大小 */
+@media (max-width: 480px) {
+  
+  #loading-label {
+    font-size: 20px; /* 設置最小字體大小為 16px */
+  }
+
+  #myButton {
+    width: 160px;
+    font-size: 16px;
+    height: 6vh; /* 調整高度 */
+}
+}
 
 .modal-content,
   .dmodal-content {
@@ -364,7 +377,7 @@ width: 180px; /* 預設按鈕寬度 */
 @media (max-width: 480px) {
   .modal-content,
   .dmodal-content {
-    transform: translate(-50%, -50%); /* Center vertically with less upward shift */
+    /* transform: translate(-50%, -50%); Center vertically with less upward shift */
     width: 95vw; /* Almost full width on very small screens */
     padding: 10px; /* Further reduce padding */
   }
@@ -436,7 +449,7 @@ width: 180px; /* 預設按鈕寬度 */
     font-size: 12px;
   }
   .nav-links {
-    top: 55px; /* 菜單距離頂部的距離 */
+    top: 75px; /* 菜單距離頂部的距離 */
     left: 10px; /* 菜單距離左側的距離 */
     width: 90px; /* 菜單的寬度 */
   }
@@ -540,6 +553,7 @@ width: 180px; /* 預設按鈕寬度 */
 
   .hamburger {
     display: flex; /* 顯示漢堡菜單 */
+    top: 40px; /* 調整距離頂部的距離 */
   }
 
   .nav-links.show {
@@ -555,9 +569,14 @@ width: 180px; /* 預設按鈕寬度 */
 
 @media (max-width: 768px) {
   .lil-gui {
-    max-width: 200px; 
+    max-width: 230px; 
+    width: 230px;
+    line-height: 8px;
+    font-size: 10px;
      /* 設置最大寬度 */
-  }}
+  }
+
+}
   
 
 
@@ -633,7 +652,7 @@ width: 180px; /* 預設按鈕寬度 */
 /* 響應式設計：小屏幕調整按鈕大小 */
 @media (max-width: 768px) {
   .default-model-buttons {
-      top: 20px;
+      top: 40px;
       left: 100px;
       gap: 10px;
   }

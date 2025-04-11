@@ -682,7 +682,7 @@ width: 180px; /* 預設按鈕寬度 */
 .loading-text::after {
   /* content: "..."; */
   display: inline-block;
-  animation: dots 1.5s infinite;
+  /* animation: dots 0.25s infinite; */
 }
 
 /* @keyframes dots {

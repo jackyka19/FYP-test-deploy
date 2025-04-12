@@ -30,7 +30,8 @@
             "three/examples/jsm/loaders/FBXLoader.js": "./jsm/loaders/FBXLoader.js",
             "three/examples/jsm/loaders/RGBELoader.js": "./jsm/loaders/RGBELoader.js",
             "three/examples/jsm/loaders/STLLoader.js": "./jsm/loaders/STLLoader.js",
-            "three/examples/jsm/libs/stats.module.js": "./jsm/libs/stats.module.js"
+            "three/examples/jsm/libs/stats.module.js": "./jsm/libs/stats.module.js",
+            "three/examples/jsm/loaders/ColladaLoader.js": "./jsm/loaders/ColladaLoader.js"
         }
     }
 </script>
@@ -83,7 +84,7 @@
         <label for="progress-bar" id="loading-label">
             <p>Welcome! Import your 3D file here</p>
             <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button> 
-            <input type="file" id="model-file-input" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;"> 
+            <input type="file" id="model-file-input" accept=".glb, .obj, .fbx, .stl, .dae" style="display: none;"> 
         </label>
 
          
@@ -99,12 +100,12 @@
             <div id="dropArea">
                 <p>Drag and drop a 3D file here to import</p>
                 <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file</button>
-                <input type="file" id="model-file-input-modal" accept=".glb, .bin, .obj, .fbx, .stl" style="display: none;">
+                <input type="file" id="model-file-input-modal" accept=".glb, .obj, .fbx, .stl, .dae" style="display: none;">
                 <!-- <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;"> -->
             
             </div>
             <!-- <p>supports format: glb, gltf, bin, obj, fbx, stl</p> -->
-            <p class="support">supports format: .glb, .bin, .obj (.mtl), .fbx, .stl</p>
+            <p class="support">supports format: .glb, .obj (.mtl), .fbx, .stl, .dae</p>
         </div>
     </div>
     

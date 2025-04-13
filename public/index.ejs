@@ -31,7 +31,8 @@
             "three/examples/jsm/loaders/RGBELoader.js": "./jsm/loaders/RGBELoader.js",
             "three/examples/jsm/loaders/STLLoader.js": "./jsm/loaders/STLLoader.js",
             "three/examples/jsm/libs/stats.module.js": "./jsm/libs/stats.module.js",
-            "three/examples/jsm/loaders/ColladaLoader.js": "./jsm/loaders/ColladaLoader.js"
+            "three/examples/jsm/loaders/ColladaLoader.js": "./jsm/loaders/ColladaLoader.js",
+            "three/examples/jsm/loaders/USDZLoader.js": "./jsm/loaders/USDZLoader.js"
         }
     }
 </script>
@@ -44,9 +45,18 @@
     <div class="navbar-container">
         <!-- 新增按鈕區域 -->
         <div class="default-model-buttons">
-            <button id="defaultModel1" class="default-model-btn">Model 1</button>
-            <button id="defaultModel2" class="default-model-btn">Model 2</button>
-            <button id="defaultModel3" class="default-model-btn">Model 3</button>
+            <div class="button-row">
+            <button id="defaultModel1" class="default-model-btn"><img 
+                src="./model_sample_png/model1(clean).png" 
+                alt="img 1"></button>
+            <button id="defaultModel2" class="default-model-btn"><img 
+                src="./model_sample_png/model2(clean).png" 
+                alt="img 2"></button>
+            <button id="defaultModel3" class="default-model-btn"><img 
+                src="./model_sample_png/model3(clean).png" 
+                alt="img 1"></button>
+        </div>
+            <p class="preview-text">Click the buttons above to preview a sample model</p>
         </div>
         <div class="hamburger" id="hamburger">
             <div class="line"></div>
@@ -83,8 +93,10 @@
 
         <label for="progress-bar" id="loading-label">
             <p>Welcome! Import your 3D file here</p>
-            <button id="myButton" class="btn-animate__underline-from-center">Choose a file</button> 
-            <input type="file" id="model-file-input" accept=".glb, .obj, .fbx, .stl, .dae" style="display: none;"> 
+            <button id="myButton" class="btn-animate__underline-from-center">Choose a file
+                <img src="./upload_png/upload.png" alt="upload_png">
+            </button> 
+            <input type="file" id="model-file-input" accept=".glb, .obj, .fbx, .stl, .dae, .usdz" style="display: none;"> 
         </label>
 
          
@@ -99,13 +111,15 @@
             <h2>Import your 3D file here</h2>
             <div id="dropArea">
                 <p>Drag and drop a 3D file here to import</p>
-                <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file</button>
-                <input type="file" id="model-file-input-modal" accept=".glb, .obj, .fbx, .stl, .dae" style="display: none;">
+                <button id="uploadButton" class="btn-animate__underline-from-center">Choose a file
+                    <img src="./upload_png/upload.png" alt="upload_png">
+                </button>
+                <input type="file" id="model-file-input-modal" accept=".glb, .obj, .fbx, .stl, .dae, .usdz" style="display: none;">
                 <!-- <input type="file" id="model-file-input-modal" accept=".gltf, .glb, .bin, .obj, .fbx, .stl" style="display: none;"> -->
             
             </div>
             <!-- <p>supports format: glb, gltf, bin, obj, fbx, stl</p> -->
-            <p class="support">supports format: .glb, .obj (.mtl), .fbx, .stl, .dae</p>
+            <p class="support">supports format: .glb, .obj (.mtl), .fbx, .stl, .dae, .usdz</p>
         </div>
     </div>
     
@@ -138,7 +152,7 @@
         <hr>
         <br>
         <h3>Importing a 3D Model</h3>
-        <p>To begin, click the blue "Choose a file" button at the bottom of the screen. Select a 3D model file (.glb, .obj, .stl, or .fbx) from your device to upload and display it in the viewer, replacing the default model.</p>
+        <p>To begin, click the blue "Choose a file" button at the bottom of the screen. Select a 3D model file (.glb, .obj (.mtl), .fbx, .stl, .dae, .usdz) from your device to upload and display it in the viewer, replacing the default model.</p>
         <hr>
         <br>
         <h3>Mouse and Touch Interactions</h3>

@@ -109,6 +109,7 @@ canvas {
 }
 
 
+
 .btn-animate__underline-from-center {
     &::before {
       content: "";
@@ -131,6 +132,32 @@ canvas {
         right: 0;
       }
     }
+}
+
+/* 移除重複的 #myButton 樣式，統一使用 .btn-animate__underline-from-center */
+.btn-animate__underline-from-center {
+  border: none;
+  border-radius: 15px;
+  background: #027efb;
+  color: #fff;
+  cursor: pointer;
+  /* font-size: 3.15vw; 設為 #loading-label 字體大小的 70% (4.5vw * 0.7 = 3.15vw) */
+  /* padding: 0.8rem 2rem; 使用 rem 單位，根據字體大小動態調整 */
+  /* transition: background-color 0.3s ease; */
+  /* display: flex; */
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem; /* 文字和圖片之間的間距 */
+  width: auto; /* 根據內容自適應寬度 */
+  /* min-width: 40vw; 最小寬度，防止過窄 */
+  justify-content: center; /* 按鈕內部內容居中 */
+}
+
+/* 按鈕內的圖片樣式 */
+.btn-animate__underline-from-center img {
+  width: 2.5rem; /* 圖片大小與字體大小比例匹配 */
+  height: 2.5rem;
+  vertical-align: middle;
 }
 
 .progress-bar-container {
@@ -172,7 +199,11 @@ label{
     margin-bottom: 1rem; 
 }
 #loading-label{
-  font-size: 4.5vw; /* 使用相對單位 */
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    font-size: 4.5vw; /* 保持不變 */
     color: white;
     margin-bottom: 20px;
 }
@@ -192,19 +223,9 @@ label{
     height: 8vh; /* 調整高度 */
 }
 
-/* 設置最小字體大小 */
-@media (max-width: 480px) {
-  
-  #loading-label {
-    font-size: 20px; /* 設置最小字體大小為 16px */
-  }
 
-  #myButton {
-    width: 160px;
-    font-size: 16px;
-    height: 6vh; /* 調整高度 */
-}
-}
+
+
 
 .modal-content,
   .dmodal-content {
@@ -225,8 +246,34 @@ label{
 
 }
 
+/* 設置最小字體大小 */
+@media (max-width: 480px) {
+  
+  #loading-label {
+    font-size: 20px; /* 設置最小字體大小為 16px */
+  }
 
+  #myButton {
+    width: 160px;
+    font-size: 16px;
+    height: 6vh; /* 調整高度 */
+}
+.support {
+  font-size:12px;
+}
+
+}
 /*  */
+
+/* 設置最小字體大小 */
+@media (max-width: 330px) {
+  
+  #myButton {
+    width: 160px;
+    font-size: 12px;
+    height: 8vh; /* 調整高度 */
+}
+}
 
 .modal {
   display: none; /* Hidden by default */
@@ -368,7 +415,7 @@ width: 180px; /* 預設按鈕寬度 */
   #uploadButton {
     width: 70%; /* 增加按鈕寬度以適應小屏幕 */
     min-width: 125px; /* 設定最小寬度 */
-    height: 5vh; /* 調整高度 */
+    height: 8vh; /* 調整高度 */
     min-height: 25px; /* 設定最小高度 */
     font-size: 0.8rem; /* 預設按鈕字體大小 */
   }
@@ -620,15 +667,13 @@ width: 180px; /* 預設按鈕寬度 */
   text-align: center;
 }
 
-/* 按鈕容器，定位在左上角 */
-.default-model-buttons {
-  position: absolute;
-  top: 15px;
-  left: 120px;
-  display: flex;
-  gap: 25px; /* 按鈕之間的間距 */
-  z-index: 10; /* 確保按鈕在畫布之上 */
-}
+@media (max-width: 330px) {
+  .qr-code {
+    font-size:10px;
+    text-align: center;
+  }
+}  
+
 
 /* 預設模型按鈕樣式 */
 .default-model-btn {
@@ -642,6 +687,9 @@ width: 180px; /* 預設按鈕寬度 */
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 按鈕懸停效果 */
@@ -649,20 +697,7 @@ width: 180px; /* 預設按鈕寬度 */
   background: #005bb5; /* 懸停時變暗 */
 }
 
-/* 響應式設計：小屏幕調整按鈕大小 */
-@media (max-width: 768px) {
-  .default-model-buttons {
-      top: 40px;
-      left: 100px;
-      gap: 10px;
-  }
 
-  .default-model-btn {
-      width: 55px;
-      height: 25px;
-      font-size: 12px;
-  }
-}
 
 /* 樣式「Loading...」提示 */
 .loading-text {
@@ -703,5 +738,136 @@ width: 180px; /* 預設按鈕寬度 */
 @media (max-width: 480px) {
   .loading-text {
       font-size: 20px; /* 與 #loading-label 一致 */
+  }
+}
+
+/* 按鈕容器，定位在左上角 */
+/* .default-model-buttons {
+  position: absolute;
+  top: 15px;
+  left: 120px;
+  display: flex;
+  gap: 25px; 
+  z-index: 10; 
+} */
+
+/* 按鈕容器，定位在左上角 */
+.default-model-buttons {
+  position: absolute;
+  top: 15px;
+  left: 120px;
+  display: flex;
+  flex-direction: column; /* 改為垂直排列，以便文字顯示在按鈕下方 */
+  align-items: flex-start; /* 按鈕和文字左對齊 */
+  gap: 5px; /* 按鈕和文字之間的間距 */
+  z-index: 10;
+}
+
+
+/* Preview a Sample 文字樣式 */
+.preview-text {
+  color: white;
+  font-size: 16px;
+  font-family: 'Helvetica', sans-serif;
+  /* margin-top: 5px; */
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  padding: 5px 10px; /* 內邊距 */
+  border-radius: 5px; /* 圓角 */
+}
+
+/* 按鈕區域內的按鈕容器 */
+.default-model-buttons .button-row {
+  display: flex;
+  flex-direction: row; /* 明確指定按鈕水平排列 */
+  gap: 15px; /* 按鈕之間的間距 */
+}
+
+
+#defaultModel1 img {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle; /* 讓圖片與按鈕文字垂直居中 */
+  margin-right: 5px; /* 圖片與文字之間的間距 */
+  transition: transform 0.3s ease; /* 添加平滑過渡效果 */
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+#defaultModel2 img {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle; /* 讓圖片與按鈕文字垂直居中 */
+  margin-right: 5px; /* 圖片與文字之間的間距 */
+  transition: transform 0.3s ease; /* 添加平滑過渡效果 */
+  object-fit: cover;
+  border-radius: 5px;
+}
+#defaultModel3 img {
+  width: 28px;
+  height: 28px;
+  vertical-align: middle; /* 讓圖片與按鈕文字垂直居中 */
+  margin-right: 5px; /* 圖片與文字之間的間距 */
+  transition: transform 0.3s ease; /* 添加平滑過渡效果 */
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.default-model-buttons {
+  align-items: center; /* 按鈕和文字都居中對齊 */
+}
+
+#defaultModel1:hover img {
+  transform: scale(1.5); /* 放大 1.5 倍 */
+}
+#defaultModel2:hover img {
+  transform: scale(1.5); /* 放大 1.5 倍 */
+}
+#defaultModel3:hover img {
+  transform: scale(1.5); /* 放大 1.5 倍 */
+}
+
+@media (max-width: 768px) {
+  #defaultModel1 img {
+    width: 18px; /* 小屏幕時縮小圖片 */
+    height: 18px;
+  }
+  #defaultModel2 img {
+    width: 18px; /* 小屏幕時縮小圖片 */
+    height: 18px;
+  }
+  #defaultModel3 img {
+    width: 18px; /* 小屏幕時縮小圖片 */
+    height: 18px;
+  }
+  .preview-text {
+    font-size: 12px;
+    /* margin-top: 1px; */
+  }
+}
+/* 響應式設計：小屏幕調整按鈕大小 */
+@media (max-width: 768px) {
+  .default-model-buttons {
+      top: 40px;
+      left: 100px;
+      gap: 1px;
+  }
+
+  .default-model-btn {
+      width: 55px;
+      height: 25px;
+      font-size: 12px;
+  }
+}
+
+@media (max-width: 392px) {
+  .preview-text {
+    font-size: 9px;
+    /* margin-top: 1px; */
+  }
+}
+@media (max-width: 330px) {
+  .preview-text {
+    font-size: 8px;
+    /* margin-top: 1px; */
   }
 }

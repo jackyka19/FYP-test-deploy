@@ -715,17 +715,17 @@ width: 180px; /* 預設按鈕寬度 */
 
 /* 添加點點動畫效果 */
 .loading-text::after {
-  /* content: "..."; */
+  content: "...";
   display: inline-block;
-  /* animation: dots 0.25s infinite; */
+  animation: dots 0.25s infinite;
 }
 
-/* @keyframes dots {
+@keyframes dots {
   0%, 20% { content: "."; }
   40% { content: ".."; }
   60% { content: "..."; }
   80%, 100% { content: ""; }
-} */
+}
 
 /* 響應式設計，與 #loading-label 和 #myButton 保持一致 */
 @media (max-width: 768px) {
